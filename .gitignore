@@ -1,0 +1,7 @@
+.*
+!.gitignore
+DerivedDataCache/
+Intermediate/
+Saved/
+*.sln
+Binaries/
