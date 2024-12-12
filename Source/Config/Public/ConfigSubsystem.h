@@ -11,9 +11,9 @@
 
 class UAYRUserWidget;
 
-// Data Table¡¢Data AssetµÈ×Ê²úĞèÒªÓÃµ½µÄ½á¹¹Ìå¡£
+// Data Tableã€Data Assetç­‰èµ„äº§éœ€è¦ç”¨åˆ°çš„ç»“æ„ä½“ã€‚
 
-// Êı¾İ±í±íĞĞ½á¹¹»ùÀà¡£
+// æ•°æ®è¡¨è¡¨è¡Œç»“æ„åŸºç±»ã€‚
 USTRUCT()
 struct FAYRTableRowBase : public FTableRowBase
 {
@@ -25,7 +25,7 @@ struct FAYRTableRowBase : public FTableRowBase
 #endif
 };
 
-// ÊäÈëÓ³ÉäÉÏÏÂÎÄ±íĞĞ½á¹¹¡£
+// è¾“å…¥æ˜ å°„ä¸Šä¸‹æ–‡è¡¨è¡Œç»“æ„ã€‚
 USTRUCT(BlueprintType)
 struct FPlayerInputMappingTableRow : public FAYRTableRowBase
 {
@@ -39,7 +39,7 @@ struct FPlayerInputMappingTableRow : public FAYRTableRowBase
 
 };
 
-// Íæ¼Ò¿ØÖÆÆ÷ĞÅÏ¢¡£
+// ç©å®¶æ§åˆ¶å™¨ä¿¡æ¯ã€‚
 USTRUCT(BlueprintType)
 struct FPlayerControllerInfoTableRow : public FAYRTableRowBase
 {
@@ -52,7 +52,7 @@ struct FPlayerControllerInfoTableRow : public FAYRTableRowBase
 	FName PlayerUIInputMappingID;
 };
 
-// UI½çÃæ°´¼ü½á¹¹Ìå¡£
+// UIç•Œé¢æŒ‰é”®ç»“æ„ä½“ã€‚
 USTRUCT(BlueprintType)
 struct FUIInputMapping
 {
@@ -65,7 +65,7 @@ struct FUIInputMapping
 	TArray<FInputActionKeyMapping> InputActions;
 };
 
-// UI½çÃæ°ó¶¨µÄ°´¼üĞÅÏ¢¡£
+// UIç•Œé¢ç»‘å®šçš„æŒ‰é”®ä¿¡æ¯ã€‚
 USTRUCT(BlueprintType)
 struct FPlayerUIInputMappingTableRow : public FAYRTableRowBase
 {
@@ -84,7 +84,9 @@ class CONFIG_API UConfigSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 	
 private:
-	TMap<const FName, TMap<FName, uint8*>> LoadedDataTables;
+	// å­˜å‚¨é¡¹ç›®ä¸­çš„æ•°æ®è¡¨ã€‚
+	UPROPERTY()
+	TMap<FName, UDataTable*> LoadedDataTables;
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -94,14 +96,11 @@ public:
 	{
 		if (this->LoadedDataTables.Contains(TableRowType::StaticStruct()->GetFName()))
 		{
-			TMap<FName, uint8*>* Temp = this->LoadedDataTables.Find(TableRowType::StaticStruct()->GetFName());
-			if (Temp->Contains(InRowName))
+			UDataTable** LoadedDataTable = this->LoadedDataTables.Find(TableRowType::StaticStruct()->GetFName());
+			if (ensureAlways(LoadedDataTable && *LoadedDataTable))
 			{
-				if (uint8** RowStruct = Temp->Find(InRowName))
-				{
-					ensureAlways(OutTableRow = (TableRowType*)*RowStruct);
-					return true;
-				}
+				ensureAlways(OutTableRow = (*LoadedDataTable)->FindRow<TableRowType>(InRowName, TableRowType::StaticStruct()->GetFName().ToString()));
+				return true;
 			}
 		}
 		return false;

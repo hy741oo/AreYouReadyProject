@@ -21,9 +21,8 @@ void UConfigSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		for (const FAssetData& SearchedAsset : SearchedAssets)
 		{
 			UDataTable* DT = CastChecked<UDataTable>(SearchedAsset.GetAsset());
-			DT->AddToRoot();
-			TMap<FName, uint8*>& DataTableRows = this->LoadedDataTables.Add(DT->GetRowStruct()->GetFName());
-			DataTableRows = DT->GetRowMap();
+			UDataTable*& DataTable = this->LoadedDataTables.Add(DT->GetRowStruct()->GetFName());
+			DataTable = DT;
 		}
 	}
 }
