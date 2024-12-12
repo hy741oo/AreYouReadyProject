@@ -18,13 +18,13 @@ void AMainMenuPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// °ó¶¨ÓÎÏ·ÄÚÊäÈë¡£
+	// ç»‘å®šæ¸¸æˆå†…è¾“å…¥ã€‚
 	if (UEnhancedInputComponent* EIC = CastChecked<UEnhancedInputComponent>(this->InputComponent))
 	{
 
 	}
 
-	// °ó¶¨UIÊäÈë¡£
+	// ç»‘å®šUIè¾“å…¥ã€‚
 	UInputSettings* IS = UInputSettings::GetInputSettings();
 	UConfigSubsystem* ConfigSubsystem = this->GetGameInstance()->GetSubsystem<UConfigSubsystem>();
 	if (ensure(IS && ConfigSubsystem))

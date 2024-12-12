@@ -13,7 +13,7 @@ void AAYRPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ´ÓÊý¾Ý±íÀï»ñÈ¡¿ØÖÆÆ÷ÐÅÏ¢¡£
+	// ä»Žæ•°æ®è¡¨é‡ŒèŽ·å–æŽ§åˆ¶å™¨ä¿¡æ¯ã€‚
 	UConfigSubsystem * ConfigSubsystem = this->GetGameInstance()->GetSubsystem<UConfigSubsystem>();
 	check(ConfigSubsystem);
 	FPlayerControllerInfoTableRow* PlayerControllerInfo = nullptr;

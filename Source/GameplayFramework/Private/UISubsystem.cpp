@@ -20,7 +20,7 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 		{
 			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(ConfigSubsystem, 0);
 
-			// Éú³ÉUI¡£
+			// ç”ŸæˆUIã€‚
 			CreatedWidget = CreateWidget<UAYRUserWidget>(PlayerController, UIInfoTableRow->UIClass, UIInfoTableRow->UIName);
 			if (ensureAlways(CreatedWidget))
 			{
@@ -29,12 +29,12 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 				UIStackInfo.UserWidget = CreatedWidget;
 				UIStackInfo.UIStateInfo = UIInfoTableRow->UIStateInfo;
 
-				// Ñ¹Õ»¡£
+				// å‹æ ˆã€‚
 				int32 StackIndex = this->UIStack.Add(UIStackInfo);
 				CreatedWidget->StackIndex = StackIndex;
 				if (StackIndex > 0)
 				{
-					// Èç¹ûÕ»²»Îª¿Õ£¬ÔòĞèÒªÎªÖ®Ç°µÄÕ»¶¥ÔªËØÖ´ĞĞÍÑÕ»²Ù×÷¡£
+					// å¦‚æœæ ˆä¸ä¸ºç©ºï¼Œåˆ™éœ€è¦ä¸ºä¹‹å‰çš„æ ˆé¡¶å…ƒç´ æ‰§è¡Œè„±æ ˆæ“ä½œã€‚
 					FUIStackInfo& StackTop = this->UIStack[StackIndex - 1];
 					if (StackTop.UserWidget)
 					{
@@ -55,7 +55,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 
 	if (InSpecifiedUI)
 	{
-		// ½«Ö¸¶¨UIÒ»Ö±µ½Õ»¶¥µÄÈ«²¿UIµ¯³ö¡£
+		// å°†æŒ‡å®šUIä¸€ç›´åˆ°æ ˆé¡¶çš„å…¨éƒ¨UIå¼¹å‡ºã€‚
 		FUIStackInfo OldStackTop;
 		int32 CurrentStackIndex = -1;
 		do 
@@ -67,7 +67,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 		} 
 		while (InSpecifiedUI->StackIndex < CurrentStackIndex);
 
-		// »ñÈ¡µ±Ç°Õ»¶¥UI²¢Ö´ĞĞ½øÈë×´Ì¬²Ù×÷¡£
+		// è·å–å½“å‰æ ˆé¡¶UIå¹¶æ‰§è¡Œè¿›å…¥çŠ¶æ€æ“ä½œã€‚
 		if (this->UIStack.IsValidIndex(this->UIStack.Num() - 1))
 		{
 			FUIStackInfo& CurrentStackTop = this->UIStack[this->UIStack.Num() - 1];
@@ -76,7 +76,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 	}
 	else 
 	{
-		// Èç¹ûÎ´Ö¸¶¨ÒªÒÆ³ıµÄUI£¬Ôò´ÓÕ»¶¥¿ªÊ¼ÒÆ³ı¡£
+		// å¦‚æœæœªæŒ‡å®šè¦ç§»é™¤çš„UIï¼Œåˆ™ä»æ ˆé¡¶å¼€å§‹ç§»é™¤ã€‚
 		if (this->UIStack.IsValidIndex(0))
 		{
 			FUIStackInfo OldStackTop = this->UIStack.Pop();
@@ -99,7 +99,7 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 	FUIStateInfoTableRow UIStateInfo = InUIStackInfo->UIStateInfo;
 	UAYRUserWidget* UI = InUIStackInfo->UserWidget;
 
-	// ÉèÖÃÊäÈëÄ£Ê½¡£
+	// è®¾ç½®è¾“å…¥æ¨¡å¼ã€‚
 	switch (InUIStackInfo->UIStateInfo.InputMode)
 	{
 	case EUIInputMode::IM_GameAndUI:
@@ -115,10 +115,10 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 		ensureAlways(false);
 	}
 
-	// ÉèÖÃÊäÈëÓÅÏÈ¼¶¡£
+	// è®¾ç½®è¾“å…¥ä¼˜å…ˆçº§ã€‚
 	UI->SetInputPriority(UIStateInfo.Priority);
 
-	// ÉèÖÃÊÇ·ñ×èµ²Action¡£
+	// è®¾ç½®æ˜¯å¦é˜»æŒ¡Actionã€‚
 	UI->SetIsStopAction(UIStateInfo.bStopAction);
 }
 

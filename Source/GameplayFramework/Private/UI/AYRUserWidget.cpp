@@ -13,17 +13,17 @@ void UAYRUserWidget::NativeConstruct()
 
 void UAYRUserWidget::OnEnterThisWidget(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo)
 {
-	// Ó¦ÓÃUI×´Ì¬ÐÅÏ¢¡£
+	// åº”ç”¨UIçŠ¶æ€ä¿¡æ¯ã€‚
 	this->UISubsystem->ApplyUIInfo(InPlayerController, InUIStackInfo);
 
-	// µ÷ÓÃÀ¶Í¼°æ±¾¡£
+	// è°ƒç”¨è“å›¾ç‰ˆæœ¬ã€‚
 	this->BP_OnEnterThisWidget(InPlayerController, InUIStackInfo ? *InUIStackInfo : FUIStackInfo());
 }
 
 void UAYRUserWidget::OnLeaveThisWidget(ELeaveReason::Type InLeaveReason)
 {
 
-	// µ÷ÓÃÀ¶Í¼°æ±¾¡£
+	// è°ƒç”¨è“å›¾ç‰ˆæœ¬ã€‚
 	this->BP_OnLeaveThisWidget(InLeaveReason);
 }
 

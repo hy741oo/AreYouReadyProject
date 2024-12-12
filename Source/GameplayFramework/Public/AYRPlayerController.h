@@ -17,11 +17,11 @@ class GAMEPLAYFRAMEWORK_API AAYRPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 private:
-	// ¿ØÖÆÆ÷ĞèÒªÓÃµ½µÄ½á¹¹Ìå¡£
+	// æ§åˆ¶å™¨éœ€è¦ç”¨åˆ°çš„ç»“æ„ä½“ã€‚
 	FPlayerControllerInfoTableRow* PlayerControllerInfoTableRow;
 
 public:
-	// Íæ¼Ò¿ØÖÆÆ÷Î¨Ò»ID¡£
+	// ç©å®¶æ§åˆ¶å™¨å”¯ä¸€IDã€‚
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FName ID;
 

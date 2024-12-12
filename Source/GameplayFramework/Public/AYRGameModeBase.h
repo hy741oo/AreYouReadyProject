@@ -19,6 +19,6 @@ public:
 	FName PlayerControllerID;
 	
 public:
-	// ³õÊ¼»¯ÏîÄ¿µÄController¡£
+	// åˆå§‹åŒ–é¡¹ç›®çš„Controllerã€‚
 	virtual APlayerController* SpawnPlayerControllerCommon(ENetRole InRemoteRole, FVector const& SpawnLocation, FRotator const& SpawnRotation, TSubclassOf<APlayerController> InPlayerControllerClass) override;
 };

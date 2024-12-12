@@ -8,7 +8,7 @@
 
 #include "AYRUserWidget.generated.h"
 
-// UI±»Ñ¹Õ»Ê±µÄÔ­Òò¡£
+// UIè¢«å‹æ ˆæ—¶çš„åŸå› ã€‚
 UENUM(BlueprintType)
 namespace ELeaveReason
 {
@@ -29,26 +29,26 @@ class GAMEPLAYFRAMEWORK_API UAYRUserWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-	// UI×ÓÏµÍ³¡£
+	// UIå­ç³»ç»Ÿã€‚
 	UUISubsystem* UISubsystem = nullptr;
 
 protected:
 	virtual void NativeConstruct() override;
 
 public:
-	// µ±Ç°UIÔÚUIÕ»ÖĞµÄÏÂ±ê¡£
+	// å½“å‰UIåœ¨UIæ ˆä¸­çš„ä¸‹æ ‡ã€‚
 	int32 StackIndex = -1;
 	
 public:
-	// µ±¸ÃWidget³ÉÎªWidgetÕ»Õ»¶¥ÔªËØ£¨ĞÂÌí¼Ó»ò¸ÃWidgetÒÔÉÏµÄWidget±»ÒÆ³ı£©Ê±µ÷ÓÃ¡£
+	// å½“è¯¥Widgetæˆä¸ºWidgetæ ˆæ ˆé¡¶å…ƒç´ ï¼ˆæ–°æ·»åŠ æˆ–è¯¥Widgetä»¥ä¸Šçš„Widgetè¢«ç§»é™¤ï¼‰æ—¶è°ƒç”¨ã€‚
 	virtual void OnEnterThisWidget(APlayerController* PlayerController, const FUIStackInfo* UIStackInfo);
-	// À¶Í¼°æ±¾¡£
+	// è“å›¾ç‰ˆæœ¬ã€‚
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnEnterThisWidget(APlayerController* PlayerController, const FUIStackInfo UIStackInfo);
 
-	// µ±¸ÃWidget²»ÔÙ³ÉÎªWidgetÕ»Õ»¶¥ÔªËØÊ±µ÷ÓÃ¡£
+	// å½“è¯¥Widgetä¸å†æˆä¸ºWidgetæ ˆæ ˆé¡¶å…ƒç´ æ—¶è°ƒç”¨ã€‚
 	virtual void OnLeaveThisWidget(ELeaveReason::Type LeaveReason);
-	// À¶Í¼°æ±¾¡£
+	// è“å›¾ç‰ˆæœ¬ã€‚
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnLeaveThisWidget(ELeaveReason::Type LeaveReason);
 
