@@ -10,6 +10,6 @@ public class AreYouReadyTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
-		ExtraModuleNames.AddRange( new string[] { "AreYouReady" } );
+		ExtraModuleNames.AddRange( new string[] { "AreYouReady", "GameplayFramework", "Config" } );
 	}
 }

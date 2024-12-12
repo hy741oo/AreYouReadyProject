@@ -1,7 +1,13 @@
 .*
 !.gitignore
-DerivedDataCache/
-Intermediate/
-Saved/
+!.gitmodules
+/DerivedDataCache/
+/Intermediate/
+/Saved/
 *.sln
-Binaries/
+/Binaries/
+/Content/AYR/Test/
+*_BuiltData.uasset
+/Build/
+/Packaged/
+/Content/Movies/*

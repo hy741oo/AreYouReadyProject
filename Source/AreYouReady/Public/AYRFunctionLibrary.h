@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "ConfigSubsystem.h"
 #include "AYRFunctionLibrary.generated.h"
 
 /**
@@ -13,5 +14,5 @@ UCLASS()
 class AREYOUREADY_API UAYRFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
-	
+
 };
