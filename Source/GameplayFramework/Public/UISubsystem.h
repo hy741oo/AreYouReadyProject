@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "ConfigSubsystem.h"
 
 #include "UISubsystem.generated.h"
@@ -79,7 +79,7 @@ struct FUIInfoTableRow : public FAYRTableRowBase
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UUISubsystem : public UGameInstanceSubsystem
+class GAMEPLAYFRAMEWORK_API UUISubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 

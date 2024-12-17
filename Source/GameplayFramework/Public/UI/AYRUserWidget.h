@@ -10,12 +10,12 @@
 
 // UI被压栈时的原因。
 UENUM(BlueprintType)
-namespace ELeaveReason
+namespace EUIStateChangedReason
 {
 	enum Type
 	{
-		LR_NewWidgetEntered UMETA(DisplayName = NewWidgetEntered),
-		LR_BePopped UMETA(DisplayName = BePoped)
+		NewWidgetEntered UMETA(DisplayName = NewWidgetEntered),
+		BePopped UMETA(DisplayName = BePoped)
 	};
 }
 
@@ -41,16 +41,16 @@ public:
 	
 public:
 	// 当该Widget成为Widget栈栈顶元素（新添加或该Widget以上的Widget被移除）时调用。
-	virtual void OnEnterThisWidget(APlayerController* PlayerController, const FUIStackInfo* UIStackInfo);
+	virtual void OnEnterThisWidget(APlayerController* PlayerController, const FUIStackInfo* UIStackInfo, EUIStateChangedReason::Type Reason);
 	// 蓝图版本。
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnEnterThisWidget(APlayerController* PlayerController, const FUIStackInfo UIStackInfo);
+	void BP_OnEnterThisWidget(APlayerController* PlayerController, const FUIStackInfo UIStackInfo, EUIStateChangedReason::Type Reason);
 
 	// 当该Widget不再成为Widget栈栈顶元素时调用。
-	virtual void OnLeaveThisWidget(ELeaveReason::Type LeaveReason);
+	virtual void OnLeaveThisWidget(EUIStateChangedReason::Type Reason);
 	// 蓝图版本。
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnLeaveThisWidget(ELeaveReason::Type LeaveReason);
+	void BP_OnLeaveThisWidget(EUIStateChangedReason::Type Reason);
 
 	virtual void SetInputPriority(int32 Priority = 0);
 

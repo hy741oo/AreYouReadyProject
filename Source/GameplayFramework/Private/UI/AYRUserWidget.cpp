@@ -7,24 +7,23 @@ void UAYRUserWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	verify(this->UISubsystem = this->GetGameInstance()->GetSubsystem<UUISubsystem>());
+	verify(this->UISubsystem = this->GetWorld()->GetSubsystem<UUISubsystem>());
 
 }
 
-void UAYRUserWidget::OnEnterThisWidget(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo)
+void UAYRUserWidget::OnEnterThisWidget(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo, EUIStateChangedReason::Type InReason)
 {
 	// 应用UI状态信息。
 	this->UISubsystem->ApplyUIInfo(InPlayerController, InUIStackInfo);
 
 	// 调用蓝图版本。
-	this->BP_OnEnterThisWidget(InPlayerController, InUIStackInfo ? *InUIStackInfo : FUIStackInfo());
+	this->BP_OnEnterThisWidget(InPlayerController, InUIStackInfo ? *InUIStackInfo : FUIStackInfo(), InReason);
 }
 
-void UAYRUserWidget::OnLeaveThisWidget(ELeaveReason::Type InLeaveReason)
+void UAYRUserWidget::OnLeaveThisWidget(EUIStateChangedReason::Type InReason)
 {
-
 	// 调用蓝图版本。
-	this->BP_OnLeaveThisWidget(InLeaveReason);
+	this->BP_OnLeaveThisWidget(InReason);
 }
 
 void UAYRUserWidget::SetInputPriority(int32 InPriority)

@@ -7,12 +7,13 @@
 #include "UI/AYRUserWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/GameInstanceSubsystem.h"
 
 UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 {
 	UAYRUserWidget* CreatedWidget = nullptr;
 
-	UConfigSubsystem* ConfigSubsystem = this->GetGameInstance()->GetSubsystem<UConfigSubsystem>();
+	UConfigSubsystem* ConfigSubsystem = this->GetWorld()->GetGameInstance()->GetSubsystem<UConfigSubsystem>();
 	if (ensure(ConfigSubsystem))
 	{
 		FUIInfoTableRow* UIInfoTableRow = nullptr;
@@ -38,10 +39,10 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 					FUIStackInfo& StackTop = this->UIStack[StackIndex - 1];
 					if (StackTop.UserWidget)
 					{
-						StackTop.UserWidget->OnLeaveThisWidget(ELeaveReason::LR_NewWidgetEntered);
+						StackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::NewWidgetEntered);
 					}
 				}
-				CreatedWidget->OnEnterThisWidget(PlayerController, &UIStackInfo);
+				CreatedWidget->OnEnterThisWidget(PlayerController, &UIStackInfo, EUIStateChangedReason::NewWidgetEntered);
 			}
 		}
 	}
@@ -62,7 +63,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 		{
 			OldStackTop = this->UIStack.Pop();
 			CurrentStackIndex = OldStackTop.UserWidget->StackIndex;
-			OldStackTop.UserWidget->OnLeaveThisWidget(ELeaveReason::LR_BePopped);
+			OldStackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::BePopped);
 			OldStackTop.UserWidget->RemoveFromParent();
 		} 
 		while (InSpecifiedUI->StackIndex < CurrentStackIndex);
@@ -71,7 +72,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 		if (this->UIStack.IsValidIndex(this->UIStack.Num() - 1))
 		{
 			FUIStackInfo& CurrentStackTop = this->UIStack[this->UIStack.Num() - 1];
-			CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop);
+			CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::NewWidgetEntered);
 		}
 	}
 	else 
@@ -80,13 +81,13 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 		if (this->UIStack.IsValidIndex(0))
 		{
 			FUIStackInfo OldStackTop = this->UIStack.Pop();
-			OldStackTop.UserWidget->OnLeaveThisWidget(ELeaveReason::LR_BePopped);
+			OldStackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::BePopped);
 			OldStackTop.UserWidget->RemoveFromParent();
 
 			if (this->UIStack.IsValidIndex(this->UIStack.Num() - 1))
 			{
 				FUIStackInfo& CurrentStackTop = this->UIStack[this->UIStack.Num() - 1];
-				CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop);
+				CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::BePopped);
 			}
 		}
 	}
