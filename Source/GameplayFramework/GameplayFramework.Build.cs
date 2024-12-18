@@ -15,7 +15,8 @@ public class GameplayFramework : ModuleRules
 				"EnhancedInput",
 				"Config",
 				"InputCore",
-				"UMG"
+				"UMG",
+				"MoviePlayer"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
