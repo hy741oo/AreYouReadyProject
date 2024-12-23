@@ -17,7 +17,7 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 	if (ensure(ConfigSubsystem))
 	{
 		FUIInfoTableRow* UIInfoTableRow = nullptr;
-		if (ensureAlways(ConfigSubsystem->GetDataTableRowFromID<FUIInfoTableRow>(InUIID, UIInfoTableRow)))
+		if (ensureAlwaysMsgf(ConfigSubsystem->GetDataTableRowFromID<FUIInfoTableRow>(InUIID, UIInfoTableRow), TEXT("Can't find UIID: %s"), *InUIID.ToString()))
 		{
 			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(ConfigSubsystem, 0);
 

@@ -99,8 +99,11 @@ public:
 			UDataTable** LoadedDataTable = this->LoadedDataTables.Find(TableRowType::StaticStruct()->GetFName());
 			if (ensureAlways(LoadedDataTable && *LoadedDataTable))
 			{
-				ensureAlways(OutTableRow = (*LoadedDataTable)->FindRow<TableRowType>(InRowName, TableRowType::StaticStruct()->GetFName().ToString()));
-				return true;
+				OutTableRow = (*LoadedDataTable)->FindRow<TableRowType>(InRowName, TableRowType::StaticStruct()->GetFName().ToString());
+				if (OutTableRow)
+				{
+					return true;
+				}
 			}
 		}
 		return false;

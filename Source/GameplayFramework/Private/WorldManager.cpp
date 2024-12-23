@@ -14,21 +14,37 @@ void UWorldManager::Initialize(FSubsystemCollectionBase& Collection)
 
 void UWorldManager::OnPreLoadMap(const FString& InMapName)
 {
-	FLoadingScreenAttributes LoadingScreenAttributes;
-	LoadingScreenAttributes.bAutoCompleteWhenLoadingCompletes = false;
-	LoadingScreenAttributes.bWaitForManualStop = true;
-	LoadingScreenAttributes.MinimumLoadingScreenDisplayTime = 10.f;
-	UClass* LoadingScreenWidget = LoadClass<UUserWidget>(this, TEXT("/Game/AYR/Blueprints/UIs/LoadingScreen/WBP_LoadingScreen.WBP_LoadingScreen_C"));
-	UUserWidget* UI = CreateWidget<UUserWidget>(GetWorld(), LoadingScreenWidget);
+	if (this->CanPlayLoadingScreen())
 	{
-		LoadingScreenAttributes.WidgetLoadingScreen = UI->TakeWidget();
-	}
 
-	GetMoviePlayer()->SetupLoadingScreen(LoadingScreenAttributes);
+		FLoadingScreenAttributes LoadingScreenAttributes;
+		LoadingScreenAttributes.bAutoCompleteWhenLoadingCompletes = true;
+		LoadingScreenAttributes.bMoviesAreSkippable = true;
+		LoadingScreenAttributes.PlaybackType = EMoviePlaybackType::MT_LoadingLoop;
+		LoadingScreenAttributes.MinimumLoadingScreenDisplayTime = 5.f;
+		UClass* LoadingScreenWidget = LoadClass<UUserWidget>(this, TEXT("/Game/AYR/Blueprints/UIs/LoadingScreen/WBP_LoadingScreen.WBP_LoadingScreen_C"));
+		if (UUserWidget* UI = CreateWidget<UUserWidget>(GetWorld(), LoadingScreenWidget))
+		{
+			LoadingScreenAttributes.WidgetLoadingScreen = UI->TakeWidget();
+		}
+
+		GetMoviePlayer()->SetupLoadingScreen(LoadingScreenAttributes);
+	}
 }
 
 void UWorldManager::OnPostLoadMapWithWorld(UWorld* InLoadedWorld)
 {
 
+}
+
+bool UWorldManager::CanPlayLoadingScreen()
+{
+	if (this->bIsFirst)
+	{
+		this->bIsFirst = false;
+		return false;
+	}
+
+	return true;
 }
 
