@@ -4,28 +4,32 @@
 #include "ConfigSubsystem.h"
 
 #include "AssetRegistry/IAssetRegistry.h"
-
+#include "AssetRegistry/AssetRegistryModule.h"
 
 void UConfigSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-	if (IAssetRegistry* AR = IAssetRegistry::Get())
-	{
-		FARFilter Filter;
-		Filter.ClassNames.Add(UDataTable::StaticClass()->GetFName());
-		Filter.PackagePaths.Add("/Game/AYR/Configs/");
-		Filter.bRecursiveClasses = true;
-		Filter.bRecursivePaths = true;
-		TArray<FAssetData> SearchedAssets;
-		AR->GetAssets(Filter, SearchedAssets);
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	IAssetRegistry& AR = AssetRegistryModule.Get();
+	FARFilter Filter;
+	Filter.ClassNames.Add(UDataTable::StaticClass()->GetFName());
+	Filter.PackagePaths.Add("/Game/AYR/Configs/");
+	Filter.bRecursiveClasses = true;
+	Filter.bRecursivePaths = true;
+	TArray<FAssetData> SearchedAssets;
+	AR.GetAssets(Filter, SearchedAssets);
 
-		for (const FAssetData& SearchedAsset : SearchedAssets)
+	for (const FAssetData& SearchedAsset : SearchedAssets)
+	{
+		if (SearchedAsset.IsValid())
 		{
-			if (SearchedAsset.IsValid())
-			{
-				UDataTable* DT = LoadObject<UDataTable>(this, *SearchedAsset.ObjectPath.ToString());
-				UDataTable*& DataTable = this->LoadedDataTables.Add(DT->GetRowStruct()->GetFName());
-				DataTable = DT;
-			}
+			UDataTable* DT = CastChecked<UDataTable>(SearchedAsset.GetAsset());
+			UDataTable*& DataTable = this->LoadedDataTables.Add(DT->GetRowStruct()->GetFName());
+			DataTable = DT;
+			UE_LOG(LogConfigSubsystem, Display, TEXT("Load DataTable: %s"), *(DataTable->GetFName().ToString()));
+		}
+		else
+		{
+			UE_LOG(LogConfigSubsystem, Warning, TEXT("Asset is invalid, asset path: %s"), *SearchedAsset.ObjectPath.ToString());
 		}
 	}
 }

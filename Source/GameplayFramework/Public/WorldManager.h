@@ -8,6 +8,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogWorldManager, Log, All);
 
+class ULoadingScreenWidget;
+
 /**
  * 
  */
@@ -19,6 +21,9 @@ class GAMEPLAYFRAMEWORK_API UWorldManager : public UGameInstanceSubsystem
 private:
 	// 判断是否为开屏加载，如果是的话则不执行过场加载操作，防止过场加载的LoadingScreenAttributes覆盖了开屏加载设置。
 	bool bIsFirst = true;
+
+	// 当前加载界面。
+	ULoadingScreenWidget* LoadingScreenWidget = nullptr;
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

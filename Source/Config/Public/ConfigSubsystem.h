@@ -11,6 +11,8 @@
 
 class UAYRUserWidget;
 
+DECLARE_LOG_CATEGORY_CLASS(LogConfigSubsystem, Log, All);
+
 // Data Table、Data Asset等资产需要用到的结构体。
 
 // 数据表表行结构基类。
@@ -94,7 +96,7 @@ public:
 	template<typename TableRowType>
 	bool GetDataTableRowFromID(const FName& InRowName, TableRowType*& OutTableRow)
 	{
-		if (this->LoadedDataTables.Contains(TableRowType::StaticStruct()->GetFName()))
+		if (ensureAlways(this->LoadedDataTables.Contains(TableRowType::StaticStruct()->GetFName())))
 		{
 			UDataTable** LoadedDataTable = this->LoadedDataTables.Find(TableRowType::StaticStruct()->GetFName());
 			if (ensureAlways(LoadedDataTable && *LoadedDataTable))
@@ -102,9 +104,22 @@ public:
 				OutTableRow = (*LoadedDataTable)->FindRow<TableRowType>(InRowName, TableRowType::StaticStruct()->GetFName().ToString());
 				if (OutTableRow)
 				{
+					UE_LOG(LogConfigSubsystem, Log, TEXT("Find row %s in %s"), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
 					return true;
 				}
+				else
+				{
+					UE_LOG(LogConfigSubsystem, Warning, TEXT("Can't find row %s in %s"), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
+				}
 			}
+			else
+			{
+				UE_LOG(LogConfigSubsystem, Warning, TEXT("Can't find TableRow Struct: %s"), *(TableRowType::StaticStruct()->GetFName().ToString()));
+			}
+		}
+		else
+		{
+			UE_LOG(LogConfigSubsystem, Warning, TEXT("LoadedDataTables does not contain TableRow struct: %s"), *(TableRowType::StaticStruct()->GetFName().ToString()));
 		}
 		return false;
 	}
