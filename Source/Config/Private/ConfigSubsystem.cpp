@@ -11,26 +11,40 @@ void UConfigSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	IAssetRegistry& AR = AssetRegistryModule.Get();
 	FARFilter Filter;
+	FName SearchingPath = TEXT("/Game/AYR/Configs/");
 	Filter.ClassNames.Add(UDataTable::StaticClass()->GetFName());
-	Filter.PackagePaths.Add("/Game/AYR/Configs/");
+	Filter.PackagePaths.Add(SearchingPath);
 	Filter.bRecursiveClasses = true;
 	Filter.bRecursivePaths = true;
 	TArray<FAssetData> SearchedAssets;
-	AR.GetAssets(Filter, SearchedAssets);
 
-	for (const FAssetData& SearchedAsset : SearchedAssets)
+	// 某些**未知原因**项目在Standalone模式或Launch时会搜索不到Configs文件夹下的数据表，因此需要强制重新搜索一次。
+	TArray<FString> RescanPaths;
+	RescanPaths.Add(SearchingPath.ToString());
+	AR.ScanPathsSynchronous(RescanPaths, true);
+
+	if (AR.GetAssets(Filter, SearchedAssets))
 	{
-		if (SearchedAsset.IsValid())
+		int32 AssetsCount = SearchedAssets.Num();
+		UE_LOG(LogConfigSubsystem, Display, TEXT("Searched Assets count is: %d"), AssetsCount);
+		for (const FAssetData& SearchedAsset : SearchedAssets)
 		{
-			UDataTable* DT = CastChecked<UDataTable>(SearchedAsset.GetAsset());
-			UDataTable*& DataTable = this->LoadedDataTables.Add(DT->GetRowStruct()->GetFName());
-			DataTable = DT;
-			UE_LOG(LogConfigSubsystem, Display, TEXT("Load DataTable: %s"), *(DataTable->GetFName().ToString()));
+			if (SearchedAsset.IsValid())
+			{
+				UDataTable* DT = CastChecked<UDataTable>(SearchedAsset.GetAsset());
+				UDataTable*& DataTable = this->LoadedDataTables.Add(DT->GetRowStruct()->GetFName());
+				DataTable = DT;
+				UE_LOG(LogConfigSubsystem, Display, TEXT("Load DataTable: %s"), *(DataTable->GetFName().ToString()));
+			}
+			else
+			{
+				UE_LOG(LogConfigSubsystem, Warning, TEXT("Asset is invalid, asset path: %s"), *SearchedAsset.ObjectPath.ToString());
+			}
 		}
-		else
-		{
-			UE_LOG(LogConfigSubsystem, Warning, TEXT("Asset is invalid, asset path: %s"), *SearchedAsset.ObjectPath.ToString());
-		}
+	}
+	else
+	{
+		UE_LOG(LogConfigSubsystem, Warning, TEXT("Asset Registry get assets failed, seaching path: %s"), *SearchingPath.ToString());
 	}
 }
 
