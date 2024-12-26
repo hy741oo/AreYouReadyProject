@@ -95,7 +95,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 
 void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo)
 {
-	if (!InPlayerController && !InUIStackInfo && !InUIStackInfo->UserWidget) return;
+	if (!InPlayerController || !InUIStackInfo || !InUIStackInfo->UserWidget) return;
 
 	FUIStateInfoTableRow UIStateInfo = InUIStackInfo->UIStateInfo;
 	UAYRUserWidget* UI = InUIStackInfo->UserWidget;

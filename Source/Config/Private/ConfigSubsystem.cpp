@@ -11,7 +11,7 @@ void UConfigSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	IAssetRegistry& AR = AssetRegistryModule.Get();
 	FARFilter Filter;
-	FName SearchingPath = TEXT("/Game/AYR/Configs/");
+	FName SearchingPath = TEXT("/Game/AYR/Configs");
 	Filter.ClassNames.Add(UDataTable::StaticClass()->GetFName());
 	Filter.PackagePaths.Add(SearchingPath);
 	Filter.bRecursiveClasses = true;
@@ -25,8 +25,17 @@ void UConfigSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	if (AR.GetAssets(Filter, SearchedAssets))
 	{
+		// 如果搜索结果个数为0，则直接报错。
 		int32 AssetsCount = SearchedAssets.Num();
-		UE_LOG(LogConfigSubsystem, Display, TEXT("Searched Assets count is: %d"), AssetsCount);
+		if (AssetsCount)
+		{
+			UE_LOG(LogConfigSubsystem, Display, TEXT("Searched Assets count is: %d"), AssetsCount);
+		}
+		else
+		{
+			UE_LOG(LogConfigSubsystem, Error, TEXT("Searched Assets count is: %d"), AssetsCount);
+		}
+
 		for (const FAssetData& SearchedAsset : SearchedAssets)
 		{
 			if (SearchedAsset.IsValid())
