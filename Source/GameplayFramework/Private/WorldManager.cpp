@@ -4,7 +4,7 @@
 #include "WorldManager.h"
 
 #include "MoviePlayer.h"
-#include "UI/LoadingScreenWidget.h"
+#include "AYRGameViewportClient.h"
 
 DEFINE_LOG_CATEGORY(LogWorldManager)
 
@@ -86,5 +86,17 @@ void UWorldManager::ResetTickTimer()
 {
 	this->bIsTick = false;
 	this->TargetTime = this->ElapsedTime = .0f;
+}
+
+void UWorldManager::StartFade(const float DurationTime, const bool bFadeIn)
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+		{
+			Viewport->StartFade(DurationTime);
+		}
+	}
 }
 

@@ -26,7 +26,6 @@ private:
 	/*
 	** 由于定时器只能在Game线程里使用，因此为了实现一定时间后调用淡出过场加载的逻辑，我们需要自己实现定时功能。
 	*/ 
-
 	// 是否需要Tick。
 	bool bIsTick = false;
 
@@ -58,4 +57,8 @@ public:
 
 	// 重置Tick定时。
 	void ResetTickTimer();
+
+	// 执行黑屏渐入渐出。
+	UFUNCTION(BlueprintCallable)
+	void StartFade(const float DurationTime, const bool bFadeIn = false);
 };
