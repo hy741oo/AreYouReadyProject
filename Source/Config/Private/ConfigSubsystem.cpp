@@ -6,8 +6,10 @@
 #include "AssetRegistry/IAssetRegistry.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
-void UConfigSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+void UConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 {
+	Super::Initialize(InCollection);
+
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	IAssetRegistry& AR = AssetRegistryModule.Get();
 	FARFilter Filter;

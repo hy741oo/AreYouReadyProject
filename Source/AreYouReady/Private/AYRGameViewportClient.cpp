@@ -12,6 +12,14 @@ void UAYRGameViewportClient::StartFade(const float InDurationTime, const bool In
 	this->DurationTime = InDurationTime;
 }
 
+void UAYRGameViewportClient::StartFade(FOnFadeEnd InOnFadeEnd, const float InDurationTime, const bool InbFadeIn)
+{
+	this->bIsFading = true;
+	this->bFadeIn = InbFadeIn;
+	this->DurationTime = InDurationTime;
+	this->OnFadeEnd = InOnFadeEnd;
+}
+
 void UAYRGameViewportClient::ResetFade()
 {
 	this->bIsFading = false;
@@ -25,22 +33,25 @@ void UAYRGameViewportClient::PostRender(UCanvas* InCanvas)
 
 	if (InCanvas && this->bIsFading && this->World)
 	{
+		// 先绘制一次渐变，防止最后一帧渐变突然消失造成的突兀感。
+		const uint8 Source = this->bFadeIn ? 255 : 0;
+		const uint8 Target = this->bFadeIn ? 0 : 255;
+		const uint8 Alpha = FMath::Lerp(Source, Target, this->ElapsedTime / this->DurationTime);
+		FColor InCanvasColor = FColor::Black;
+		InCanvasColor.A = Alpha;
+		InCanvas->SetDrawColor(InCanvasColor);
+		InCanvas->DrawTile(InCanvas->DefaultTexture, 0, 0, InCanvas->ClipX, InCanvas->ClipY, 0, 0, InCanvas->DefaultTexture->GetSizeX(), InCanvas->DefaultTexture->GetSizeY());
+
+		// 判断下一帧要不要继续绘制渐变。
 		this->ElapsedTime += this->World->GetDeltaSeconds();
 		if (this->ElapsedTime >= this->DurationTime)
 		{
+			if (this->OnFadeEnd.IsBound())
+			{
+				this->OnFadeEnd.Execute();
+			}
+			this->OnFadeEnd.Clear();
 			this->ResetFade();
-			FColor InCanvasColor = InCanvas->DrawColor;
-			InCanvasColor.A = 255;
-			InCanvas->SetDrawColor(InCanvasColor);
-		}
-		else
-		{
-			uint8 Source = this->bFadeIn ? 0 : 255;
-			uint8 Target = this->bFadeIn ? 255 : 0;
-			uint8 Alpha = FMath::Lerp(Source, Target, this->ElapsedTime / this->DurationTime);
-			FColor InCanvasColor = InCanvas->DrawColor;
-			InCanvasColor.A = Alpha;
-			InCanvas->SetDrawColor(InCanvasColor);
 		}
 	}
 }

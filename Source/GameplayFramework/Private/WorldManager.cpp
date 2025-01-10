@@ -4,7 +4,6 @@
 #include "WorldManager.h"
 
 #include "MoviePlayer.h"
-#include "AYRGameViewportClient.h"
 
 DEFINE_LOG_CATEGORY(LogWorldManager)
 
@@ -15,6 +14,8 @@ void UWorldManager::Initialize(FSubsystemCollectionBase& Collection)
 
 void UWorldManager::Tick(float InDeltaTime)
 {
+	Super::Tick(InDeltaTime);
+
 	if (this->bIsTick)
 	{
 		this->ElapsedTime += InDeltaTime;
@@ -40,11 +41,12 @@ void UWorldManager::OnPreLoadMap(const FString& InMapName)
 
 		FLoadingScreenAttributes LoadingScreenAttributes;
 		LoadingScreenAttributes.bWaitForManualStop = true;
-		LoadingScreenAttributes.MinimumLoadingScreenDisplayTime = DelayTimeBeforeLoadingEnd;
+		//LoadingScreenAttributes.MinimumLoadingScreenDisplayTime = DelayTimeBeforeLoadingEnd;
 		LoadingScreenAttributes.bAllowEngineTick = true;
 		LoadingScreenAttributes.WidgetLoadingScreen = FLoadingScreenAttributes::NewTestLoadingScreenWidget();
 
 		GetMoviePlayer()->SetupLoadingScreen(LoadingScreenAttributes);
+		GetMoviePlayer()->PlayMovie();
 
 		this->StartTickTimer(DelayTimeBeforeLoadingEnd);
 	}
@@ -88,14 +90,44 @@ void UWorldManager::ResetTickTimer()
 	this->TargetTime = this->ElapsedTime = .0f;
 }
 
-void UWorldManager::StartFade(const float DurationTime, const bool bFadeIn)
+void UWorldManager::StartFade(const float DurationTime, const bool bFadeIn) const
 {
 	UWorld* World = GetWorld();
 	if (World)
 	{
 		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
 		{
-			Viewport->StartFade(DurationTime);
+			if (!Viewport->IsFading())
+			{
+				Viewport->StartFade(DurationTime, bFadeIn);
+			}
+		}
+	}
+}
+
+void UWorldManager::StartFadeWithEvent(FOnFadeEnd InOnFadeEnd, const float InDurationTime, const bool InbFadeIn) const
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+		{
+			if (!Viewport->IsFading())
+			{
+				Viewport->StartFade(InOnFadeEnd, InDurationTime, InbFadeIn);
+			}
+		}
+	}
+}
+
+void UWorldManager::StopFade() const
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+		{
+			Viewport->ResetFade();
 		}
 	}
 }

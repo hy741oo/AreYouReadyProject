@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "TickableGameInstanceSubsystem.h"
+#include "AYRGameViewportClient.h"
+
 #include "WorldManager.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogWorldManager, Log, All);
@@ -59,6 +61,13 @@ public:
 	void ResetTickTimer();
 
 	// 执行黑屏渐入渐出。
+	UFUNCTION(BlueprintCallable, Category = "World Manager")
+	void StartFade(const float DurationTime, const bool bFadeIn = false) const;
+	// 带委托版本。
+	UFUNCTION(BlueprintCallable, Category = "World Manager")
+	void StartFadeWithEvent(FOnFadeEnd OnFadeEnd, const float DurationTime, const bool bFadeIn = false) const;
+
+	// 终止渐入渐出。
 	UFUNCTION(BlueprintCallable)
-	void StartFade(const float DurationTime, const bool bFadeIn = false);
+	void StopFade() const;
 };

@@ -6,6 +6,8 @@
 #include "Engine/GameViewportClient.h"
 #include "AYRGameViewportClient.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE(FOnFadeEnd);
+
 /**
  * 
  */
@@ -26,13 +28,24 @@ private:
 
 	// 淡入淡出已经过的时间。
 	float ElapsedTime = .0f;
+
+	// 当淡入淡出结束后需要调用的委托。
+	FOnFadeEnd OnFadeEnd;
 	
 public:
 	// 开始淡入淡出屏幕。
 	virtual void StartFade(const float DurationTime, const bool bFadeIn = false);
+	// 带委托的版本。
+	virtual void StartFade(FOnFadeEnd OnFadeEnd, const float DurationTime, const bool bFadeIn = false);
 
 	// 重置淡入淡出设置。
 	virtual void ResetFade();
 
 	virtual void PostRender(UCanvas* Canvas) override;
+
+	// 是否正处于淡入淡出状态。
+	bool IsFading() const
+	{
+		return this->bIsFading;
+	}
 };
