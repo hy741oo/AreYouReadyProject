@@ -7,7 +7,6 @@
 /Saved/
 *.sln
 /Binaries/
-*_BuiltData.uasset
 /Build/
 /Packaged/
 /enc_temp_folder/
