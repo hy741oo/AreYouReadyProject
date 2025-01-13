@@ -5,14 +5,7 @@
 
 #include "Engine/Canvas.h"
 
-void UAYRGameViewportClient::StartFade(const float InDurationTime, const bool InbFadeIn)
-{
-	this->bIsFading = true;
-	this->bFadeIn = InbFadeIn;
-	this->DurationTime = InDurationTime;
-}
-
-void UAYRGameViewportClient::StartFade(FOnFadeEnd InOnFadeEnd, const float InDurationTime, const bool InbFadeIn)
+void UAYRGameViewportClient::StartFade(const float InDurationTime, const bool InbFadeIn, FOnFadeEnd InOnFadeEnd)
 {
 	this->bIsFading = true;
 	this->bFadeIn = InbFadeIn;

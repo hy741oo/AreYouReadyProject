@@ -34,9 +34,7 @@ private:
 	
 public:
 	// 开始淡入淡出屏幕。
-	virtual void StartFade(const float DurationTime, const bool bFadeIn = false);
-	// 带委托的版本。
-	virtual void StartFade(FOnFadeEnd OnFadeEnd, const float DurationTime, const bool bFadeIn = false);
+	virtual void StartFade(const float DurationTime, const bool bFadeIn = false, FOnFadeEnd OnFadeEnd = FOnFadeEnd());
 
 	// 重置淡入淡出设置。
 	virtual void ResetFade();
