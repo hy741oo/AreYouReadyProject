@@ -18,6 +18,4 @@ class GAMEPLAYFRAMEWORK_API AMainMenuPlayerController : public AAYRPlayerControl
 	
 public:
 	AMainMenuPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-	virtual void BeginPlay() override;
 };

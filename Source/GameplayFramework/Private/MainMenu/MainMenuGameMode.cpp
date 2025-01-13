@@ -5,7 +5,8 @@
 
 #include "MainMenu/MainMenuPlayerController.h"
 
-AMainMenuGameMode::AMainMenuGameMode(const FObjectInitializer& ObjectInitializer)
+AMainMenuGameMode::AMainMenuGameMode(const FObjectInitializer& InObjectInitializer)
+	:Super(InObjectInitializer)
 {
 	this->PlayerControllerClass = AMainMenuPlayerController::StaticClass();
 	this->DefaultPawnClass = nullptr;

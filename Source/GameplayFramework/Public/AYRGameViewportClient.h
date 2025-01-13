@@ -12,7 +12,7 @@ DECLARE_DYNAMIC_DELEGATE(FOnFadeEnd);
  * 
  */
 UCLASS()
-class AREYOUREADY_API UAYRGameViewportClient : public UGameViewportClient
+class GAMEPLAYFRAMEWORK_API UAYRGameViewportClient : public UGameViewportClient
 {
 	GENERATED_BODY()
 

@@ -5,6 +5,12 @@
 
 #include "AYRPlayerController.h"
 
+AAYRGameModeBase::AAYRGameModeBase(const FObjectInitializer& InObjectInitializer)
+	:Super(InObjectInitializer)
+{
+
+}
+
 APlayerController* AAYRGameModeBase::SpawnPlayerControllerCommon(ENetRole InRemoteRole, FVector const& SpawnLocation, FRotator const& SpawnRotation, TSubclassOf<APlayerController> InPlayerControllerClass)
 {
 	AAYRPlayerController* PlayerController = Cast<AAYRPlayerController>(Super::SpawnPlayerControllerCommon(InRemoteRole, SpawnLocation, SpawnRotation, InPlayerControllerClass));
