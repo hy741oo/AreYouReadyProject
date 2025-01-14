@@ -7,6 +7,8 @@
 #include "GameFramework/InputSettings.h"
 #include "ConfigSubsystem.h"
 
+DEFINE_LOG_CATEGORY(LogAYRPlayerController);
+
 AAYRPlayerController::AAYRPlayerController(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
@@ -23,6 +25,7 @@ void AAYRPlayerController::BeginPlay()
 	FPlayerControllerInfoTableRow* PlayerControllerInfo = nullptr;
 	if (!ConfigSubsystem->GetDataTableRowFromID<FPlayerControllerInfoTableRow>(this->ID, PlayerControllerInfo))
 	{
+		UE_LOG(LogAYRPlayerController, Warning, TEXT("Can't find ID: \"%s\""), *this->ID.ToString());
 		return;
 	}
 
@@ -55,6 +58,10 @@ void AAYRPlayerController::BeginPlay()
 					InputSettings->AddActionMapping(RealInputActionKeyMapping);
 				}
 			}
+		}
+		else
+		{
+			UE_LOG(LogAYRPlayerController, Warning, TEXT("Can't find PlayerUIInputMappingID: \"%s\""), *this->PlayerControllerInfoTableRow->PlayerUIInputMappingID.ToString());
 		}
 	}
 }

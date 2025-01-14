@@ -8,6 +8,8 @@
 
 #include "AYRPlayerController.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogAYRPlayerController, Log, All);
+
 /**
  * 
  */
@@ -18,7 +20,7 @@ class GAMEPLAYFRAMEWORK_API AAYRPlayerController : public APlayerController
 	
 private:
 	// 控制器需要用到的结构体。
-	FPlayerControllerInfoTableRow* PlayerControllerInfoTableRow;
+	FPlayerControllerInfoTableRow* PlayerControllerInfoTableRow = nullptr;
 
 public:
 	// 玩家控制器唯一ID。

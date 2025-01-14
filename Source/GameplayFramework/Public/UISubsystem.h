@@ -8,6 +8,8 @@
 
 #include "UISubsystem.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogUISubsystem, Log, All);
+
 // 玩家输入类型。
 UENUM(BlueprintType)
 namespace EUIInputMode

@@ -4,6 +4,7 @@
 #include "WorldManager.h"
 
 #include "MoviePlayer.h"
+#include "ConfigSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogWorldManager)
 
@@ -52,5 +53,19 @@ void UWorldManager::StopFade() const
 			Viewport->ResetFade();
 		}
 	}
+}
+
+void UWorldManager::OpenNewLevel(const FName InNewLevelID) const
+{
+	// 检查关卡名字是否合法，否则可能会造成已进入加载场景但是找不到新关卡的情况。
+	if (!InNewLevelID.IsNone())
+	{
+		if (UConfigSubsystem* ConfigSubsystem = UGameInstance::GetSubsystem<UConfigSubsystem>(this->GetGameInstance()))
+		{
+			//if (ConfigSubsystem->GetDataTableRowFromID<)
+		}
+	}
+
+	UE_LOG(LogWorldManager, Warning, TEXT("InNewLevelID is invalid!: \"%s\""), *InNewLevelID.ToString());
 }
 

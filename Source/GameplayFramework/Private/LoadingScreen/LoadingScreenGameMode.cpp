@@ -12,3 +12,8 @@ ALoadingScreenGameMode::ALoadingScreenGameMode(const FObjectInitializer& InObjec
 	this->DefaultPawnClass = nullptr;
 }
 
+APlayerController* ALoadingScreenGameMode::SpawnPlayerControllerCommon(ENetRole InRemoteRole, FVector const& InSpawnLocation, FRotator const& InSpawnRotation, TSubclassOf<APlayerController> InPlayerControllerClass)
+{
+	return this->LoadingScreenPlayerController = CastChecked<ALoadingScreenPlayerController>(Super::SpawnPlayerControllerCommon(InRemoteRole, InSpawnLocation, InSpawnRotation, InPlayerControllerClass));
+}
+

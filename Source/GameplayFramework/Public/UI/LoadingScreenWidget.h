@@ -9,7 +9,7 @@
 /**
  * 专供过场加载使用的加载屏幕Widget。
  */
-UCLASS()
+UCLASS(Abstract)
 class GAMEPLAYFRAMEWORK_API ULoadingScreenWidget : public UAYRUserWidget
 {
 	GENERATED_BODY()

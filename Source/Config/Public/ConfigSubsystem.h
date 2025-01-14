@@ -104,22 +104,22 @@ public:
 				OutTableRow = (*LoadedDataTable)->FindRow<TableRowType>(InRowName, TableRowType::StaticStruct()->GetFName().ToString());
 				if (OutTableRow)
 				{
-					UE_LOG(LogConfigSubsystem, Log, TEXT("Find row %s in %s"), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
+					UE_LOG(LogConfigSubsystem, Log, TEXT("Find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
 					return true;
 				}
 				else
 				{
-					UE_LOG(LogConfigSubsystem, Warning, TEXT("Can't find row %s in %s"), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
+					UE_LOG(LogConfigSubsystem, Warning, TEXT("Can't find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
 				}
 			}
 			else
 			{
-				UE_LOG(LogConfigSubsystem, Warning, TEXT("Can't find TableRow Struct: %s"), *(TableRowType::StaticStruct()->GetFName().ToString()));
+				UE_LOG(LogConfigSubsystem, Warning, TEXT("Can't find TableRow Struct: \"%s\""), *(TableRowType::StaticStruct()->GetFName().ToString()));
 			}
 		}
 		else
 		{
-			UE_LOG(LogConfigSubsystem, Warning, TEXT("LoadedDataTables does not contain TableRow struct: %s"), *(TableRowType::StaticStruct()->GetFName().ToString()));
+			UE_LOG(LogConfigSubsystem, Warning, TEXT("LoadedDataTables does not contain TableRow struct: \"%s\""), *(TableRowType::StaticStruct()->GetFName().ToString()));
 		}
 		return false;
 	}

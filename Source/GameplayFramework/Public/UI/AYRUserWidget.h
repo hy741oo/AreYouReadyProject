@@ -23,7 +23,7 @@ namespace EUIStateChangedReason
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class GAMEPLAYFRAMEWORK_API UAYRUserWidget : public UUserWidget
 {
 	GENERATED_BODY()

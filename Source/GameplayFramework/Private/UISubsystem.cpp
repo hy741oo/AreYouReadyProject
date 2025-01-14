@@ -9,6 +9,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 
+DEFINE_LOG_CATEGORY(LogUISubsystem);
+
 UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 {
 	UAYRUserWidget* CreatedWidget = nullptr;
@@ -17,7 +19,7 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 	if (ensure(ConfigSubsystem))
 	{
 		FUIInfoTableRow* UIInfoTableRow = nullptr;
-		if (ensureAlwaysMsgf(ConfigSubsystem->GetDataTableRowFromID<FUIInfoTableRow>(InUIID, UIInfoTableRow), TEXT("Can't find UIID: %s"), *InUIID.ToString()))
+		if (ConfigSubsystem->GetDataTableRowFromID<FUIInfoTableRow>(InUIID, UIInfoTableRow))
 		{
 			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(ConfigSubsystem, 0);
 
@@ -44,6 +46,10 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 				}
 				CreatedWidget->OnEnterThisWidget(PlayerController, &UIStackInfo, EUIStateChangedReason::NewWidgetEntered);
 			}
+		}
+		else
+		{
+			UE_LOG(LogUISubsystem, Warning, TEXT("Can't find UIID: \"%s\""), *InUIID.ToString());
 		}
 	}
 
