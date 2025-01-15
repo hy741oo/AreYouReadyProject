@@ -62,7 +62,10 @@ void UWorldManager::OpenNewLevel(const FName InNewLevelID) const
 	{
 		if (UConfigSubsystem* ConfigSubsystem = UGameInstance::GetSubsystem<UConfigSubsystem>(this->GetGameInstance()))
 		{
-			//if (ConfigSubsystem->GetDataTableRowFromID<)
+			if (ConfigSubsystem->HasDataTableRowFromID<FLevelData>(InNewLevelID))
+			{
+				return;
+			}
 		}
 	}
 

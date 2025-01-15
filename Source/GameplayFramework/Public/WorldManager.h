@@ -32,19 +32,20 @@ public:
 	 *  全局渐变。
 	 */
 	// 执行黑屏渐入渐出。
-	UFUNCTION(BlueprintCallable, Category = "World Manager")
+	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
 	void StartFade(const float DurationTime, const bool bFadeIn = false) const;
 	// 带委托版本。
-	UFUNCTION(BlueprintCallable, Category = "World Manager")
+	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
 	void StartFadeWithEvent(FOnFadeEnd OnFadeEnd, const float DurationTime, const bool bFadeIn = false) const;
 
 	// 终止渐入渐出。
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
 	void StopFade() const;
 
 	/*
 	 *  控制关卡的加载以及加载界面关卡的生成和关卡之间的切换过渡。
 	 */
 	// 打开NewLevelID指定的关卡。但实际上并不是直接打开关卡， 而是加载固定的加载场景关卡，然后Async Load指定关卡的资源，等待加载完成后再执行后续的逻辑。
+	UFUNCTION(BlueprintCallable, Category = "World Manager|Level")
 	void OpenNewLevel(const FName NewLevelID) const;
 };

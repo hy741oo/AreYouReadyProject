@@ -77,6 +77,16 @@ struct FPlayerUIInputMappingTableRow : public FAYRTableRowBase
 	TArray<FUIInputMapping> UIInputActions;
 };
 
+// 关卡信息。
+USTRUCT(BlueprintType)
+struct FLevelData : public FAYRTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TSoftObjectPtr<UWorld> Level;
+};
+
 /**
  * 
  */
@@ -93,6 +103,7 @@ private:
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
+	// 通过ID获取对应的表行结构。
 	template<typename TableRowType>
 	bool GetDataTableRowFromID(const FName& InRowName, TableRowType*& OutTableRow)
 	{
@@ -124,6 +135,21 @@ public:
 		return false;
 	}
 
+	// 检测指定ID的表行结构是否存在。
+	template<typename TableRowType>
+	bool HasDataTableRowFromID(const FName& InRowName)
+	{
+		TableRowType* TempTableRow = nullptr;
+		this->GetDataTableRowFromID<TableRowType>(InRowName, TempTableRow);
+		if (TempTableRow)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 };
 
 
