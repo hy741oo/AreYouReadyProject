@@ -27,12 +27,12 @@ public:
 
 	// 执行黑屏渐入渐出。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartFade(const bool bFadeIn = false,const float DurationTime = 1.f) const;
+	void StartFade(const bool bFadeIn = false,const float DurationTime = .3f) const;
 	// 带蓝图委托版本。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = 1.f) const;
+	void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = .3f) const;
 	// 普通委托版本。供C++代码使用。
-	void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = 1.f) const;
+	void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = .3f) const;
 
 	// 终止渐入渐出。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")

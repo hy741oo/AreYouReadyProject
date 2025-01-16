@@ -29,7 +29,7 @@ private:
 	TSoftObjectPtr<UWorld> NewLevel;
 
 	// 延迟加载时间。用于增加停留在加载场景的时间，预防需要加载的关卡体量太小导致“加载太快”的问题。
-	const float DelayLoadingScreenTime = 3.f;
+	const float DelayLoadingScreenTime = 1.f;
 
 	// 延迟加载计时器是否到点。
 	bool bIsTimerEnd = false;

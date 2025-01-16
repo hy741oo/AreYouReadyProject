@@ -38,11 +38,11 @@ private:
 	
 public:
 	// 开始淡入淡出屏幕。无委托版本。
-	virtual void StartFade(const bool bFadeIn = false,const float DurationTime = 1.f);
+	virtual void StartFade(const bool bFadeIn = false,const float DurationTime = .3f);
 	// 蓝图委托版本的渐变。
-	virtual void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = 1.f);
+	virtual void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = .3f);
 	// 普通委托版本的渐变。
-	virtual void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = 1.f);
+	virtual void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = .3f);
 
 	// 重置淡入淡出设置。
 	virtual void ResetFade();
