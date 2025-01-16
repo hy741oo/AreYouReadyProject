@@ -18,13 +18,6 @@ class GAMEPLAYFRAMEWORK_API UWorldManager : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	
-private:
-	// 最小加载时间。
-	const float MinimumLoadingTime = 3.f;
-
-	// 控制延迟加载的定时器。
-	FTimerHandle DelayLoadingScreenHandle;
-
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
@@ -34,10 +27,12 @@ public:
 
 	// 执行黑屏渐入渐出。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartFade(const float DurationTime, const bool bFadeIn = false) const;
-	// 带委托版本。
+	void StartFade(const bool bFadeIn = false,const float DurationTime = 1.f) const;
+	// 带蓝图委托版本。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartFadeWithEvent(FOnFadeEnd OnFadeEnd, const float DurationTime, const bool bFadeIn = false) const;
+	void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = 1.f) const;
+	// 普通委托版本。供C++代码使用。
+	void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = 1.f) const;
 
 	// 终止渐入渐出。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")

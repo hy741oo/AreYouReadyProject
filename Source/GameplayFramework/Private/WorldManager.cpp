@@ -14,7 +14,7 @@ void UWorldManager::Initialize(FSubsystemCollectionBase& Collection)
 	
 }
 
-void UWorldManager::StartFade(const float DurationTime, const bool bFadeIn) const
+void UWorldManager::StartFade(const bool bFadeIn,const float DurationTime) const
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -23,13 +23,13 @@ void UWorldManager::StartFade(const float DurationTime, const bool bFadeIn) cons
 		{
 			if (!Viewport->IsFading())
 			{
-				Viewport->StartFade(DurationTime, bFadeIn);
+				Viewport->StartFade(bFadeIn, DurationTime);
 			}
 		}
 	}
 }
 
-void UWorldManager::StartFadeWithEvent(FOnFadeEnd InOnFadeEnd, const float InDurationTime, const bool InbFadeIn) const
+void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime) const
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -38,7 +38,22 @@ void UWorldManager::StartFadeWithEvent(FOnFadeEnd InOnFadeEnd, const float InDur
 		{
 			if (!Viewport->IsFading())
 			{
-				Viewport->StartFade(InDurationTime, InbFadeIn, InOnFadeEnd);
+				Viewport->StartFadeWithEvent(InOnFadeEndBP, InbFadeIn, InDurationTime);
+			}
+		}
+	}
+}
+
+void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime) const
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+		{
+			if (!Viewport->IsFading())
+			{
+				Viewport->StartFadeWithEvent(InOnFadeEnd, InbFadeIn, InDurationTime);
 			}
 		}
 	}
@@ -68,6 +83,7 @@ void UWorldManager::OpenNewLevel(const FName InNewLevelID) const
 				const FString Options = FString::Printf(TEXT("NewLevelID=%s"), *InNewLevelID.ToString());
 				const FName LoadingScreenLevelName = "/Game/AYR/Maps/LoadingScreen/MAP_LoadingScreen";
 				UGameplayStatics::OpenLevel(this, LoadingScreenLevelName, true, Options);
+				return;
 			}
 		}
 	}

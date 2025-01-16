@@ -4,8 +4,22 @@
 #include "AYRGameViewportClient.h"
 
 #include "Engine/Canvas.h"
+void UAYRGameViewportClient::StartFade(const bool InbFadeIn, float InDurationTime)
+{
+	this->bIsFading = true;
+	this->bFadeIn = InbFadeIn;
+	this->DurationTime = InDurationTime;
+}
 
-void UAYRGameViewportClient::StartFade(const float InDurationTime, const bool InbFadeIn, FOnFadeEnd InOnFadeEnd)
+void UAYRGameViewportClient::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime)
+{
+	this->bIsFading = true;
+	this->bFadeIn = InbFadeIn;
+	this->DurationTime = InDurationTime;
+	this->OnFadeEndBP = InOnFadeEndBP;
+}
+
+void UAYRGameViewportClient::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime)
 {
 	this->bIsFading = true;
 	this->bFadeIn = InbFadeIn;
@@ -18,6 +32,8 @@ void UAYRGameViewportClient::ResetFade()
 	this->bIsFading = false;
 	this->ElapsedTime = .0f;
 	this->DurationTime = .0f;
+	this->OnFadeEnd.Unbind();
+	this->OnFadeEndBP.Unbind();
 }
 
 void UAYRGameViewportClient::PostRender(UCanvas* InCanvas)
@@ -43,7 +59,10 @@ void UAYRGameViewportClient::PostRender(UCanvas* InCanvas)
 			{
 				this->OnFadeEnd.Execute();
 			}
-			this->OnFadeEnd.Clear();
+			else if (this->OnFadeEndBP.IsBound())
+			{
+				this->OnFadeEndBP.Execute();
+			}
 			this->ResetFade();
 		}
 	}

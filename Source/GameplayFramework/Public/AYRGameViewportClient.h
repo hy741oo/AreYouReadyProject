@@ -6,7 +6,9 @@
 #include "Engine/GameViewportClient.h"
 #include "AYRGameViewportClient.generated.h"
 
-DECLARE_DYNAMIC_DELEGATE(FOnFadeEnd);
+DECLARE_DYNAMIC_DELEGATE(FOnFadeEndBPDelegate);
+
+DECLARE_DELEGATE(FOnFadeEndDelegate);
 
 /**
  * 
@@ -30,11 +32,17 @@ private:
 	float ElapsedTime = .0f;
 
 	// 当淡入淡出结束后需要调用的委托。
-	FOnFadeEnd OnFadeEnd;
+	FOnFadeEndDelegate OnFadeEnd;
+	// 蓝图版本委托。
+	FOnFadeEndBPDelegate OnFadeEndBP;
 	
 public:
-	// 开始淡入淡出屏幕。
-	virtual void StartFade(const float DurationTime, const bool bFadeIn = false, FOnFadeEnd OnFadeEnd = FOnFadeEnd());
+	// 开始淡入淡出屏幕。无委托版本。
+	virtual void StartFade(const bool bFadeIn = false,const float DurationTime = 1.f);
+	// 蓝图委托版本的渐变。
+	virtual void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = 1.f);
+	// 普通委托版本的渐变。
+	virtual void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = 1.f);
 
 	// 重置淡入淡出设置。
 	virtual void ResetFade();

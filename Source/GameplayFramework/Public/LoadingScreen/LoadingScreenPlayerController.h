@@ -8,6 +8,8 @@
 
 #include "LoadingScreenPlayerController.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogLoadingScreenPlayerController, Log, All);
+
 /**
  * 
  */
@@ -26,6 +28,18 @@ private:
 	// 需要加载关卡的软引用。
 	TSoftObjectPtr<UWorld> NewLevel;
 
+	// 延迟加载时间。用于增加停留在加载场景的时间，预防需要加载的关卡体量太小导致“加载太快”的问题。
+	const float DelayLoadingScreenTime = 3.f;
+
+	// 延迟加载计时器是否到点。
+	bool bIsTimerEnd = false;
+
+	// 延迟加载计时器句柄。
+	FTimerHandle DelayLoadingScreenTimerHandle;
+
+	// 新关卡资产是否加载完成。
+	bool bIsLoadedNewLevel = false;
+
 public:
 	ALoadingScreenPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
@@ -33,5 +47,7 @@ public:
 	virtual void BeginPlay() override;
 
 	// 关卡加载完毕后的回调。
-	void OnNewLevelAsyncLoadingFinished();
+	virtual void OnNewLevelAsyncLoadingFinished();
+
+	virtual void OpenLoadedNewLevel();
 };
