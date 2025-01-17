@@ -141,14 +141,7 @@ public:
 	{
 		TableRowType* TempTableRow = nullptr;
 		this->GetDataTableRowFromID<TableRowType>(InRowName, TempTableRow);
-		if (TempTableRow)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return TempTableRow != nullptr;
 	}
 };
 
