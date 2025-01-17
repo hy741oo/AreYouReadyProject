@@ -38,6 +38,9 @@ struct FUIStateInfoTableRow
 	bool bHideCursorDuringCapture = true;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	bool bShowMouseCursor = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	int32 ZOrder = -1;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

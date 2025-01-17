@@ -127,5 +127,11 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 
 	// 设置是否阻挡Action。
 	UI->SetIsStopAction(UIStateInfo.bStopAction);
+
+	// 是否需要显示鼠标。
+	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
+	{
+		PlayerController->SetShowMouseCursor(UIStateInfo.bShowMouseCursor);
+	}
 }
 
