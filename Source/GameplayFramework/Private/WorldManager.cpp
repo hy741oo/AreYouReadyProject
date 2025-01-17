@@ -21,10 +21,12 @@ void UWorldManager::StartFade(const bool bFadeIn,const float DurationTime) const
 	{
 		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
 		{
-			if (!Viewport->IsFading())
+			// 如果正处于Fade状态，则先中断之前的Fade。
+			if (Viewport->IsFading())
 			{
-				Viewport->StartFade(bFadeIn, DurationTime);
+				Viewport->AbortFade();
 			}
+			Viewport->StartFade(bFadeIn, DurationTime);
 		}
 	}
 }
@@ -36,10 +38,12 @@ void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const
 	{
 		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
 		{
-			if (!Viewport->IsFading())
+			// 如果正处于Fade状态，则先中断之前的Fade。
+			if (Viewport->IsFading())
 			{
-				Viewport->StartFadeWithEvent(InOnFadeEndBP, InbFadeIn, InDurationTime);
+				Viewport->AbortFade();
 			}
+			Viewport->StartFadeWithEvent(InOnFadeEndBP, InbFadeIn, InDurationTime);
 		}
 	}
 }
@@ -51,10 +55,12 @@ void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const boo
 	{
 		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
 		{
-			if (!Viewport->IsFading())
+			// 如果正处于Fade状态，则先中断之前的Fade。
+			if (Viewport->IsFading())
 			{
-				Viewport->StartFadeWithEvent(InOnFadeEnd, InbFadeIn, InDurationTime);
+				Viewport->AbortFade();
 			}
+			Viewport->StartFadeWithEvent(InOnFadeEnd, InbFadeIn, InDurationTime);
 		}
 	}
 }
@@ -66,7 +72,19 @@ void UWorldManager::StopFade() const
 	{
 		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
 		{
-			Viewport->ResetFade();
+			Viewport->StopFade();
+		}
+	}
+}
+
+void UWorldManager::AbortFade() const
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+		{
+			Viewport->AbortFade();
 		}
 	}
 }

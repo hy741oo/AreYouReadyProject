@@ -38,6 +38,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
 	void StopFade() const;
 
+	// 中断渐入渐出。即终止并执行绑定的事件。
+	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
+	void AbortFade() const;
+
 	/*
 	 *  控制关卡的加载以及加载界面关卡的生成和关卡之间的切换过渡。
 	 */

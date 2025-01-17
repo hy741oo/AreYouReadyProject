@@ -27,13 +27,31 @@ void UAYRGameViewportClient::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, 
 	this->OnFadeEnd = InOnFadeEnd;
 }
 
-void UAYRGameViewportClient::ResetFade()
+void UAYRGameViewportClient::StopFade()
 {
 	this->bIsFading = false;
 	this->ElapsedTime = .0f;
 	this->DurationTime = .0f;
 	this->OnFadeEnd.Unbind();
 	this->OnFadeEndBP.Unbind();
+}
+
+void UAYRGameViewportClient::ExecuteEvent()
+{
+	if (this->OnFadeEnd.IsBound())
+	{
+		this->OnFadeEnd.Execute();
+	}
+	else if (this->OnFadeEndBP.IsBound())
+	{
+		this->OnFadeEndBP.Execute();
+	}
+}
+
+void UAYRGameViewportClient::AbortFade()
+{
+	this->ExecuteEvent();
+	this->StopFade();
 }
 
 void UAYRGameViewportClient::PostRender(UCanvas* InCanvas)
@@ -55,15 +73,8 @@ void UAYRGameViewportClient::PostRender(UCanvas* InCanvas)
 		this->ElapsedTime += this->World->GetDeltaSeconds();
 		if (this->ElapsedTime >= this->DurationTime)
 		{
-			if (this->OnFadeEnd.IsBound())
-			{
-				this->OnFadeEnd.Execute();
-			}
-			else if (this->OnFadeEndBP.IsBound())
-			{
-				this->OnFadeEndBP.Execute();
-			}
-			this->ResetFade();
+			this->ExecuteEvent();
+			this->StopFade();
 		}
 	}
 }

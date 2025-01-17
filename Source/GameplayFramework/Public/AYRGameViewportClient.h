@@ -35,6 +35,10 @@ private:
 	FOnFadeEndDelegate OnFadeEnd;
 	// 蓝图版本委托。
 	FOnFadeEndBPDelegate OnFadeEndBP;
+
+protected:
+	// 执行Fade后的绑定事件。
+	virtual void ExecuteEvent();
 	
 public:
 	// 开始淡入淡出屏幕。无委托版本。
@@ -45,7 +49,10 @@ public:
 	virtual void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = .3f);
 
 	// 重置淡入淡出设置。
-	virtual void ResetFade();
+	virtual void StopFade();
+
+	// 中断淡入淡出。中断屏幕渐变并执行绑定的委托（如果有）。
+	virtual void AbortFade();
 
 	virtual void PostRender(UCanvas* Canvas) override;
 
