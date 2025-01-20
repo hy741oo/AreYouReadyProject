@@ -16,7 +16,7 @@ public class GameplayFramework : ModuleRules
 				"Config",
 				"InputCore",
 				"UMG",
-				"MoviePlayer"
+				"Slate"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
