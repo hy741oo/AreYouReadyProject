@@ -3,21 +3,6 @@
 
 #include "AYRInputProcessor.h"
 
-TSharedPtr<FAYRInputProcessor> FAYRInputProcessor::SingletonObject;
-
-TSharedPtr<FAYRInputProcessor> FAYRInputProcessor::Get()
-{
-	if (SingletonObject.IsValid())
-	{
-		return SingletonObject;
-	}
-	else
-	{
-		SingletonObject = MakeShared<FAYRInputProcessor>();
-		return SingletonObject;
-	}
-}
-
 // 处理键盘和手柄按键按下。
 bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const FKeyEvent& InKeyEvent)
 {
@@ -48,21 +33,6 @@ bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const
 	return IInputProcessor::HandleKeyDownEvent(InSlateApp, InKeyEvent);
 }
 
-// 处理摇杆。
-bool FAYRInputProcessor::HandleAnalogInputEvent(FSlateApplication& InSlateApp, const FAnalogInputEvent& InAnalogInputEvent)
-{
-	// 判断摇杆输入值大于0.4时才触发检测。防止摇杆灵敏度太高导致的检测太频繁。
-	if (this->CurrentInputType != EInputType::IT_Controller && FMath::Abs(InAnalogInputEvent.GetAnalogValue()) > .4f)
-	{
-		this->CurrentInputType = EInputType::IT_Controller;
-
-		UE_LOG(LogTemp, Warning, TEXT("This is a Analog input, user index code: %d"), InAnalogInputEvent.GetUserIndex());
-	}
-
-	return IInputProcessor::HandleAnalogInputEvent(InSlateApp, InAnalogInputEvent);
-
-}
-
 // 处理鼠标按键按下。
 bool FAYRInputProcessor::HandleMouseButtonDownEvent(FSlateApplication& InSlateApp, const FPointerEvent& InMouseEvent)
 {
@@ -80,7 +50,7 @@ bool FAYRInputProcessor::HandleMouseButtonDownEvent(FSlateApplication& InSlateAp
 bool FAYRInputProcessor::HandleMouseMoveEvent(FSlateApplication& InSlateApp, const FPointerEvent& InMouseEvent)
 {
 	// 判断鼠标移动向量的模大于0.4时才触发检测，防止鼠标灵敏度太高导致检测太频繁。
-	if (this->CurrentInputType != EInputType::IT_KeyboardAndMouse && InMouseEvent.GetCursorDelta().Size() > .4f )
+	if (this->CurrentInputType != EInputType::IT_KeyboardAndMouse && InMouseEvent.GetCursorDelta().Size() > 3.f )
 	{
 		this->CurrentInputType = EInputType::IT_KeyboardAndMouse;
 

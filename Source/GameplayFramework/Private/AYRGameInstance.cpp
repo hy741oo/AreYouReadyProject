@@ -13,8 +13,18 @@ void UAYRGameInstance::OnStart()
 	// 添加InputProcess。
 	FSlateApplication& App = FSlateApplication::Get();
 	// 检测是否已经添加过一次，防止重复添加。
-	if (App.FindInputPreProcessor(FAYRInputProcessor::Get()) == INDEX_NONE)
+	if (!this->InputProcessor.IsValid())
 	{
-		App.RegisterInputPreProcessor(FAYRInputProcessor::Get());
+		this->InputProcessor = MakeShared<FAYRInputProcessor>();
+		App.RegisterInputPreProcessor(this->InputProcessor);
 	}
+}
+
+void UAYRGameInstance::Shutdown()
+{
+	FSlateApplication& App = FSlateApplication::Get();
+	App.UnregisterInputPreProcessor(this->InputProcessor);
+	this->InputProcessor.Reset();
+
+	Super::Shutdown();
 }

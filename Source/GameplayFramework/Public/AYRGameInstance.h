@@ -14,6 +14,11 @@ class GAMEPLAYFRAMEWORK_API UAYRGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
+private:
+	TSharedPtr<class FAYRInputProcessor> InputProcessor;
+
 protected:
 	virtual void OnStart() override;
+
+	virtual void Shutdown() override;
 };

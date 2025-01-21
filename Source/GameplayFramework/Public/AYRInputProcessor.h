@@ -24,8 +24,6 @@ private:
 	// 当前输入类型。
 	EInputType::Type CurrentInputType = EInputType::IT_KeyboardAndMouse;
 
-	// 单例对象。
-	static TSharedPtr<FAYRInputProcessor> SingletonObject;
 
 public:
 	virtual void Tick(const float DeltaTime, FSlateApplication& SlateApp, TSharedRef<ICursor> Cursor) override
@@ -35,9 +33,6 @@ public:
 
 	// 处理键盘或手柄按键按下。
 	virtual bool HandleKeyDownEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent) override;
-
-	// 处理摇杆。
-	virtual bool HandleAnalogInputEvent(FSlateApplication& SlateApp, const FAnalogInputEvent& InAnalogInputEvent) override;
 
 	// 处理鼠标按键按下。
 	virtual bool HandleMouseButtonDownEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent) override;
@@ -53,7 +48,5 @@ public:
 		FString DebugName = TEXT("AYRInputProcessor");
 		return *DebugName;
 	}
-
-	static TSharedPtr<FAYRInputProcessor> Get();
 };
 
