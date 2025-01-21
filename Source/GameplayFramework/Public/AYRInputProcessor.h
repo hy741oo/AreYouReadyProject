@@ -5,12 +5,15 @@
 #include "CoreMinimal.h"
 #include "Framework/Application/IInputProcessor.h"
 
-namespace EInputType
+DECLARE_LOG_CATEGORY_EXTERN(LogAYRInputProcessor, Log, All);
+
+UENUM()
+namespace EInputDeviceType
 {
 	enum Type
 	{
-		IT_KeyboardAndMouse,
-		IT_Controller
+		IDT_KeyboardAndMouse,
+		IDT_Controller
 	};
 }
 
@@ -20,10 +23,15 @@ namespace EInputType
 class GAMEPLAYFRAMEWORK_API FAYRInputProcessor : public IInputProcessor
 {
 
+public:
+	FAYRInputProcessor(UGameInstance* GameInstance);
+
 private:
 	// 当前输入类型。
-	EInputType::Type CurrentInputType = EInputType::IT_KeyboardAndMouse;
+	EInputDeviceType::Type CurrentInputDeviceType = EInputDeviceType::IDT_KeyboardAndMouse;
 
+	// GameInstance，用于后续处理Gameplay相关的逻辑。
+	UGameInstance* GameInstance = nullptr;
 
 public:
 	virtual void Tick(const float DeltaTime, FSlateApplication& SlateApp, TSharedRef<ICursor> Cursor) override

@@ -15,7 +15,7 @@ void UAYRGameInstance::OnStart()
 	// 检测是否已经添加过一次，防止重复添加。
 	if (!this->InputProcessor.IsValid())
 	{
-		this->InputProcessor = MakeShared<FAYRInputProcessor>();
+		this->InputProcessor = MakeShared<FAYRInputProcessor>(this);
 		App.RegisterInputPreProcessor(this->InputProcessor);
 	}
 }

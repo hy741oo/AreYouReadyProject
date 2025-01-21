@@ -5,10 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "ConfigSubsystem.h"
+#include "AYRInputProcessor.h"
 
 #include "AYRPlayerController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogAYRPlayerController, Log, All);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerControllerInputDeviceChangedDelegate, EInputDeviceType::Type, CurrentInputDeviceType);
 
 /**
  * 
@@ -26,6 +29,10 @@ public:
 	// 玩家控制器唯一ID。
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FName ID;
+
+	// 玩家输入设备更改时的委托。
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerControllerInputDeviceChangedDelegate OnPlayerControllerInputDeviceChangedDelegate;
 
 public:
 	AAYRPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
