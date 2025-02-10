@@ -23,7 +23,7 @@ void AAYRPlayerController::BeginPlay()
 	UConfigSubsystem * ConfigSubsystem = this->GetGameInstance()->GetSubsystem<UConfigSubsystem>();
 	check(ConfigSubsystem);
 	FPlayerControllerInfoTableRow* PlayerControllerInfo = nullptr;
-	if (!ConfigSubsystem->GetDataTableRowFromID<FPlayerControllerInfoTableRow>(this->ID, PlayerControllerInfo))
+	if (!ConfigSubsystem->GetDataTableRowFromID(this->ID, PlayerControllerInfo))
 	{
 		UE_LOG(LogAYRPlayerController, Warning, TEXT("Can't find ID: \"%s\""), *this->ID.ToString());
 		return;
@@ -42,7 +42,7 @@ void AAYRPlayerController::BeginPlay()
 	if (ensure(IS))
 	{
 		FPlayerUIInputMappingTableRow* UIInputMappingTableRow = nullptr;
-		if (ConfigSubsystem->GetDataTableRowFromID<FPlayerUIInputMappingTableRow>(this->PlayerControllerInfoTableRow->PlayerUIInputMappingID, UIInputMappingTableRow))
+		if (ConfigSubsystem->GetDataTableRowFromID(this->PlayerControllerInfoTableRow->PlayerUIInputMappingID, UIInputMappingTableRow))
 		{
 			UInputSettings* InputSettings = UInputSettings::GetInputSettings();
 			checkf(InputSettings, TEXT("Can't get InputSettings!"));

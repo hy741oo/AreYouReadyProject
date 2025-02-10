@@ -33,7 +33,7 @@ void ALoadingScreenPlayerController::BeginPlay()
 	// 获取需要加载的关卡。
 	UConfigSubsystem* ConfigSubsystem = UGameInstance::GetSubsystem<UConfigSubsystem>(this->GetGameInstance());
 	FLevelData* LevelData = nullptr;
-	if (ConfigSubsystem->GetDataTableRowFromID<FLevelData>(NewLevelID, LevelData))
+	if (ConfigSubsystem->GetDataTableRowFromID(NewLevelID, LevelData))
 	{
 		this->NewLevel = LevelData->Level;
 

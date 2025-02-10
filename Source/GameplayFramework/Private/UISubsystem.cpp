@@ -19,7 +19,7 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 	if (ensure(ConfigSubsystem))
 	{
 		FUIInfoTableRow* UIInfoTableRow = nullptr;
-		if (ConfigSubsystem->GetDataTableRowFromID<FUIInfoTableRow>(InUIID, UIInfoTableRow))
+		if (ConfigSubsystem->GetDataTableRowFromID(InUIID, UIInfoTableRow))
 		{
 			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(ConfigSubsystem, 0);
 

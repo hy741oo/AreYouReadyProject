@@ -140,7 +140,7 @@ public:
 	bool HasDataTableRowFromID(const FName& InRowName)
 	{
 		TableRowType* TempTableRow = nullptr;
-		this->GetDataTableRowFromID<TableRowType>(InRowName, TempTableRow);
+		this->GetDataTableRowFromID(InRowName, TempTableRow);
 		return TempTableRow != nullptr;
 	}
 };
