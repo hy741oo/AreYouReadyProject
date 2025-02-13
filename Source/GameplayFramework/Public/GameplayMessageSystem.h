@@ -12,29 +12,12 @@
 DECLARE_LOG_CATEGORY_CLASS(LogGameplayMessageSystem, Log, All);
 
 // 订阅蓝图函数需要用到的委托。
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMessageReceived, UGMSMessageBase*, Message);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMessageReceivedBP, UGMSMessageBase*, Message);
 
-using FGMSCallbackHolder = TVariant<FOnMessageReceived, TFunction<void(UGMSMessageBase*)>>;
+// 订阅C++消息需要用到的委托。
+DECLARE_DELEGATE_OneParam(FOnMessageReceived, UGMSMessageBase*)
 
-// 订阅者信息。
-struct FMessageListenerData
-{
-	// 唯一ID。
-	int32 ID = -1;
-
-	// 接收消息的回调函数。
-	FGMSCallbackHolder ReceivedMessageCallback;
-
-	// 执行回调。
-	void Execute(UGMSMessageBase* InMessage) const;
-};
-
-// 每个GameplayTag对应的订阅者信息。
-struct FMessageListenerList
-{
-	TMap<int32, FMessageListenerData> GameplayListenerDataList;
-	int32 CurrentID = -1;
-};
+using FGMSCallbackHolder = TVariant<FOnMessageReceivedBP, FOnMessageReceived>;
 
 // 消息基类。
 UCLASS(Abstract, Blueprintable, BlueprintType, HideDropdown)
@@ -94,7 +77,6 @@ public:
 	float Value;
 };
 
-
 /**
  * 发布-订阅（Pub-Sub）模式的全局消息系统。
  */
@@ -102,71 +84,53 @@ UCLASS()
 class GAMEPLAYFRAMEWORK_API UGameplayMessageSystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	
+
 private:
+	// 订阅者信息。
+	struct FMessageListenerData
+	{
+		// 唯一ID。
+		int32 ID = -1;
+
+		// 接收消息的回调函数。
+		FGMSCallbackHolder ReceivedMessageCallback;
+
+		// 执行回调。
+		void Execute(UGMSMessageBase* InMessage) const;
+
+		// 检测是否可用。
+		bool IsValid() const;
+
+		FMessageListenerData(int32 InID, FGMSCallbackHolder InCallback)
+			: ID(InID), ReceivedMessageCallback(InCallback)
+		{
+		}
+	};
+
+	// 每个GameplayTag对应的所有订阅者信息。
+	struct FMessageListenerList
+	{
+		TMap<int32, FMessageListenerData> GameplayListenerDataList;
+		int32 CurrentID = -1;
+	};
+
 	// 保存已订阅的消息。
 	TMap<FGameplayTag, FMessageListenerList> MessageListeners;
 
 protected:
 	// 蓝图订阅消息接口。
 	UFUNCTION(BlueprintCallable, Category = "GameplayMessageSystem", Meta = (DisplayName = "Register"))
-	FGMSListenerHandle K2_Register(FGameplayTag InGameplayTag, FOnMessageReceived OnMessageReceived)
-	{
-		if (!InGameplayTag.IsValid())
-		{
-			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("GameplayTag is invalid on register blueprint message, abort."));
-			return FGMSListenerHandle();
-		}
-
-		if (!OnMessageReceived.IsBound())
-		{
-			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("OnMessageReceived dynamic delegate is invalid on register blueprint message, abort."));
-			return FGMSListenerHandle();
-		}
-
-		FGMSCallbackHolder CallbackHolder;
-		CallbackHolder.Set<FOnMessageReceived>(OnMessageReceived);
-		return this->RegisterInternal(InGameplayTag, CallbackHolder);
-	}
+	FGMSListenerHandle K2_Register(FGameplayTag InGameplayTag, FOnMessageReceivedBP OnMessageReceived);
 
 	// 实际执行消息注册的接口。
 	FGMSListenerHandle RegisterInternal(FGameplayTag InGameplayTag, FGMSCallbackHolder InCallbackHolder);
 
+	// 实际执行注销信息。
+	void UnregisterInternal(FGameplayTag InGameplayTag, int32 HandleID);
+
 public:
-	// c++UObject类型订阅消息接口。
-	template <typename SubscriberType>
-	FGMSListenerHandle Register(FGameplayTag InGameplayTag, SubscriberType* InObject, void(SubscriberType::* InCallback)(UGMSMessageBase*))
-	{
-		if (!InGameplayTag.IsValid())
-		{
-			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("GameplayTag is invalid on register message, abort."));
-			return FGMSListenerHandle();
-		}
-
-		if (!InObject)
-		{
-			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("Object is nullptr on register message, abort."));
-			return FGMSListenerHandle();
-		}
-
-		if (!InCallback)
-		{
-			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("Callback is nullptr on register message, abort."));
-			return FGMSListenerHandle();
-		}
-
-		FGMSCallbackHolder CallbackHolder;
-		TWeakObjectPtr<SubscriberType> Object(InObject);
-		TFunction<void(UGMSMessageBase*)> Callback = [Object, InCallback](UGMSMessageBase* Message) -> void
-			{
-				if (SubscriberType* Owner = Object.Get())
-				{
-					(Owner->*InCallback)(Message);
-				}
-			};
-		CallbackHolder.Set<TFunction<void(UGMSMessageBase*)>>(Callback);
-		return this->RegisterInternal(InGameplayTag, CallbackHolder);
-	}
+	// C++订阅消息接口。
+	FGMSListenerHandle Register(FGameplayTag InGameplayTag, FOnMessageReceived OnMessageReceived);
 
 	// 发布消息。
 	UFUNCTION(BlueprintCallable, Category = "Gameplay Message System")
@@ -175,19 +139,5 @@ public:
 	// 注销已经注册的订阅。
 	UFUNCTION(BlueprintCallable, Category = "Gameplay Message System")
 	void Unregister(UPARAM(Ref)FGMSListenerHandle& InHandle);
-
-public:
-	virtual void Initialize(FSubsystemCollectionBase& InCollection) override
-	{
-		FGameplayTag tag = UGameplayTagsManager::Get().RequestGameplayTag("a.b.test");
-		this->Register(tag, this, &ThisClass::Test);
-	}
-
-	void Test(UGMSMessageBase* Message)
-	{
-		if (Message)
-		{
-
-		}
-	}
 };
+
