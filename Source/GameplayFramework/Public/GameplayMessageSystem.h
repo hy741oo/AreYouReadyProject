@@ -14,21 +14,26 @@ DECLARE_LOG_CATEGORY_CLASS(LogGameplayMessageSystem, Log, All);
 // 订阅蓝图函数需要用到的委托。
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMessageReceived, UGMSMessageBase*, Message);
 
+using FGMSCallbackHolder = TVariant<FOnMessageReceived, TFunction<void(UGMSMessageBase*)>>;
+
 // 订阅者信息。
 struct FMessageListenerData
 {
 	// 唯一ID。
-	uint32 ID = 0;
+	int32 ID = -1;
 
 	// 接收消息的回调函数。
-	TVariant<FOnMessageReceived, TFunction<void(UGMSMessageBase*)>> RecievedMessageCallback;
+	FGMSCallbackHolder ReceivedMessageCallback;
+
+	// 执行回调。
+	void Execute(UGMSMessageBase* InMessage) const;
 };
 
 // 每个GameplayTag对应的订阅者信息。
 struct FMessageListenerList
 {
-	TMap<uint32, FMessageListenerData> GameplayListenerDataList;
-	uint32 CurrentID = 0;
+	TMap<int32, FMessageListenerData> GameplayListenerDataList;
+	int32 CurrentID = -1;
 };
 
 // 消息基类。
@@ -40,6 +45,17 @@ class UGMSMessageBase : public UObject
 public:
 	// 调试代码。
 	virtual FString ToString() const { return this->GetClass()->GetName(); }
+};
+
+// 注册信息后返回的句柄。
+USTRUCT(BlueprintType)
+struct FGMSListenerHandle
+{
+	GENERATED_BODY()
+
+	FGameplayTag Tag;
+
+	int32 CurrentID = -1;
 };
 
 //// 常用类型的消息类。
@@ -92,55 +108,54 @@ private:
 	TMap<FGameplayTag, FMessageListenerList> MessageListeners;
 
 protected:
-	// 蓝图版本订阅消息接口。
+	// 蓝图订阅消息接口。
 	UFUNCTION(BlueprintCallable, Category = "GameplayMessageSystem", Meta = (DisplayName = "Register"))
-	void K2_Register(FGameplayTag InGameplayTag, FOnMessageReceived OnMessageReceived)
+	FGMSListenerHandle K2_Register(FGameplayTag InGameplayTag, FOnMessageReceived OnMessageReceived)
 	{
 		if (!InGameplayTag.IsValid())
 		{
 			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("GameplayTag is invalid on register blueprint message, abort."));
-			return;
+			return FGMSListenerHandle();
 		}
 
 		if (!OnMessageReceived.IsBound())
 		{
 			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("OnMessageReceived dynamic delegate is invalid on register blueprint message, abort."));
-			return;
+			return FGMSListenerHandle();
 		}
 
-		FMessageListenerList& Listeners = this->MessageListeners.FindOrAdd(InGameplayTag);
-		FMessageListenerData ListenerData;
-		ListenerData.ID = ++Listeners.CurrentID;
-		ListenerData.RecievedMessageCallback.Set<FOnMessageReceived>(OnMessageReceived);
-		Listeners.GameplayListenerDataList.Add(ListenerData.ID, ListenerData);
+		FGMSCallbackHolder CallbackHolder;
+		CallbackHolder.Set<FOnMessageReceived>(OnMessageReceived);
+		return this->RegisterInternal(InGameplayTag, CallbackHolder);
 	}
 
+	// 实际执行消息注册的接口。
+	FGMSListenerHandle RegisterInternal(FGameplayTag InGameplayTag, FGMSCallbackHolder InCallbackHolder);
+
 public:
-	// 订阅消息。
+	// c++UObject类型订阅消息接口。
 	template <typename SubscriberType>
-	void Register(FGameplayTag InGameplayTag, SubscriberType* InObject, void(SubscriberType::* InCallback)(UGMSMessageBase*))
+	FGMSListenerHandle Register(FGameplayTag InGameplayTag, SubscriberType* InObject, void(SubscriberType::* InCallback)(UGMSMessageBase*))
 	{
 		if (!InGameplayTag.IsValid())
 		{
 			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("GameplayTag is invalid on register message, abort."));
-			return;
+			return FGMSListenerHandle();
 		}
 
 		if (!InObject)
 		{
 			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("Object is nullptr on register message, abort."));
-			return;
+			return FGMSListenerHandle();
 		}
 
 		if (!InCallback)
 		{
 			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("Callback is nullptr on register message, abort."));
-			return;
+			return FGMSListenerHandle();
 		}
 
-		FMessageListenerList& Listeners = this->MessageListeners.FindOrAdd(InGameplayTag);
-		FMessageListenerData ListenerData;
-		ListenerData.ID = ++Listeners.CurrentID;
+		FGMSCallbackHolder CallbackHolder;
 		TWeakObjectPtr<SubscriberType> Object(InObject);
 		TFunction<void(UGMSMessageBase*)> Callback = [Object, InCallback](UGMSMessageBase* Message) -> void
 			{
@@ -149,13 +164,17 @@ public:
 					(Owner->*InCallback)(Message);
 				}
 			};
-		ListenerData.RecievedMessageCallback.Set<TFunction<void(UGMSMessageBase*)>>(Callback);
-		Listeners.GameplayListenerDataList.Add(ListenerData.ID, ListenerData);
+		CallbackHolder.Set<TFunction<void(UGMSMessageBase*)>>(Callback);
+		return this->RegisterInternal(InGameplayTag, CallbackHolder);
 	}
 
 	// 发布消息。
-	UFUNCTION(BlueprintCallable, Category = "GameplayMessageSystem")
+	UFUNCTION(BlueprintCallable, Category = "Gameplay Message System")
 	void Broadcast(FGameplayTag InGameplayTag, UGMSMessageBase* InMessage);
+
+	// 注销已经注册的订阅。
+	UFUNCTION(BlueprintCallable, Category = "Gameplay Message System")
+	void Unregister(UPARAM(Ref)FGMSListenerHandle& InHandle);
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& InCollection) override
