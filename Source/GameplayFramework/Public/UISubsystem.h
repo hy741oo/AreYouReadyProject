@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
-#include "ConfigSubsystem.h"
+#include "GameConfigSubsystem.h"
 
 #include "UISubsystem.generated.h"
 

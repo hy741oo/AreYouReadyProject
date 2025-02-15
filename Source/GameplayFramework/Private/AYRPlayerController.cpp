@@ -5,7 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "GameFramework/InputSettings.h"
-#include "ConfigSubsystem.h"
+#include "GameConfigSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogAYRPlayerController);
 
@@ -20,10 +20,9 @@ void AAYRPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	// 从数据表里获取控制器信息。
-	UConfigSubsystem * ConfigSubsystem = this->GetGameInstance()->GetSubsystem<UConfigSubsystem>();
-	check(ConfigSubsystem);
+	UGameConfigSubsystem* GameConfigSubsystem = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 	FPlayerControllerInfoTableRow* PlayerControllerInfo = nullptr;
-	if (!ConfigSubsystem->GetDataTableRowFromID(this->ID, PlayerControllerInfo))
+	if (!GameConfigSubsystem->GetDataTableRowFromID(this->ID, PlayerControllerInfo))
 	{
 		UE_LOG(LogAYRPlayerController, Warning, TEXT("Can't find ID: \"%s\""), *this->ID.ToString());
 		return;
@@ -42,7 +41,7 @@ void AAYRPlayerController::BeginPlay()
 	if (ensure(IS))
 	{
 		FPlayerUIInputMappingTableRow* UIInputMappingTableRow = nullptr;
-		if (ConfigSubsystem->GetDataTableRowFromID(this->PlayerControllerInfoTableRow->PlayerUIInputMappingID, UIInputMappingTableRow))
+		if (GameConfigSubsystem->GetDataTableRowFromID(this->PlayerControllerInfoTableRow->PlayerUIInputMappingID, UIInputMappingTableRow))
 		{
 			UInputSettings* InputSettings = UInputSettings::GetInputSettings();
 			checkf(InputSettings, TEXT("Can't get InputSettings!"));

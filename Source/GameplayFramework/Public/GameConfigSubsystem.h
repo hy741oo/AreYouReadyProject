@@ -7,11 +7,11 @@
 #include "Engine/DataTable.h"
 #include "GameFramework/PlayerInput.h"
 
-#include "ConfigSubsystem.generated.h"
+#include "GameConfigSubsystem.generated.h"
 
 class UAYRUserWidget;
 
-DECLARE_LOG_CATEGORY_CLASS(LogConfigSubsystem, Log, All);
+DECLARE_LOG_CATEGORY_CLASS(LogGameConfigSubsystem, Log, All);
 
 // Data Table、Data Asset等资产需要用到的结构体。
 
@@ -91,7 +91,7 @@ struct FLevelData : public FAYRTableRowBase
  * 
  */
 UCLASS()
-class CONFIG_API UConfigSubsystem : public UGameInstanceSubsystem
+class GAMEPLAYFRAMEWORK_API UGameConfigSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	
@@ -115,22 +115,22 @@ public:
 				OutTableRow = (*LoadedDataTable)->FindRow<TableRowType>(InRowName, TableRowType::StaticStruct()->GetFName().ToString());
 				if (OutTableRow)
 				{
-					UE_LOG(LogConfigSubsystem, Log, TEXT("Find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
+					UE_LOG(LogGameConfigSubsystem, Log, TEXT("Find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
 					return true;
 				}
 				else
 				{
-					UE_LOG(LogConfigSubsystem, Warning, TEXT("Can't find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
+					UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Can't find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
 				}
 			}
 			else
 			{
-				UE_LOG(LogConfigSubsystem, Warning, TEXT("Can't find TableRow Struct: \"%s\""), *(TableRowType::StaticStruct()->GetFName().ToString()));
+				UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Can't find TableRow Struct: \"%s\""), *(TableRowType::StaticStruct()->GetFName().ToString()));
 			}
 		}
 		else
 		{
-			UE_LOG(LogConfigSubsystem, Warning, TEXT("LoadedDataTables does not contain TableRow struct: \"%s\""), *(TableRowType::StaticStruct()->GetFName().ToString()));
+			UE_LOG(LogGameConfigSubsystem, Warning, TEXT("LoadedDataTables does not contain TableRow struct: \"%s\""), *(TableRowType::StaticStruct()->GetFName().ToString()));
 		}
 		return false;
 	}

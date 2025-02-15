@@ -22,7 +22,7 @@ void ALoadingScreenPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	// 添加加载界面UI。
-	UUISubsystem* UISubsystem = this->GetWorld()->GetSubsystem<UUISubsystem>();
+	UUISubsystem* UISubsystem = UWorld::GetSubsystem<UUISubsystem>(this->GetWorld());
 	ensureAlwaysMsgf(!this->LoadingScreenWidget, TEXT("LoadingScrrenWidget is not nullptr!"));
 	this->LoadingScreenWidget = CastChecked<ULoadingScreenWidget>(UISubsystem->PushUI(TEXT("LoadingScreen")));
 
@@ -31,7 +31,7 @@ void ALoadingScreenPlayerController::BeginPlay()
 	FName NewLevelID = FName(*UGameplayStatics::ParseOption(GM->OptionsString, TEXT("NewLevelID")));
 
 	// 获取需要加载的关卡。
-	UConfigSubsystem* ConfigSubsystem = UGameInstance::GetSubsystem<UConfigSubsystem>(this->GetGameInstance());
+	UGameConfigSubsystem* ConfigSubsystem = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 	FLevelData* LevelData = nullptr;
 	if (ConfigSubsystem->GetDataTableRowFromID(NewLevelID, LevelData))
 	{

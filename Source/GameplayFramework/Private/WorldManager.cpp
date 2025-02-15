@@ -3,7 +3,7 @@
 
 #include "WorldManager.h"
 
-#include "ConfigSubsystem.h"
+#include "GameConfigSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogWorldManager)
@@ -93,15 +93,13 @@ void UWorldManager::OpenNewLevel(const FName InNewLevelID) const
 	// 检查关卡名字是否合法，以及是否可以在数据表查找到，否则可能会造成已进入加载场景但是找不到新关卡的情况。
 	if (!InNewLevelID.IsNone())
 	{
-		if (UConfigSubsystem* ConfigSubsystem = UGameInstance::GetSubsystem<UConfigSubsystem>(this->GetGameInstance()))
+		UGameConfigSubsystem* ConfigSubsystem = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+		if (ConfigSubsystem->HasDataTableRowFromID<FLevelData>(InNewLevelID))
 		{
-			if (ConfigSubsystem->HasDataTableRowFromID<FLevelData>(InNewLevelID))
-			{
-				const FString Options = FString::Printf(TEXT("NewLevelID=%s"), *InNewLevelID.ToString());
-				const FName LoadingScreenLevelName = "/Game/AYR/Maps/LoadingScreen/MAP_LoadingScreen";
-				UGameplayStatics::OpenLevel(this, LoadingScreenLevelName, true, Options);
-				return;
-			}
+			const FString Options = FString::Printf(TEXT("NewLevelID=%s"), *InNewLevelID.ToString());
+			const FName LoadingScreenLevelName = "/Game/AYR/Maps/LoadingScreen/MAP_LoadingScreen";
+			UGameplayStatics::OpenLevel(this, LoadingScreenLevelName, true, Options);
+			return;
 		}
 	}
 

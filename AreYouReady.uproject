@@ -21,14 +21,6 @@
 				"Engine",
 				"UMG"
 			]
-		},
-		{
-			"Name": "Config",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine"
-			]
 		}
 	],
 	"Plugins": [

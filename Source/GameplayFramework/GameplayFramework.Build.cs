@@ -13,7 +13,6 @@ public class GameplayFramework : ModuleRules
 			{
 				"Core",
 				"EnhancedInput",
-				"Config",
 				"InputCore",
 				"UMG",
 				"Slate",

@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ConfigSubsystem.h"
+#include "GameConfigSubsystem.h"
 
 #include "AssetRegistry/IAssetRegistry.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
-void UConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
+void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 {
 	Super::Initialize(InCollection);
 
@@ -31,11 +31,11 @@ void UConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 		int32 AssetsCount = SearchedAssets.Num();
 		if (AssetsCount)
 		{
-			UE_LOG(LogConfigSubsystem, Display, TEXT("Searched Assets count is: %d"), AssetsCount);
+			UE_LOG(LogGameConfigSubsystem, Display, TEXT("Searched Assets count is: %d"), AssetsCount);
 		}
 		else
 		{
-			UE_LOG(LogConfigSubsystem, Error, TEXT("Searched Assets count is: %d"), AssetsCount);
+			UE_LOG(LogGameConfigSubsystem, Error, TEXT("Searched Assets count is: %d"), AssetsCount);
 		}
 
 		for (const FAssetData& SearchedAsset : SearchedAssets)
@@ -45,17 +45,17 @@ void UConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 				UDataTable* DT = CastChecked<UDataTable>(SearchedAsset.GetAsset());
 				UDataTable*& DataTable = this->LoadedDataTables.Add(DT->GetRowStruct()->GetFName());
 				DataTable = DT;
-				UE_LOG(LogConfigSubsystem, Display, TEXT("Load DataTable: %s"), *(DataTable->GetFName().ToString()));
+				UE_LOG(LogGameConfigSubsystem, Display, TEXT("Load DataTable: %s"), *(DataTable->GetFName().ToString()));
 			}
 			else
 			{
-				UE_LOG(LogConfigSubsystem, Warning, TEXT("Asset is invalid, asset path: %s"), *SearchedAsset.ObjectPath.ToString());
+				UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Asset is invalid, asset path: %s"), *SearchedAsset.ObjectPath.ToString());
 			}
 		}
 	}
 	else
 	{
-		UE_LOG(LogConfigSubsystem, Warning, TEXT("Asset Registry get assets failed, seaching path: %s"), *SearchingPath.ToString());
+		UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Asset Registry get assets failed, seaching path: %s"), *SearchingPath.ToString());
 	}
 }
 

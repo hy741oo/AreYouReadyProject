@@ -15,42 +15,39 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 {
 	UAYRUserWidget* CreatedWidget = nullptr;
 
-	UConfigSubsystem* ConfigSubsystem = this->GetWorld()->GetGameInstance()->GetSubsystem<UConfigSubsystem>();
-	if (ensure(ConfigSubsystem))
+	UGameConfigSubsystem* ConfigSubsystem = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetWorld()->GetGameInstance());
+	FUIInfoTableRow* UIInfoTableRow = nullptr;
+	if (ConfigSubsystem->GetDataTableRowFromID(InUIID, UIInfoTableRow))
 	{
-		FUIInfoTableRow* UIInfoTableRow = nullptr;
-		if (ConfigSubsystem->GetDataTableRowFromID(InUIID, UIInfoTableRow))
-		{
-			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(ConfigSubsystem, 0);
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 
-			// 生成UI。
-			CreatedWidget = CreateWidget<UAYRUserWidget>(PlayerController, UIInfoTableRow->UIClass, UIInfoTableRow->UIName);
-			if (ensureAlways(CreatedWidget))
+		// 生成UI。
+		CreatedWidget = CreateWidget<UAYRUserWidget>(PlayerController, UIInfoTableRow->UIClass, UIInfoTableRow->UIName);
+		if (ensureAlways(CreatedWidget))
+		{
+			FUIStackInfo UIStackInfo;
+			CreatedWidget->AddToViewport(UIInfoTableRow->UIStateInfo.ZOrder);
+			UIStackInfo.UserWidget = CreatedWidget;
+			UIStackInfo.UIStateInfo = UIInfoTableRow->UIStateInfo;
+
+			// 压栈。
+			int32 StackIndex = this->UIStack.Add(UIStackInfo);
+			CreatedWidget->StackIndex = StackIndex;
+			if (StackIndex > 0)
 			{
-				FUIStackInfo UIStackInfo;
-				CreatedWidget->AddToViewport(UIInfoTableRow->UIStateInfo.ZOrder);
-				UIStackInfo.UserWidget = CreatedWidget;
-				UIStackInfo.UIStateInfo = UIInfoTableRow->UIStateInfo;
-
-				// 压栈。
-				int32 StackIndex = this->UIStack.Add(UIStackInfo);
-				CreatedWidget->StackIndex = StackIndex;
-				if (StackIndex > 0)
+				// 如果栈不为空，则需要为之前的栈顶元素执行脱栈操作。
+				FUIStackInfo& StackTop = this->UIStack[StackIndex - 1];
+				if (StackTop.UserWidget)
 				{
-					// 如果栈不为空，则需要为之前的栈顶元素执行脱栈操作。
-					FUIStackInfo& StackTop = this->UIStack[StackIndex - 1];
-					if (StackTop.UserWidget)
-					{
-						StackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::NewWidgetEntered);
-					}
+					StackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::NewWidgetEntered);
 				}
-				CreatedWidget->OnEnterThisWidget(PlayerController, &UIStackInfo, EUIStateChangedReason::NewWidgetEntered);
 			}
+			CreatedWidget->OnEnterThisWidget(PlayerController, &UIStackInfo, EUIStateChangedReason::NewWidgetEntered);
 		}
-		else
-		{
-			UE_LOG(LogUISubsystem, Warning, TEXT("Can't find UIID: \"%s\""), *InUIID.ToString());
-		}
+	}
+	else
+	{
+		UE_LOG(LogUISubsystem, Warning, TEXT("Can't find UIID: \"%s\""), *InUIID.ToString());
 	}
 
 	return CreatedWidget;
