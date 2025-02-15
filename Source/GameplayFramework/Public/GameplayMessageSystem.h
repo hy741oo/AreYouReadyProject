@@ -6,6 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GameplayTagContainer.h"
 #include "GameplayTagsManager.h"
+#include "GMSMessageType.h"
 
 #include "GameplayMessageSystem.generated.h"
 
@@ -19,17 +20,6 @@ DECLARE_DELEGATE_OneParam(FOnMessageReceived, UGMSMessageBase*)
 
 using FGMSCallbackHolder = TVariant<FOnMessageReceivedBP, FOnMessageReceived>;
 
-// 消息基类。
-UCLASS(Abstract, Blueprintable, BlueprintType, HideDropdown)
-class UGMSMessageBase : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	// 调试代码。
-	virtual FString ToString() const { return this->GetClass()->GetName(); }
-};
-
 // 注册信息后返回的句柄。
 USTRUCT(BlueprintType)
 struct FGMSListenerHandle
@@ -39,42 +29,6 @@ struct FGMSListenerHandle
 	FGameplayTag Tag;
 
 	int32 CurrentID = -1;
-};
-
-//// 常用类型的消息类。
-//#define DEFINE_GMS_MESSAGETYPE(Type) \
-//UCLASS() \
-//class UGMS##Type##Message : public UGMSMessageBase \
-//{ \
-//	GENERATED_BODY() \
-// \
-//public: \
-//	UPROPERTY(BlueprintReadWrite, EditAnywhere) \
-//	##Type Value; \
-//};
-//#define DEFINE_GMS_MESSAGETYPE_HELPER(Type) DEFINE_GMS_MESSAGETYPE(Type)
-//
-//#undef DEFINE_GMS_MESSAGETYPE
-//#undef DEFINE_GMS_MESSAGETYPE_HELPER
-
-UCLASS()
-class UGMSintMessage : public UGMSMessageBase
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int Value;
-};
-
-UCLASS()
-class UGMSfloatMessage : public UGMSMessageBase
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float Value;
 };
 
 /**
