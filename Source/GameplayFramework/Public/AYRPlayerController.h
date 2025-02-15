@@ -30,10 +30,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FName ID;
 
-	// 玩家输入设备更改时的委托。
-	UPROPERTY(BlueprintAssignable)
-	FOnPlayerControllerInputDeviceChangedDelegate OnPlayerControllerInputDeviceChangedDelegate;
-
 public:
 	AAYRPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 

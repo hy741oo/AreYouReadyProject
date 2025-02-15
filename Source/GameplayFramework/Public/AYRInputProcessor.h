@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Framework/Application/IInputProcessor.h"
+#include "GameplayMessageSystem.h"
+
+#include "AYRInputProcessor.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogAYRInputProcessor, Log, All);
 
@@ -16,6 +19,16 @@ namespace EInputDeviceType
 		IDT_Controller
 	};
 }
+
+UCLASS()
+class UGMSInputDeviceType : public UGMSMessageBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn))
+	TEnumAsByte<EInputDeviceType::Type> CurrentType = EInputDeviceType::IDT_Controller;
+};
 
 /**
  * 

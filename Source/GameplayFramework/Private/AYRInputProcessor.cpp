@@ -30,7 +30,15 @@ bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const
 				UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a KeyDown gamepad input, user index code: %d"), InKeyEvent.GetUserIndex());
 				if (AAYRPlayerController* PlayerController = Cast<AAYRPlayerController>(UGameplayStatics::GetPlayerController(this->GameInstance, InKeyEvent.GetUserIndex())))
 				{
-					PlayerController->OnPlayerControllerInputDeviceChangedDelegate.Broadcast(this->CurrentInputDeviceType);
+					FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
+					if (Tag.IsValid())
+					{
+						UGMSInputDeviceType* Message = NewObject<UGMSInputDeviceType>();
+						Message->CurrentType = this->CurrentInputDeviceType;
+
+						UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GameInstance);
+						GMS->Broadcast(Tag, Message);
+					}
 				}
 			}
 		}
@@ -43,7 +51,15 @@ bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const
 				UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a KeyDown Keyboard input, user index code: %d"), InKeyEvent.GetUserIndex());
 				if (AAYRPlayerController* PlayerController = Cast<AAYRPlayerController>(UGameplayStatics::GetPlayerController(this->GameInstance, InKeyEvent.GetUserIndex())))
 				{
-					PlayerController->OnPlayerControllerInputDeviceChangedDelegate.Broadcast(this->CurrentInputDeviceType);
+					FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
+					if (Tag.IsValid())
+					{
+						UGMSInputDeviceType* Message = NewObject<UGMSInputDeviceType>();
+						Message->CurrentType = this->CurrentInputDeviceType;
+
+						UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GameInstance);
+						GMS->Broadcast(Tag, Message);
+					}
 				}
 			}
 		}
@@ -62,7 +78,15 @@ bool FAYRInputProcessor::HandleMouseButtonDownEvent(FSlateApplication& InSlateAp
 		UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a MouseButtonDown input, user index code: %d"), InMouseEvent.GetUserIndex());
 		if (AAYRPlayerController* PlayerController = Cast<AAYRPlayerController>(UGameplayStatics::GetPlayerController(this->GameInstance, InMouseEvent.GetUserIndex())))
 		{
-			PlayerController->OnPlayerControllerInputDeviceChangedDelegate.Broadcast(this->CurrentInputDeviceType);
+			FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
+			if (Tag.IsValid())
+			{
+				UGMSInputDeviceType* Message = NewObject<UGMSInputDeviceType>();
+				Message->CurrentType = this->CurrentInputDeviceType;
+
+				UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GameInstance);
+				GMS->Broadcast(Tag, Message);
+			}
 		}
 	}
 
@@ -80,7 +104,15 @@ bool FAYRInputProcessor::HandleMouseMoveEvent(FSlateApplication& InSlateApp, con
 		UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a MouseMove input, user index code: %d"), InMouseEvent.GetUserIndex());
 		if (AAYRPlayerController* PlayerController = Cast<AAYRPlayerController>(UGameplayStatics::GetPlayerController(this->GameInstance, InMouseEvent.GetUserIndex())))
 		{
-			PlayerController->OnPlayerControllerInputDeviceChangedDelegate.Broadcast(this->CurrentInputDeviceType);
+			FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
+			if (Tag.IsValid())
+			{
+				UGMSInputDeviceType* Message = NewObject<UGMSInputDeviceType>();
+				Message->CurrentType = this->CurrentInputDeviceType;
+
+				UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GameInstance);
+				GMS->Broadcast(Tag, Message);
+			}
 		}
 	}
 
@@ -97,7 +129,15 @@ bool FAYRInputProcessor::HandleMouseWheelOrGestureEvent(FSlateApplication& InSla
 		UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a MouseMove input, user index code: %d"), InWheelEvent.GetUserIndex());
 		if (AAYRPlayerController* PlayerController = Cast<AAYRPlayerController>(UGameplayStatics::GetPlayerController(this->GameInstance, InWheelEvent.GetUserIndex())))
 		{
-			PlayerController->OnPlayerControllerInputDeviceChangedDelegate.Broadcast(this->CurrentInputDeviceType);
+			FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
+			if (Tag.IsValid())
+			{
+				UGMSInputDeviceType* Message = NewObject<UGMSInputDeviceType>();
+				Message->CurrentType = this->CurrentInputDeviceType;
+
+				UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GameInstance);
+				GMS->Broadcast(Tag, Message);
+			}
 		}
 	}
 
