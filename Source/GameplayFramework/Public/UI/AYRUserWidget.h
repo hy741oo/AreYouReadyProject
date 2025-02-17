@@ -43,13 +43,13 @@ public:
 	// 当该Widget成为Widget栈栈顶元素（新添加或该Widget以上的Widget被移除）时调用。
 	virtual void OnEnterThisWidget(APlayerController* PlayerController, const FUIStackInfo* UIStackInfo, EUIStateChangedReason::Type Reason);
 	// 蓝图版本。
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, Meta = (DisplayName = "On Enter This Widget"))
 	void BP_OnEnterThisWidget(APlayerController* PlayerController, const FUIStackInfo UIStackInfo, EUIStateChangedReason::Type Reason);
 
 	// 当该Widget不再成为Widget栈栈顶元素时调用。
 	virtual void OnLeaveThisWidget(EUIStateChangedReason::Type Reason);
 	// 蓝图版本。
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, Meta = (DisplayName = "On Leave This Widget"))
 	void BP_OnLeaveThisWidget(EUIStateChangedReason::Type Reason);
 
 	virtual void SetInputPriority(int32 Priority = 0);

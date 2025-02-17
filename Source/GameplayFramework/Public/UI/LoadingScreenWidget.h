@@ -14,8 +14,4 @@ class GAMEPLAYFRAMEWORK_API ULoadingScreenWidget : public UAYRUserWidget
 {
 	GENERATED_BODY()
 	
-public:
-	// 播放淡入动画。
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayFadeinAnimation();
 };
