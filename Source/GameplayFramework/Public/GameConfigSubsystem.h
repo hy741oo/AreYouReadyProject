@@ -6,6 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/PlayerInput.h"
+#include "Fonts/SlateFontInfo.h"
 
 #include "GameConfigSubsystem.generated.h"
 
@@ -85,6 +86,28 @@ struct FLevelData : public FAYRTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TSoftObjectPtr<UWorld> Level;
+};
+
+// 按键图标信息。
+USTRUCT(BlueprintType)
+struct FButtonIconDataTableRow : public FAYRTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UTexture2D* IconBaseTexture = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bUseIconText = true;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconText == true"))
+	FText IconText;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconText == true"))
+	FSlateFontInfo IconTextFontInfo;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconText == false"))
+	UTexture2D* IconTexture = nullptr;
 };
 
 /**
