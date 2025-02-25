@@ -132,3 +132,21 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 	}
 }
 
+void UUISubsystem::Deinitialize()
+{
+	// 销毁所有的UI。
+	while (this->UIStack.Num() > 0)
+	{
+		this->PopUI();
+	}
+
+	// 初始化界面的输入设置。
+	if (UGameViewportClient* GameViewportClient = GetWorld()->GetGameViewport())
+	{
+		GameViewportClient->SetIgnoreInput(false);
+		GameViewportClient->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
+		GameViewportClient->SetHideCursorDuringCapture(false);
+		GameViewportClient->SetMouseLockMode(EMouseLockMode::LockOnCapture);
+	}
+}
+

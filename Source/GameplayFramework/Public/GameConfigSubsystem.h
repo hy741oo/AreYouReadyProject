@@ -98,16 +98,13 @@ struct FButtonIconDataTableRow : public FAYRTableRowBase
 	UTexture2D* IconBaseTexture = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	bool bUseIconText = true;
+	bool bUseIconHintText = false;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconText == true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconHintText == true"))
 	FText IconText;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconText == true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconHintText == true"))
 	FSlateFontInfo IconTextFontInfo;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconText == false"))
-	UTexture2D* IconTexture = nullptr;
 };
 
 /**

@@ -88,8 +88,14 @@ class GAMEPLAYFRAMEWORK_API UUISubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
+	friend UAYRUserWidget;
+
 private:
 	TArray<FUIStackInfo> UIStack;
+
+private:
+	// 对指定的UI应用状态信息。
+	void ApplyUIInfo(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo);
 
 public:
 	// 新建一个UI，并压入到UI栈里。
@@ -100,7 +106,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void PopUI(const UAYRUserWidget* InSpecifiedUI = nullptr);
 
-	// 对指定的UI应用状态信息。
-	void ApplyUIInfo(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo);
+	// 该子系统销毁时（例如切换关卡）需要执行的操作。最主要用于切换关卡时当前关卡的全部UI被销毁后需要进行的一些输入相关设置。
+	void Deinitialize() override;
 
 };
