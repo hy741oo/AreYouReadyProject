@@ -28,6 +28,19 @@ struct FAYRTableRowBase : public FTableRowBase
 #endif
 };
 
+// 数据资产类型基类。
+UCLASS()
+class UAYRDataAsset : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditDefaultsOnly, Meta = (DisplayPriority = 1))
+	FName Description;
+#endif
+};
+
 // 输入映射上下文表行结构。
 USTRUCT(BlueprintType)
 struct FPlayerInputMappingTableRow : public FAYRTableRowBase
@@ -88,14 +101,14 @@ struct FLevelData : public FAYRTableRowBase
 	TSoftObjectPtr<UWorld> Level;
 };
 
-// 按键图标信息。
+// 按键信息。
 USTRUCT(BlueprintType)
-struct FButtonIconDataTableRow : public FAYRTableRowBase
+struct FInputIconDataTableRow : public FAYRTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	UTexture2D* IconBaseTexture = nullptr;
+	TSet<FKey> InputKeys;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bUseIconHintText = false;
@@ -105,6 +118,17 @@ struct FButtonIconDataTableRow : public FAYRTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconHintText == true"))
 	FSlateFontInfo IconTextFontInfo;
+};
+
+// 按键图标信息。
+UCLASS(BlueprintType)
+class UInputIconData : public UAYRDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TMap<FKey, FSlateBrush> InputIconData;
 };
 
 /**
