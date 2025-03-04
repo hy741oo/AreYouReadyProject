@@ -5,6 +5,7 @@
 
 #include "AssetRegistry/IAssetRegistry.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "Algo/Transform.h"
 
 void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 {
@@ -13,16 +14,31 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	IAssetRegistry& AR = AssetRegistryModule.Get();
 	FARFilter Filter;
-	FName SearchingPath = TEXT("/Game/AYR/Configs");
 	Filter.ClassNames.Add(UDataTable::StaticClass()->GetFName());
-	Filter.PackagePaths.Add(SearchingPath);
+	TArray<FName> DataTablePaths;
+	Algo::Transform(
+		GetDefault<UAYRSettings>()->DataTableDirectory,
+		DataTablePaths,
+		[](const FDirectoryPath& Path) -> FName
+		{
+			return FName(*Path.Path);
+		}
+	);
+	Filter.PackagePaths = DataTablePaths;
 	Filter.bRecursiveClasses = true;
 	Filter.bRecursivePaths = true;
 	TArray<FAssetData> SearchedAssets;
 
 	// 某些**未知原因**项目在Standalone模式或Launch时会搜索不到Configs文件夹下的数据表，因此需要强制重新搜索一次。
 	TArray<FString> RescanPaths;
-	RescanPaths.Add(SearchingPath.ToString());
+	Algo::Transform(
+		DataTablePaths,
+		RescanPaths,
+		[](const FName& InName) -> FString
+		{
+			return InName.ToString();
+		}
+	);
 	AR.ScanPathsSynchronous(RescanPaths, true);
 
 	if (AR.GetAssets(Filter, SearchedAssets))
@@ -55,7 +71,11 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	}
 	else
 	{
-		UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Asset Registry get assets failed, seaching path: %s"), *SearchingPath.ToString());
+		UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Asset Registry get assets failed."));
+		for (const FString& Path : RescanPaths)
+		{
+			UE_LOG(LogGameConfigSubsystem, Warning, TEXT("%s"), *Path);
+		}
 	}
 }
 

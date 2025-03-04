@@ -189,5 +189,38 @@ public:
 	}
 };
 
+UCLASS(Config = Game, DefaultConfig)
+class UAYRSettings : public UDeveloperSettings
+{
+	GENERATED_BODY()
+
+public:
+	// 带文件夹选择器的数据表存储位置。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Config, Category = "Game Config DataTable", Meta = (ContentDir))
+	TArray<FDirectoryPath> DataTableDirectory;
+
+	// 输入按键Icon的数据资产。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Config, Category = "Input")
+	TSoftObjectPtr<UAYRDataAsset> InputIconData;
+
+public:
+	virtual FName GetContainerName() const override
+	{
+		return "Project";
+	}
+
+	virtual FName GetCategoryName() const override
+	{
+		return "AYR Project";
+	}
+
+#if WITH_EDITOR
+	virtual FText GetSectionText() const override
+	{
+		return FText::FromString("AYR Settings");
+	}
+#endif
+};
+
 
 

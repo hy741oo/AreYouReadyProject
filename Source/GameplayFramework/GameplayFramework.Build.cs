@@ -17,7 +17,8 @@ public class GameplayFramework : ModuleRules
 				"UMG",
 				"Slate",
 				"SlateCore",
-				"GameplayTags"
+				"GameplayTags",
+				"DeveloperSettings"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
