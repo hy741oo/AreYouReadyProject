@@ -144,4 +144,8 @@ bool FAYRInputProcessor::HandleMouseWheelOrGestureEvent(FSlateApplication& InSla
 	return IInputProcessor::HandleMouseWheelOrGestureEvent(InSlateApp, InWheelEvent, InGestureEvent);
 }
 
+EInputDeviceType::Type FAYRInputProcessor::GetCurrentInputDeviceType() const
+{
+	return this->CurrentInputDeviceType;
+}
  

@@ -15,8 +15,9 @@ namespace EInputDeviceType
 {
 	enum Type
 	{
-		IDT_KeyboardAndMouse,
-		IDT_Controller
+		IDT_None UMETA(DisplayName = "None"),
+		IDT_KeyboardAndMouse UMETA(DisplayName = "Keyboard and Mouse"),
+		IDT_Controller UMETA(DisplayName = "Controller")
 	};
 }
 
@@ -69,5 +70,8 @@ public:
 		FString DebugName = TEXT("AYRInputProcessor");
 		return *DebugName;
 	}
+
+	// 获取当前输入设备类型。
+	EInputDeviceType::Type GetCurrentInputDeviceType() const;
 };
 

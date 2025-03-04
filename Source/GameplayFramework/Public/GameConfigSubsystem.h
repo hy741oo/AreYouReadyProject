@@ -7,6 +7,8 @@
 #include "Engine/DataTable.h"
 #include "GameFramework/PlayerInput.h"
 #include "Fonts/SlateFontInfo.h"
+#include "AYRInputProcessor.h"
+#include "AYRGameInstance.h"
 
 #include "GameConfigSubsystem.generated.h"
 
@@ -108,7 +110,10 @@ struct FInputIconDataTableRow : public FAYRTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TSet<FKey> InputKeys;
+	TMap<TEnumAsByte<EInputDeviceType::Type>, FKey> InputKeys;
+
+	// 不显示在蓝图里。
+	FSlateBrush IconBrush;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bUseIconHintText = false;
@@ -122,13 +127,59 @@ struct FInputIconDataTableRow : public FAYRTableRowBase
 
 // 按键图标信息。
 UCLASS(BlueprintType)
-class UInputIconData : public UAYRDataAsset
+class UInputIconDataAsset : public UAYRDataAsset
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TMap<FKey, FSlateBrush> InputIconData;
+
+	UFUNCTION(BlueprintCallable)
+	bool GetInputIconDataByKey(FKey InKey, FSlateBrush& OutIconBrush) const
+	{
+		const FSlateBrush* IconBrush = nullptr;
+		IconBrush = this->InputIconData.Find(InKey);
+		if (IconBrush)
+		{
+			OutIconBrush = *IconBrush;
+			return true;
+		}
+		return false;
+	}
+};
+
+UCLASS(Config = Game, DefaultConfig)
+class UAYRSettings : public UDeveloperSettings
+{
+	GENERATED_BODY()
+
+public:
+	// 带文件夹选择器的数据表存储位置。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Config, Category = "Game Config DataTable", Meta = (ContentDir))
+	TArray<FDirectoryPath> DataTableDirectory;
+
+	// 输入按键Icon的数据资产。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Config, Category = "Input")
+	TSoftObjectPtr<UInputIconDataAsset> InputIconData;
+
+public:
+	virtual FName GetContainerName() const override
+	{
+		return "Project";
+	}
+
+	virtual FName GetCategoryName() const override
+	{
+		return "AYR Project";
+	}
+
+#if WITH_EDITOR
+	virtual FText GetSectionText() const override
+	{
+		return FText::FromString("AYR Settings");
+	}
+#endif
 };
 
 /**
@@ -187,39 +238,6 @@ public:
 		this->GetDataTableRowFromID(InRowName, TempTableRow);
 		return TempTableRow != nullptr;
 	}
-};
-
-UCLASS(Config = Game, DefaultConfig)
-class UAYRSettings : public UDeveloperSettings
-{
-	GENERATED_BODY()
-
-public:
-	// 带文件夹选择器的数据表存储位置。
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Config, Category = "Game Config DataTable", Meta = (ContentDir))
-	TArray<FDirectoryPath> DataTableDirectory;
-
-	// 输入按键Icon的数据资产。
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Config, Category = "Input")
-	TSoftObjectPtr<UAYRDataAsset> InputIconData;
-
-public:
-	virtual FName GetContainerName() const override
-	{
-		return "Project";
-	}
-
-	virtual FName GetCategoryName() const override
-	{
-		return "AYR Project";
-	}
-
-#if WITH_EDITOR
-	virtual FText GetSectionText() const override
-	{
-		return FText::FromString("AYR Settings");
-	}
-#endif
 };
 
 

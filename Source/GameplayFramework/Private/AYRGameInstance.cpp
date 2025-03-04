@@ -3,7 +3,6 @@
 
 #include "AYRGameInstance.h"
 
-#include "AYRInputProcessor.h"
 #include "Framework/Application/SlateApplication.h"
 
 void UAYRGameInstance::OnStart()
@@ -27,4 +26,9 @@ void UAYRGameInstance::Shutdown()
 	this->InputProcessor.Reset();
 
 	Super::Shutdown();
+}
+
+EInputDeviceType::Type UAYRGameInstance::GetCurrentInputDeviceType() const
+{
+	return this->InputProcessor->GetCurrentInputDeviceType();
 }

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "AYRInputProcessor.h"
+
 #include "AYRGameInstance.generated.h"
 
 /**
@@ -21,4 +23,7 @@ protected:
 	virtual void OnStart() override;
 
 	virtual void Shutdown() override;
+
+public:
+	EInputDeviceType::Type GetCurrentInputDeviceType() const;
 };
