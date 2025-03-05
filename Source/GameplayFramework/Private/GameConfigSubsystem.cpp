@@ -6,6 +6,7 @@
 #include "AssetRegistry/IAssetRegistry.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Algo/Transform.h"
+#include "AYRFunctionLibrary.h"
 
 void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 {
@@ -77,5 +78,40 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 			UE_LOG(LogGameConfigSubsystem, Warning, TEXT("%s"), *Path);
 		}
 	}
+}
+
+bool UGameConfigSubsystem::GetCurrentInputIconData(const FName InRowName, FInputIconDataTableRow& OutInputIconDataTableRow, FSlateBrush& OutIconBrush) const
+{
+	UAYRGameInstance* GI = Cast<UAYRGameInstance>(this->GetGameInstance());
+	bool bIsFind = this->GetInputIconData(InRowName, GI->GetCurrentInputDeviceType(), OutInputIconDataTableRow, OutIconBrush);
+
+	return bIsFind;
+}
+
+bool UGameConfigSubsystem::GetInputIconData(const FName InRowName, EInputDeviceType::Type InInputDeviceType, FInputIconDataTableRow& OutInputIconDataTableRow, FSlateBrush& OutIconBrush) const
+{
+	// 获取输入设备按键数据表行结构。
+	const FInputIconDataTableRow* Row = nullptr;
+	bool bTableRowIsFind = this->GetDataTableRowFromID(InRowName, Row);
+	if (bTableRowIsFind)
+	{
+		OutInputIconDataTableRow = *Row;
+	}
+
+	// 获取输入按键对应的图标信息。
+	bool bIconIsFind = false;
+	if (const FKey* Key = Row->InputKeys.Find(InInputDeviceType))
+	{
+		if (UInputIconDataAsset* DataAsset = GetDefault<UAYRSettings>()->InputIconData.Get())
+		{
+			if (FSlateBrush* Brush = DataAsset->InputIconData.Find(*Key))
+			{
+				OutIconBrush = *Brush;
+				bIconIsFind = true;
+			}
+		}
+	}
+
+	return bTableRowIsFind && bIconIsFind;
 }
 

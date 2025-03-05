@@ -112,9 +112,6 @@ struct FInputIconDataTableRow : public FAYRTableRowBase
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TMap<TEnumAsByte<EInputDeviceType::Type>, FKey> InputKeys;
 
-	// 不显示在蓝图里。
-	FSlateBrush IconBrush;
-
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool bUseIconHintText = false;
 
@@ -189,11 +186,22 @@ UCLASS()
 class GAMEPLAYFRAMEWORK_API UGameConfigSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
+
+	friend class UAYRFunctionLibrary;
 	
 private:
 	// 存储项目中的数据表。
 	UPROPERTY()
 	TMap<FName, UDataTable*> LoadedDataTables;
+
+private:
+	// 获取指定输入设备按键图标信息的蓝图函数。
+	UFUNCTION(BlueprintCallable, Category = "Game Config|Input Device")
+	bool GetInputIconData(const FName InRowName, EInputDeviceType::Type InInputDeviceType, FInputIconDataTableRow& OutInputIconDataTableRow, FSlateBrush& OutIconBrush) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Game Config|Input Device")
+	// 获取当前输入设备按键图标信息的蓝图函数。
+	bool GetCurrentInputIconData(const FName InRowName, FInputIconDataTableRow& OutInputIconDataTableRow, FSlateBrush& OutIconBrush) const;
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -230,6 +238,38 @@ public:
 		return false;
 	}
 
+	// 常量版本。
+	template<typename TableRowType>
+	bool GetDataTableRowFromID(const FName& InRowName, const TableRowType*& OutTableRow) const
+	{
+		if (ensureAlways(this->LoadedDataTables.Contains(TableRowType::StaticStruct()->GetFName())))
+		{
+			UDataTable* const* LoadedDataTable = this->LoadedDataTables.Find(TableRowType::StaticStruct()->GetFName());
+			if (ensureAlways(LoadedDataTable && *LoadedDataTable))
+			{
+				OutTableRow = (*LoadedDataTable)->FindRow<TableRowType>(InRowName, TableRowType::StaticStruct()->GetFName().ToString());
+				if (OutTableRow)
+				{
+					UE_LOG(LogGameConfigSubsystem, Log, TEXT("Find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
+					return true;
+				}
+				else
+				{
+					UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Can't find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
+				}
+			}
+			else
+			{
+				UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Can't find TableRow Struct: \"%s\""), *(TableRowType::StaticStruct()->GetFName().ToString()));
+			}
+		}
+		else
+		{
+			UE_LOG(LogGameConfigSubsystem, Warning, TEXT("LoadedDataTables does not contain TableRow struct: \"%s\""), *(TableRowType::StaticStruct()->GetFName().ToString()));
+		}
+		return false;
+	}
+
 	// 检测指定ID的表行结构是否存在。
 	template<typename TableRowType>
 	bool HasDataTableRowFromID(const FName& InRowName)
@@ -238,6 +278,7 @@ public:
 		this->GetDataTableRowFromID(InRowName, TempTableRow);
 		return TempTableRow != nullptr;
 	}
+
 };
 
 

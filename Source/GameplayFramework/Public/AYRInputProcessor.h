@@ -15,7 +15,7 @@ namespace EInputDeviceType
 {
 	enum Type
 	{
-		IDT_None UMETA(DisplayName = "None"),
+		IDT_None UMETA(Hidden, DisplayName = "None"),
 		IDT_KeyboardAndMouse UMETA(DisplayName = "Keyboard and Mouse"),
 		IDT_Controller UMETA(DisplayName = "Controller")
 	};
