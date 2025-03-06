@@ -102,7 +102,7 @@ bool UGameConfigSubsystem::GetInputIconData(const FName InRowName, EInputDeviceT
 	bool bIconIsFind = false;
 	if (const FKey* Key = Row->InputKeys.Find(InInputDeviceType))
 	{
-		if (UInputIconDataAsset* DataAsset = GetDefault<UAYRSettings>()->InputIconData.Get())
+		if (UInputIconDataAsset* DataAsset = GetDefault<UAYRSettings>()->InputIconData.LoadSynchronous())
 		{
 			if (FSlateBrush* Brush = DataAsset->InputIconData.Find(*Key))
 			{
