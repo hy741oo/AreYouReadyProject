@@ -84,7 +84,7 @@ struct FUIInfoTableRow : public FAYRTableRowBase
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UUISubsystem : public UWorldSubsystem
+class GAMEPLAYFRAMEWORK_API UUISubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
@@ -93,9 +93,17 @@ class GAMEPLAYFRAMEWORK_API UUISubsystem : public UWorldSubsystem
 private:
 	TArray<FUIStackInfo> UIStack;
 
+	// 清理委托句柄。
+	FDelegateHandle CleanDelegateHandle;
+
 private:
 	// 对指定的UI应用状态信息。
 	void ApplyUIInfo(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo);
+
+public:
+	virtual void Initialize(FSubsystemCollectionBase& InCollection) override;
+
+	virtual void Deinitialize() override;
 
 public:
 	// 新建一个UI，并压入到UI栈里。
@@ -106,7 +114,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
 	void PopUI(const UAYRUserWidget* InSpecifiedUI = nullptr);
 
-	// 该子系统销毁时（例如切换关卡）需要执行的操作。最主要用于切换关卡时当前关卡的全部UI被销毁后需要进行的一些输入相关设置。
-	void Deinitialize() override;
+	// 清理目前全部UI，并且将Viewport设置为初始状态。
+	void Clear() ;
 
 };

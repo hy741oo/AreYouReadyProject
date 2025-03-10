@@ -11,6 +11,29 @@
 
 DEFINE_LOG_CATEGORY(LogUISubsystem);
 
+void UUISubsystem::Initialize(FSubsystemCollectionBase& InCollection)
+{
+	if (this->CleanDelegateHandle.IsValid())
+	{
+		FCoreUObjectDelegates::PreLoadMap.Remove(this->CleanDelegateHandle);
+	}
+
+	this->CleanDelegateHandle = FCoreUObjectDelegates::PreLoadMap.AddWeakLambda(this,
+		[this](const FString& InMapPath)
+		{
+			UE_LOG(LogUISubsystem, Display, TEXT("Preloading new map, map path: %s, clearning UI subsystem."), *InMapPath);
+			this->Clear();
+		}
+	);
+}
+
+void UUISubsystem::Deinitialize()
+{
+	FCoreUObjectDelegates::PreLoadMap.Remove(this->CleanDelegateHandle);
+	this->CleanDelegateHandle.Reset();
+	this->Clear();
+}
+
 UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 {
 	UAYRUserWidget* CreatedWidget = nullptr;
@@ -132,7 +155,7 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 	}
 }
 
-void UUISubsystem::Deinitialize()
+void UUISubsystem::Clear()
 {
 	// 销毁所有的UI。
 	while (this->UIStack.Num() > 0)
@@ -141,12 +164,15 @@ void UUISubsystem::Deinitialize()
 	}
 
 	// 初始化界面的输入设置。
-	if (UGameViewportClient* GameViewportClient = GetWorld()->GetGameViewport())
+	if (UWorld* World = this->GetWorld())
 	{
-		GameViewportClient->SetIgnoreInput(false);
-		GameViewportClient->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
-		GameViewportClient->SetHideCursorDuringCapture(false);
-		GameViewportClient->SetMouseLockMode(EMouseLockMode::LockOnCapture);
+		if (UGameViewportClient* GameViewportClient = World->GetGameViewport())
+		{
+			GameViewportClient->SetIgnoreInput(false);
+			GameViewportClient->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
+			GameViewportClient->SetHideCursorDuringCapture(false);
+			GameViewportClient->SetMouseLockMode(EMouseLockMode::LockOnCapture);
+		}
 	}
 }
 

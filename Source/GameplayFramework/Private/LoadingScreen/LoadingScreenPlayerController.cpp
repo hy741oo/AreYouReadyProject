@@ -22,7 +22,7 @@ void ALoadingScreenPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	// 添加加载界面UI。
-	UUISubsystem* UISubsystem = UWorld::GetSubsystem<UUISubsystem>(this->GetWorld());
+	UUISubsystem* UISubsystem = UGameInstance::GetSubsystem<UUISubsystem>(this->GetGameInstance());
 	ensureAlwaysMsgf(!this->LoadingScreenWidget, TEXT("LoadingScrrenWidget is not nullptr!"));
 	this->LoadingScreenWidget = CastChecked<ULoadingScreenWidget>(UISubsystem->PushUI(TEXT("LoadingScreen")));
 

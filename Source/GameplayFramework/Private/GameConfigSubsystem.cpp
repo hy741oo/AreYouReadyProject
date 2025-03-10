@@ -92,22 +92,22 @@ bool UGameConfigSubsystem::GetInputIconData(const FName InRowName, EInputDeviceT
 {
 	// 获取输入设备按键数据表行结构。
 	const FInputIconDataTableRow* Row = nullptr;
+	bool bIconIsFind = false;
 	bool bTableRowIsFind = this->GetDataTableRowFromID(InRowName, Row);
 	if (bTableRowIsFind)
 	{
 		OutInputIconDataTableRow = *Row;
-	}
 
-	// 获取输入按键对应的图标信息。
-	bool bIconIsFind = false;
-	if (const FKey* Key = Row->InputKeys.Find(InInputDeviceType))
-	{
-		if (UInputIconDataAsset* DataAsset = GetDefault<UAYRSettings>()->InputIconData.LoadSynchronous())
+		// 获取输入按键对应的图标信息。
+		if (const FKey* Key = Row->InputKeys.Find(InInputDeviceType))
 		{
-			if (FSlateBrush* Brush = DataAsset->InputIconData.Find(*Key))
+			if (UInputIconDataAsset* DataAsset = GetDefault<UAYRSettings>()->InputIconData.LoadSynchronous())
 			{
-				OutIconBrush = *Brush;
-				bIconIsFind = true;
+				if (FSlateBrush* Brush = DataAsset->InputIconData.Find(*Key))
+				{
+					OutIconBrush = *Brush;
+					bIconIsFind = true;
+				}
 			}
 		}
 	}
