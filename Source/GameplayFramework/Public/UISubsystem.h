@@ -34,6 +34,9 @@ struct FUIStateInfoTableRow
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode", Meta = (EditCondition = "InputMode == EUIInputMode::IM_GameAndUI || InputMode == EUIInputMode::IM_UIOnly"))
 	EMouseLockMode MouseLockMode = EMouseLockMode::DoNotLock;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode", Meta = (EditCondition = "InputMode == EUIInputMode::IM_GameAndUI || InputMode == EUIInputMode::IM_UIOnly"))
+	bool bFocusWhenSetInputMode = false;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode", Meta = (EditCondition = "InputMode == EUIInputMode::IM_GameAndUI"))
 	bool bHideCursorDuringCapture = true;
 

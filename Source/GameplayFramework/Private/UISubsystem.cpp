@@ -126,17 +126,17 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 	FUIStateInfoTableRow UIStateInfo = InUIStackInfo->UIStateInfo;
 	UAYRUserWidget* UI = InUIStackInfo->UserWidget;
 
-	// 设置输入模式。
+	// 设置输入模式。需要判断是否需要在SetInputMode时Focus我们生成的Widget，防止Widget的Construct函数里面设置好的Focus被这里的设置打乱了。
 	switch (InUIStackInfo->UIStateInfo.InputMode)
 	{
 	case EUIInputMode::IM_GameAndUI:
-		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(InPlayerController, UI, UIStateInfo.MouseLockMode, UIStateInfo.bHideCursorDuringCapture);
+		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(InPlayerController, InUIStackInfo->UIStateInfo.bFocusWhenSetInputMode ? UI : nullptr, UIStateInfo.MouseLockMode, UIStateInfo.bHideCursorDuringCapture);
 		break;
 	case EUIInputMode::IM_GameOnly:
 		UWidgetBlueprintLibrary::SetInputMode_GameOnly(InPlayerController);
 		break;
 	case EUIInputMode::IM_UIOnly:
-		UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(InPlayerController, UI, UIStateInfo.MouseLockMode);
+		UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(InPlayerController, InUIStackInfo->UIStateInfo.bFocusWhenSetInputMode ? UI : nullptr, UIStateInfo.MouseLockMode);
 		break;
 	default:
 		ensureAlways(false);
@@ -164,15 +164,12 @@ void UUISubsystem::Clear()
 	}
 
 	// 初始化界面的输入设置。
-	if (UWorld* World = this->GetWorld())
+	if (UGameViewportClient* GameViewportClient = this->GetWorld()->GetGameViewport())
 	{
-		if (UGameViewportClient* GameViewportClient = World->GetGameViewport())
-		{
-			GameViewportClient->SetIgnoreInput(false);
-			GameViewportClient->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
-			GameViewportClient->SetHideCursorDuringCapture(false);
-			GameViewportClient->SetMouseLockMode(EMouseLockMode::LockOnCapture);
-		}
+		GameViewportClient->SetIgnoreInput(false);
+		GameViewportClient->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
+		GameViewportClient->SetHideCursorDuringCapture(false);
+		GameViewportClient->SetMouseLockMode(EMouseLockMode::LockOnCapture);
 	}
 }
 

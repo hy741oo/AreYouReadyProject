@@ -25,7 +25,7 @@ struct FAYRTableRowBase : public FTableRowBase
 	GENERATED_BODY()
 
 #if WITH_EDITORONLY_DATA
-	UPROPERTY(EditDefaultsOnly, Meta = (DisplayPriority = 1))
+	UPROPERTY(EditDefaultsOnly, Category = "Editor", Meta = (DisplayPriority = 0))
 	FName Description;
 #endif
 };
@@ -109,16 +109,19 @@ struct FInputIconDataTableRow : public FAYRTableRowBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "General")
 	TMap<TEnumAsByte<EInputDeviceType::Type>, FKey> InputKeys;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "General")
+	bool bCollapseOnIconHidden = true;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Text")
 	bool bUseIconHintText = false;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconHintText == true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Text", Meta = (EditCondition = "bUseIconHintText == true"))
 	FText IconText;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Meta = (EditCondition = "bUseIconHintText == true"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Text", Meta = (EditCondition = "bUseIconHintText == true"))
 	FSlateFontInfo IconTextFontInfo;
 };
 
