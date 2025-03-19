@@ -25,6 +25,15 @@ void UUISubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 			this->Clear();
 		}
 	);
+
+	// 注册输入设备切换事件。用于当玩家从键鼠切换到手柄时可以让当前栈顶UI接收到事件，并设置对应的Focus。
+	if (UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GetGameInstance()))
+	{
+		FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
+		FOnMessageReceived Callback;
+		Callback.BindUObject(this, &UUISubsystem::OnInputDeviceChanged);
+		this->InputDeviceMessageHandle = GMS->Register(Tag, Callback);
+	}
 }
 
 void UUISubsystem::Deinitialize()
@@ -32,6 +41,7 @@ void UUISubsystem::Deinitialize()
 	FCoreUObjectDelegates::PreLoadMap.Remove(this->CleanDelegateHandle);
 	this->CleanDelegateHandle.Reset();
 	this->Clear();
+	UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GetGameInstance())->Unregister(this->InputDeviceMessageHandle);
 }
 
 UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
@@ -62,10 +72,10 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 				FUIStackInfo& StackTop = this->UIStack[StackIndex - 1];
 				if (StackTop.UserWidget)
 				{
-					StackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::NewWidgetEntered);
+					StackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::UISCR_NewWidgetEntered);
 				}
 			}
-			CreatedWidget->OnEnterThisWidget(PlayerController, &UIStackInfo, EUIStateChangedReason::NewWidgetEntered);
+			CreatedWidget->OnEnterThisWidget(PlayerController, &UIStackInfo, EUIStateChangedReason::UISCR_NewWidgetEntered);
 		}
 	}
 	else
@@ -89,7 +99,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 		{
 			OldStackTop = this->UIStack.Pop();
 			CurrentStackIndex = OldStackTop.UserWidget->StackIndex;
-			OldStackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::BePopped);
+			OldStackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::UISCR_BePopped);
 			OldStackTop.UserWidget->RemoveFromParent();
 		} 
 		while (InSpecifiedUI->StackIndex < CurrentStackIndex);
@@ -98,7 +108,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 		if (this->UIStack.IsValidIndex(this->UIStack.Num() - 1))
 		{
 			FUIStackInfo& CurrentStackTop = this->UIStack[this->UIStack.Num() - 1];
-			CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::NewWidgetEntered);
+			CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::UISCR_NewWidgetEntered);
 		}
 	}
 	else 
@@ -107,13 +117,18 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 		if (this->UIStack.IsValidIndex(0))
 		{
 			FUIStackInfo OldStackTop = this->UIStack.Pop();
-			OldStackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::BePopped);
+			OldStackTop.UserWidget->OnLeaveThisWidget(EUIStateChangedReason::UISCR_BePopped);
 			OldStackTop.UserWidget->RemoveFromParent();
 
 			if (this->UIStack.IsValidIndex(this->UIStack.Num() - 1))
 			{
 				FUIStackInfo& CurrentStackTop = this->UIStack[this->UIStack.Num() - 1];
-				CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::BePopped);
+				CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::UISCR_BePopped);
+			}
+			else
+			{
+				// 进入该代码说明当前没有任何UI，执行清理逻辑。
+				this->Clear();
 			}
 		}
 	}
@@ -170,6 +185,31 @@ void UUISubsystem::Clear()
 		GameViewportClient->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
 		GameViewportClient->SetHideCursorDuringCapture(false);
 		GameViewportClient->SetMouseLockMode(EMouseLockMode::LockOnCapture);
+	}
+}
+
+void UUISubsystem::OnInputDeviceChanged(UGMSMessageBase* InMessage)
+{
+	if (UGMSInputDeviceType* Msg = Cast<UGMSInputDeviceType>(InMessage))
+	{
+		// 如果切换为控制器则让栈顶UI获得响应。
+		if (Msg->CurrentType == EInputDeviceType::IDT_Controller)
+		{
+			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+			this->OnInputDeviceChangeIntoGamepad(PlayerController);
+		}
+	}
+}
+
+void UUISubsystem::OnInputDeviceChangeIntoGamepad(APlayerController* InPlayerController)
+{
+	if (this->UIStack.Num() > 0)
+	{
+		FUIStackInfo& LastUIStackInfo = this->UIStack.Last();
+		if (UAYRUserWidget* LastWidget = LastUIStackInfo.UserWidget)
+		{
+			LastWidget->OnEnterThisWidget(InPlayerController, &LastUIStackInfo, EUIStateChangedReason::UISCR_InputDeviceChangedIntoGamepad);
+		}
 	}
 }
 

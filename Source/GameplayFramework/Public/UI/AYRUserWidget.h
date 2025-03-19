@@ -14,8 +14,9 @@ namespace EUIStateChangedReason
 {
 	enum Type
 	{
-		NewWidgetEntered UMETA(DisplayName = NewWidgetEntered),
-		BePopped UMETA(DisplayName = BePoped)
+		UISCR_NewWidgetEntered UMETA(DisplayName = NewWidgetEntered),
+		UISCR_BePopped UMETA(DisplayName = BePoped),
+		UISCR_InputDeviceChangedIntoGamepad UMETA(DisplayName = InputDeviceChangedIntoGamepad)
 	};
 }
 
