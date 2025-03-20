@@ -102,6 +102,9 @@ private:
 	// 输入设备切换时注册的消息句柄。
 	FGMSListenerHandle InputDeviceMessageHandle;
 
+	// 初始化界面的输入设置。
+	void ResetInputSetting() const;
+
 private:
 	// 对指定的UI应用状态信息。
 	void ApplyUIInfo(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo);
@@ -126,6 +129,6 @@ public:
 	void PopUI(const UAYRUserWidget* InSpecifiedUI = nullptr);
 
 	// 清理目前全部UI，并且将Viewport设置为初始状态。
-	void Clear() ;
+	void ClearUIStack() ;
 
 };

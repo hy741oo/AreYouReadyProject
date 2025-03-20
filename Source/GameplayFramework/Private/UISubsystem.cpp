@@ -22,7 +22,7 @@ void UUISubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 		[this](const FString& InMapPath)
 		{
 			UE_LOG(LogUISubsystem, Display, TEXT("Preloading new map, map path: %s, clearning UI subsystem."), *InMapPath);
-			this->Clear();
+			this->ClearUIStack();
 		}
 	);
 
@@ -40,7 +40,7 @@ void UUISubsystem::Deinitialize()
 {
 	FCoreUObjectDelegates::PreLoadMap.Remove(this->CleanDelegateHandle);
 	this->CleanDelegateHandle.Reset();
-	this->Clear();
+	this->ClearUIStack();
 	UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GetGameInstance())->Unregister(this->InputDeviceMessageHandle);
 }
 
@@ -125,13 +125,15 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 				FUIStackInfo& CurrentStackTop = this->UIStack[this->UIStack.Num() - 1];
 				CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::UISCR_BePopped);
 			}
-			else
-			{
-				// 进入该代码说明当前没有任何UI，执行清理逻辑。
-				this->Clear();
-			}
 		}
 	}
+
+	// 出栈操作后如果栈内已经没有任何UI，则执行重置输入设置的操作。
+	if (this->UIStack.Num() == 0)
+	{
+		this->ResetInputSetting();
+	}
+
 }
 
 void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo)
@@ -170,7 +172,7 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 	}
 }
 
-void UUISubsystem::Clear()
+void UUISubsystem::ClearUIStack()
 {
 	// 销毁所有的UI。
 	while (this->UIStack.Num() > 0)
@@ -178,7 +180,12 @@ void UUISubsystem::Clear()
 		this->PopUI();
 	}
 
-	// 初始化界面的输入设置。
+	// 恢复默认设置。
+	this->ResetInputSetting();
+}
+
+void UUISubsystem::ResetInputSetting() const
+{
 	if (UGameViewportClient* GameViewportClient = this->GetWorld()->GetGameViewport())
 	{
 		GameViewportClient->SetIgnoreInput(false);
@@ -187,6 +194,7 @@ void UUISubsystem::Clear()
 		GameViewportClient->SetMouseLockMode(EMouseLockMode::LockOnCapture);
 	}
 }
+
 
 void UUISubsystem::OnInputDeviceChanged(UGMSMessageBase* InMessage)
 {
