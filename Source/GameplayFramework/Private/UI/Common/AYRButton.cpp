@@ -4,22 +4,43 @@
 #include "UI/Common/AYRButton.h"
 
 #include "Components/Button.h"
+#include "Components/ButtonSlot.h"
 #include "Blueprint/WidgetTree.h"
 
-bool UAYRButton::Initialize()
+FReply SAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
 {
-	bool bIsSuccessful = Super::Initialize();
+	FReply ReturnReply = SBorder::OnFocusReceived(InMyGeometry, InFocusEvent);
 
-	// 生成按钮。
-	check(this->OwningButton = this->WidgetTree->ConstructWidget<UButton>(UButton::StaticClass()));
+	if (this->OnButtonFocusReceived.IsBound())
+	{
+		ReturnReply = this->OnButtonFocusReceived.Execute(InMyGeometry, InFocusEvent);
+	}
 
-	this->OwningButton->SetStyle(this->NormalWidgetStyle);
+	return ReturnReply;
+}
 
-	this->WidgetTree->RootWidget = this->OwningButton;
+void SAYRButton::OnFocusLost(const FFocusEvent& InFocusEvent)
+{
+	SBorder::OnFocusLost(InFocusEvent);
 
-	//this->OwningButton->OnClicked
+	this->OnButtonFocusLost.ExecuteIfBound(InFocusEvent);
+}
 
-	return bIsSuccessful;
+void SAYRButton::SetOnButtonFocusReceivedDelegate(FOnButtonFocusReceived InDelegate)
+{
+	this->OnButtonFocusReceived = InDelegate;
+}
+
+void SAYRButton::SetOnButtonFocusLostDelegate(FOnButtonFocusLost InDelegate)
+{
+	this->OnButtonFocusLost = InDelegate;
+}
+
+
+UAYRButton::UAYRButton(const FObjectInitializer& InObjectInitializer)
+	:Super(InObjectInitializer)
+{
+
 }
 
 void UAYRButton::SynchronizeProperties()
@@ -29,49 +50,68 @@ void UAYRButton::SynchronizeProperties()
 	if (this->bEnableFocusAppearance && this->HasAnyUserFocus())
 	{
 		// 当该Button启用Focus表现和被Focus的时候启用Focus Style...
-		this->OwningButton->SetStyle(this->FocusedWidgetStyle);
+		this->SetStyle(this->FocusedWidgetStyle);
 	}
 	else
 	{
 		// ...否则使用原本的Style。
-		this->OwningButton->SetStyle(this->NormalWidgetStyle);
+		this->SetStyle(this->NormalWidgetStyle);
 	}
 }
 
-void UAYRButton::NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent)
+TSharedRef<SWidget> UAYRButton::RebuildWidget()
 {
-	Super::NativeOnAddedToFocusPath(InFocusEvent);
+	TSharedPtr<SAYRButton> AYRButton = SNew(SAYRButton)
+		.OnClicked(BIND_UOBJECT_DELEGATE(FOnClicked, SlateHandleClicked))
+		.OnPressed(BIND_UOBJECT_DELEGATE(FSimpleDelegate, SlateHandlePressed))
+		.OnReleased(BIND_UOBJECT_DELEGATE(FSimpleDelegate, SlateHandleReleased))
+		.OnHovered_UObject( this, &ThisClass::SlateHandleHovered )
+		.OnUnhovered_UObject( this, &ThisClass::SlateHandleUnhovered )
+		.ButtonStyle(&WidgetStyle)
+		.ClickMethod(ClickMethod)
+		.TouchMethod(TouchMethod)
+		.PressMethod(PressMethod)
+		.IsFocusable(IsFocusable)
+		;
+
+	if ( GetChildrenCount() > 0 )
+	{
+		Cast<UButtonSlot>(GetContentSlot())->BuildSlot(AYRButton.ToSharedRef());
+	}
+
+	FOnButtonFocusReceived TempOnButtonFocusReceived;
+	TempOnButtonFocusReceived.BindUObject(this, &UAYRButton::OnFocusReceived);
+	AYRButton->SetOnButtonFocusReceivedDelegate(TempOnButtonFocusReceived);
+
+	FOnButtonFocusLost TempOnButtonFocusLost;
+	TempOnButtonFocusLost.BindUObject(this, &UAYRButton::OnFocusLost);
+	AYRButton->SetOnButtonFocusLostDelegate(TempOnButtonFocusLost);
+
+	this->MyButton = AYRButton;
+	
+	return MyButton.ToSharedRef();
+}
+
+FReply UAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
+{
+	this->OnButtonFocusReceived.Broadcast();
 
 	if (this->bEnableFocusAppearance)
 	{
-		this->OwningButton->SetStyle(this->FocusedWidgetStyle);
+		this->SetStyle(this->FocusedWidgetStyle);
 	}
 	else
 	{
-		this->OwningButton->SetStyle(this->NormalWidgetStyle);
+		this->SetStyle(this->NormalWidgetStyle);
 	}
+
+	return FReply::Handled();
 }
 
-void UAYRButton::NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent)
+void UAYRButton::OnFocusLost(const FFocusEvent& InFocusEvent)
 {
-	Super::NativeOnRemovedFromFocusPath(InFocusEvent);
+	this->OnButtonFocusLost.Broadcast();
 
-	this->OwningButton->SetStyle(this->NormalWidgetStyle);
-
+	this->SetStyle(this->NormalWidgetStyle);
 }
-
-//FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
-//{
-//}
-
-void UAYRButton::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
-{
-
-}
-
-void UAYRButton::NativeOnFocusChanging(const FWeakWidgetPath& PreviousFocusPath, const FWidgetPath& NewWidgetPath, const FFocusEvent& InFocusEvent)
-{
-
-}
-
 

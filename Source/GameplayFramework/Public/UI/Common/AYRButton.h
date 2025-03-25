@@ -4,25 +4,46 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
 #include "AYRButton.generated.h"
 
-class UButton;
+DECLARE_DELEGATE_RetVal_TwoParams(FReply, FOnButtonFocusReceived, const FGeometry&, const FFocusEvent&);
+DECLARE_DELEGATE_OneParam(FOnButtonFocusLost, const FFocusEvent&);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonClicked);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonClicked);
+
+class GAMEPLAYFRAMEWORK_API SAYRButton : public SButton
+{
+public:
+	FOnButtonFocusReceived OnButtonFocusReceived;
+
+	FOnButtonFocusLost OnButtonFocusLost;
+
+public:
+	void SetOnButtonFocusReceivedDelegate(FOnButtonFocusReceived InDelegate);
+
+	void SetOnButtonFocusLostDelegate(FOnButtonFocusLost InDelegate);
+
+public:
+	virtual FReply OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent) override;
+
+	virtual void OnFocusLost( const FFocusEvent& InFocusEvent ) override;
+};
+
+
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonFocusReceivedBP);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonFocusLostBP);
 
 /**
  * 该UserWidget包装了一个按钮，在基础按钮上增加了“聚焦”效果，例如玩家聚焦该按钮时该按钮需要呈现效果。
  */
 UCLASS(Blueprintable, BlueprintType)
-class GAMEPLAYFRAMEWORK_API UAYRButton : public UUserWidget
+class GAMEPLAYFRAMEWORK_API UAYRButton : public UButton
 {
 
 	GENERATED_BODY()
 
-private:
-	UButton* OwningButton;
-	
 public:
 	// 按钮通常状态下的Style。
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance")
@@ -36,26 +57,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
 	bool bEnableFocusAppearance = false;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnButtonClicked OnButtonClicked;
+	// 按钮Focus Received时调用。
+	UPROPERTY(BlueprintAssignable, Category="Button|Event")
+	FOnButtonFocusReceivedBP OnButtonFocusReceived;
+
+	// 按钮Focus Lost时调用。
+	UPROPERTY(BlueprintAssignable, Category="Button|Event")
+	FOnButtonFocusLostBP OnButtonFocusLost;
+
 
 public:
-	// 构建内部控件。
-	virtual bool Initialize() override;
+	UAYRButton(const FObjectInitializer& InObjectInitializer);
 
 	// 更改属性后更新。
 	virtual void SynchronizeProperties() override;
 
-	// Widget进入Focus Path时更改为Focus表现。
-	virtual void NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent);
+	// 构建我们的SButton。
+	virtual TSharedRef<SWidget> RebuildWidget() override;
 
-	// Widget离开Focus Path时更改为普通表现。
-	virtual void NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent);
+	virtual FReply OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent);
 
-	//virtual FReply NativeOnFocusReceived( const FGeometry& InGeometry, const FFocusEvent& InFocusEvent ) override;
-	virtual void NativeOnFocusLost( const FFocusEvent& InFocusEvent ) override;
-	virtual void NativeOnFocusChanging(const FWeakWidgetPath& PreviousFocusPath, const FWidgetPath& NewWidgetPath, const FFocusEvent& InFocusEvent) override;
-	//virtual void NativeOnButtonClicked();
-	//virtual void NativeOnButtonPressed();
-	//virtual void NativeOnButtonReleased();
+	virtual void OnFocusLost(const FFocusEvent& InFocusEvent);
 };
