@@ -94,7 +94,7 @@ TSharedRef<SWidget> UAYRButton::RebuildWidget()
 
 FReply UAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
 {
-	this->OnButtonFocusReceived.Broadcast();
+	this->OnButtonFocusReceived.Broadcast(this);
 
 	if (this->bEnableFocusAppearance)
 	{

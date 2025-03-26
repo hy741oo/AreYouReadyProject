@@ -32,7 +32,7 @@ public:
 
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonFocusReceivedBP);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonFocusReceivedBP, UAYRButton*, FocusedButton);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonFocusLostBP);
 
 /**
