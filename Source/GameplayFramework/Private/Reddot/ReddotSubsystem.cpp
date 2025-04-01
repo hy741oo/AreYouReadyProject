@@ -41,7 +41,6 @@ void UReddotSubsystem::AddReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdat
     FOnReddotStateUpdatedDelegate Delegate;
 	Delegate.BindUFunction(InUpdateCallbackDelegate.GetUObject(), InUpdateCallbackDelegate.GetFunctionName());
 	FoundPair.Add(InGameplayTag, Delegate);
-	InUpdateCallbackDelegate.ExecuteIfBound(true);
 	this->UpdateReddotState(ParentTag);
 }
 
@@ -69,17 +68,23 @@ void UReddotSubsystem::UpdateReddotState(FGameplayTag InGameplayTag) const
 
 void UReddotSubsystem::RemoveReddot(FGameplayTag InGameplayTag)
 {
-	TMap<FGameplayTag, FOnReddotStateUpdatedDelegate>& FoundMap = this->ReddotList[InGameplayTag];
-	if (FoundMap.Num() > 0)
+	if (this->ReddotList.Contains(InGameplayTag))
 	{
-		// 如果还有子Tag，则禁止移除。
+		// 如果该Tag已经被添加到红点数据里，则说明有其他Tag以此Tag为父类并添加到红点数据了，因此不能被移除掉。
 		return;
 	}
 
 	FGameplayTag ParentTag = InGameplayTag.RequestDirectParent();
-	if (!ParentTag.IsValid())
+	if (!ParentTag.IsValid() || !this->ReddotList.Contains(ParentTag))
 	{
-
+		// 不存在父Tag，或父Tag没有被注册过，则无法被删除。
+		return;
 	}
-}
 
+	TMap<FGameplayTag, FOnReddotStateUpdatedDelegate>& FoundMap = this->ReddotList[ParentTag];
+	FOnReddotStateUpdatedDelegate Callback;
+	FoundMap.Remove(InGameplayTag);
+
+	// 更新Tag树上的红点状态。
+	this->UpdateReddotState(ParentTag);
+}
