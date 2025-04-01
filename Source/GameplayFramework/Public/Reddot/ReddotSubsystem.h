@@ -22,20 +22,34 @@ class GAMEPLAYFRAMEWORK_API UReddotSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 	
 private:
-	// 已添加红点的数据。
-	TMap<FGameplayTag, TMap<FGameplayTag, FOnReddotStateUpdatedDelegate>> ReddotList;
+	// 红点Tag及其对应的子Tag。
+	TMap<FGameplayTag, TSet<FGameplayTag>> ReddotHierarchy;
 
-	// 根据Gameplay Tag结构递归更新红点信息。
-	void UpdateReddotState(FGameplayTag InGameplayTag) const;
+	// Tag及其对应的更新回调。
+	TMap<FGameplayTag, FOnReddotStateUpdatedDelegate> RegisteredReddot;
+
+	// 通知红点信息。
+	void NotifyReddotState(FGameplayTag InGameplayTag, bool bHasReddot) const;
+
+	// 构建红点树。
+	void BuildReddotHierarchy(FGameplayTag InCurrentGameplayTag, FGameplayTag InParentGameplayTag);
 
 public:
 	// 该GameplayTag是否存在红点。
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Reddot Subsystem")
 	bool HasAnyReddot(FGameplayTag InGameplayTag) const;
 
+	// 注册红点。用于后续执行回调。同时也可以通过返回值知晓当前Tag是否有红点。
+	UFUNCTION(BlueprintCallable, Category = "Reddot Subsystem")
+	bool RegisterReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdatedDynamicDelegate InUpdateCallbackDelegate);
+
+	// 注销红点。
+	UFUNCTION(BlueprintCallable, Category = "Reddot Subsystem")
+	void UnregisterReddot(FGameplayTag InGameplayTag);
+
 	// 添加红点。
 	UFUNCTION(BlueprintCallable, Category = "Reddot Subsystem")
-	void AddReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdatedDynamicDelegate InUpdateCallbackDelegate);
+	void AddReddot(FGameplayTag InGameplayTag);
 
 	// 删除红点。
 	UFUNCTION(BlueprintCallable, Category = "Reddot Subsystem")
