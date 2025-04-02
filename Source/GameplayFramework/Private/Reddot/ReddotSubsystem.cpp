@@ -50,29 +50,6 @@ void UReddotSubsystem::UnregisterReddot(FGameplayTag InGameplayTag)
 	}
 }
 
-void UReddotSubsystem::BuildReddotHierarchy(FGameplayTag InCurrentGameplayTag, FGameplayTag InParentGameplayTag)
-{
-	if (!InCurrentGameplayTag.IsValid())
-	{
-		// Tag非法。
-		return;
-	}
-
-	if (!InParentGameplayTag.IsValid())
-	{
-		// 父Tag无效，说明当前Tag是最高层Tag，直接返回。
-		return;
-	}
-
-	// 递归构建红点树。
-	this->BuildReddotHierarchy(InParentGameplayTag, InParentGameplayTag.RequestDirectParent());
-
-	TSet<FGameplayTag>& SubTags = this->ReddotHierarchy.FindOrAdd(InParentGameplayTag);
-	SubTags.Add(InCurrentGameplayTag);
-	// 通知父Tag已添加红点。
-	this->NotifyReddotState(InParentGameplayTag, this->HasAnyReddot(InParentGameplayTag));
-}
-
 void UReddotSubsystem::AddReddot(FGameplayTag InGameplayTag)
 {
 	if (!InGameplayTag.IsValid())
@@ -87,18 +64,32 @@ void UReddotSubsystem::AddReddot(FGameplayTag InGameplayTag)
 		return;
 	}
 
-	// 通知当前Tag状态。
-	this->NotifyReddotState(InGameplayTag, true);
-
-	// 递归构建红点树。
-	this->BuildReddotHierarchy(InGameplayTag, InGameplayTag.RequestDirectParent());
-}
-
-void UReddotSubsystem::NotifyReddotState(FGameplayTag InGameplayTag, bool bHasReddot) const
-{
-	if (const FOnReddotStateUpdatedDelegate* UpdateDelegate = this->RegisteredReddot.Find(InGameplayTag))
+	FGameplayTag ParentTag = InGameplayTag.RequestDirectParent();
+	if (!ParentTag.IsValid())
 	{
-		UpdateDelegate->ExecuteIfBound(bHasReddot);
+		// 当前Tag合法父Tag不合法，说明当前Tag为顶层Tag，直接添加进红点树并通知状态。
+		this->ReddotHierarchy.Add(InGameplayTag);
+		return;
+	}
+
+	if (!this->ReddotHierarchy.Contains(ParentTag))
+	{
+		// 父Tag不存在于当前红点数，递归构建红点树。
+		this->AddReddot(ParentTag);
+	}
+
+	if (this->ReddotHierarchy.Contains(ParentTag))
+	{
+		// 父Tag已经被添加过，将本Tag添加到父Tag的子Tag集合中，同时把当前Tag加进红点树里。
+		this->ReddotHierarchy.Add(InGameplayTag);
+		this->NotifyReddotState(InGameplayTag, true);
+		TSet<FGameplayTag>& SubTags = this->ReddotHierarchy[ParentTag];
+		SubTags.Add(InGameplayTag);
+		// 如果是新添加的子Tag，则需要同时父Tag更改红点状态。
+		if (SubTags.Num() == 1)
+		{
+			this->NotifyReddotState(ParentTag, true);
+		}
 	}
 }
 
@@ -110,15 +101,46 @@ void UReddotSubsystem::RemoveReddot(FGameplayTag InGameplayTag)
 		return;
 	}
 
-	if (this->ReddotHierarchy.Contains(InGameplayTag))
+	if (!this->ReddotHierarchy.Contains(InGameplayTag))
 	{
-		// 该Tag已经构建了Tag树，说明有子Tag，不能被删除。
+		// 该Tag没有添加进红点树内，不能被删除。
 		return;
 	}
 
-	// 通知当前Tag状态。
+	{
+		TSet<FGameplayTag>& SubTags = this->ReddotHierarchy[InGameplayTag];
+		if (SubTags.Num() > 0)
+		{
+			// 如果存在子Tag则不能被删除。
+			return;
+		}
+	}
+
+	// 把当前Tag从红点树移除并通知状态。
+	this->ReddotHierarchy.Remove(InGameplayTag);
 	this->NotifyReddotState(InGameplayTag, false);
 
-	// 递归构建红点树。
-	this->BuildReddotHierarchy(InGameplayTag, InGameplayTag.RequestDirectParent());
+	FGameplayTag ParentTag = InGameplayTag.RequestDirectParent();
+	if (!ParentTag.IsValid())
+	{
+		// 当前Tag合法父Tag不合法，说明当前Tag为顶层Tag，直接退出。
+		return;
+	}
+
+	if (this->ReddotHierarchy.Contains(ParentTag))
+	{
+		// 从父Tag的子Tag合集中删除当前Tag。
+		TSet<FGameplayTag>& SubTags = this->ReddotHierarchy[ParentTag];
+		SubTags.Remove(InGameplayTag);
+		// 递归检查父Tag是否也需要更新状态。
+		this->RemoveReddot(ParentTag);
+	}
+}
+
+void UReddotSubsystem::NotifyReddotState(FGameplayTag InGameplayTag, bool bHasReddot) const
+{
+	if (const FOnReddotStateUpdatedDelegate* UpdateDelegate = this->RegisteredReddot.Find(InGameplayTag))
+	{
+		UpdateDelegate->ExecuteIfBound(bHasReddot);
+	}
 }

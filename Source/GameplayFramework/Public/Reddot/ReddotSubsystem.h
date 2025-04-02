@@ -31,9 +31,6 @@ private:
 	// 通知红点信息。
 	void NotifyReddotState(FGameplayTag InGameplayTag, bool bHasReddot) const;
 
-	// 构建红点树。
-	void BuildReddotHierarchy(FGameplayTag InCurrentGameplayTag, FGameplayTag InParentGameplayTag);
-
 public:
 	// 该GameplayTag是否存在红点。
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Reddot Subsystem")
