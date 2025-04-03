@@ -29,15 +29,20 @@ bool UReddotSubsystem::HasAnyReddot(FGameplayTag InGameplayTag) const
 
 bool UReddotSubsystem::RegisterReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdatedDynamicDelegate InUpdateCallbackDelegate)
 {
+	FOnReddotStateUpdatedDelegate UpdateDelegate;
+	UpdateDelegate.BindUFunction(InUpdateCallbackDelegate.GetUObject(), InUpdateCallbackDelegate.GetFunctionName());
+	return this->RegisterReddot(InGameplayTag, UpdateDelegate);
+}
+
+bool UReddotSubsystem::RegisterReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdatedDelegate InUpdateCallbackDelegate)
+{
 	if (!InGameplayTag.IsValid() || this->RegisteredReddot.Contains(InGameplayTag))
 	{
 		// Tag非法，或该Tag已经注册。
 		return false;
 	}
 
-	FOnReddotStateUpdatedDelegate UpdateDelegate;
-	UpdateDelegate.BindUFunction(InUpdateCallbackDelegate.GetUObject(), InUpdateCallbackDelegate.GetFunctionName());
-	this->RegisteredReddot.Add(InGameplayTag, UpdateDelegate);
+	this->RegisteredReddot.Add(InGameplayTag, InUpdateCallbackDelegate);
 
 	return this->HasAnyReddot(InGameplayTag);
 }
@@ -52,6 +57,9 @@ void UReddotSubsystem::UnregisterReddot(FGameplayTag InGameplayTag)
 
 void UReddotSubsystem::AddReddot(FGameplayTag InGameplayTag)
 {
+	// 递归计数初始化。
+	static uint8 RecersiveCount = 0;
+
 	if (!InGameplayTag.IsValid())
 	{
 		// Tag非法。
@@ -67,26 +75,39 @@ void UReddotSubsystem::AddReddot(FGameplayTag InGameplayTag)
 	FGameplayTag ParentTag = InGameplayTag.RequestDirectParent();
 	if (!ParentTag.IsValid())
 	{
-		// 当前Tag合法父Tag不合法，说明当前Tag为顶层Tag，直接添加进红点树并通知状态。
+		// 当前Tag合法父Tag不合法，说明当前Tag为顶层Tag，直接添加进红点树。
 		this->ReddotHierarchy.Add(InGameplayTag);
+		// 如果递归计数为0且父Tag不合法，则说明当前红点Tag为单红点（即没有上下结构的红点），需要通知红点状态。
+		if (RecersiveCount == 0)
+		{
+			this->NotifyReddotState(InGameplayTag, true);
+		}
 		return;
 	}
 
+	bool bRepeatNotify = true;
 	if (!this->ReddotHierarchy.Contains(ParentTag))
 	{
-		// 父Tag不存在于当前红点数，递归构建红点树。
+		// 父Tag不存在于当前红点数，递归构建红点树，并需要执行状态通知。
+		bRepeatNotify = false;
+		++RecersiveCount;
 		this->AddReddot(ParentTag);
+		--RecersiveCount;
 	}
 
 	if (this->ReddotHierarchy.Contains(ParentTag))
 	{
 		// 父Tag已经被添加过，将本Tag添加到父Tag的子Tag集合中，同时把当前Tag加进红点树里。
 		this->ReddotHierarchy.Add(InGameplayTag);
-		this->NotifyReddotState(InGameplayTag, true);
+		// 需要为叶子红点执行状态变更通知。
+		if (RecersiveCount == 0)
+		{
+			this->NotifyReddotState(InGameplayTag, true);
+		}
 		TSet<FGameplayTag>& SubTags = this->ReddotHierarchy[ParentTag];
 		SubTags.Add(InGameplayTag);
-		// 如果是新添加的子Tag，则需要同时父Tag更改红点状态。
-		if (SubTags.Num() == 1)
+		// 如果是新添加的子Tag且父Tag没有被通知过状态，则需要同时父Tag更改红点状态。
+		if (SubTags.Num() == 1 && !bRepeatNotify)
 		{
 			this->NotifyReddotState(ParentTag, true);
 		}

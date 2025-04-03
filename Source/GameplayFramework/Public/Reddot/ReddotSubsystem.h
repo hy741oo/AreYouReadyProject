@@ -31,14 +31,19 @@ private:
 	// 通知红点信息。
 	void NotifyReddotState(FGameplayTag InGameplayTag, bool bHasReddot) const;
 
+	// 注册红点蓝图版本。
+	// C++版本见“bool RegisterReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdatedDelegate InUpdateCallbackDelegate)”
+	UFUNCTION(BlueprintCallable, Category = "Reddot Subsystem")
+	bool RegisterReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdatedDynamicDelegate InUpdateCallbackDelegate);
+
 public:
 	// 该GameplayTag是否存在红点。
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Reddot Subsystem")
 	bool HasAnyReddot(FGameplayTag InGameplayTag) const;
 
-	// 注册红点。用于后续执行回调。同时也可以通过返回值知晓当前Tag是否有红点。
-	UFUNCTION(BlueprintCallable, Category = "Reddot Subsystem")
-	bool RegisterReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdatedDynamicDelegate InUpdateCallbackDelegate);
+	// 注册红点。用于后续执行更新回调。同时也可以通过返回值知晓当前Tag是否有红点。
+	// 蓝图版本见“bool RegisterReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdatedDynamicDelegate InUpdateCallbackDelegate)”
+	bool RegisterReddot(FGameplayTag InGameplayTag, FOnReddotStateUpdatedDelegate InUpdateCallbackDelegate);
 
 	// 注销红点。
 	UFUNCTION(BlueprintCallable, Category = "Reddot Subsystem")
