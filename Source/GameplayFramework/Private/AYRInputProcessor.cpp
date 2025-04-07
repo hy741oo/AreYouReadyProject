@@ -5,6 +5,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "AYRPlayerController.h"
+#include "Widgets/SViewport.h"
 
 DEFINE_LOG_CATEGORY(LogAYRInputProcessor);
 
@@ -115,6 +116,34 @@ void FAYRInputProcessor::OnPlayerInputDeviceChanged(const EInputDeviceType::Type
 
 void FAYRInputProcessor::OnHandleAnyPressableKey(const FKey& InHandledKey)
 {
+#if WITH_EDITOR
+	// 防止引擎在PIE模式下的Editor窗口响应输入逻辑处理，例如我们只希望在游戏窗口内才进行输入逻辑处理，而不是在内容浏览器的搜索框里进行处理。
+	// 当前处理并不是最妥善处理，但是依然非常有效，后续需要找一个更完善的方法取代此逻辑。
+	FSlateApplication& App = FSlateApplication::Get();
+	TSharedPtr<SWidget> CurrentWindow = App.GetUserFocusedWidget(0);
+	TSharedPtr<SViewport> GameViewport = App.GetGameViewport();
+	if (CurrentWindow && GameViewport)
+	{
+		while(1)
+		{
+			if (CurrentWindow->IsParentValid())
+			{
+				CurrentWindow = CurrentWindow->GetParentWidget();
+			}
+			else
+			{
+				return;
+			}
+
+			if (CurrentWindow == GameViewport)
+			{
+				break;
+			}
+		}
+	}
+#endif
+
+
 	UE_LOG(LogAYRInputProcessor, Display, TEXT("Pressed key is: %s"), *InHandledKey.ToString());
 	FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.HandleKey"));
 	if (Tag.IsValid())
