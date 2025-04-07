@@ -31,6 +31,16 @@ public:
 	TEnumAsByte<EInputDeviceType::Type> CurrentType = EInputDeviceType::IDT_Controller;
 };
 
+UCLASS()
+class UGMSHandledKey : public UGMSMessageBase
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn))
+	FKey HandledKey;
+};
+
 /**
  * 
  */
@@ -46,6 +56,13 @@ private:
 
 	// GameInstance，用于后续处理Gameplay相关的逻辑。
 	UGameInstance* GameInstance = nullptr;
+
+private:
+	// 当玩家的输入设备类型改变时调用。
+	virtual void OnPlayerInputDeviceChanged(const EInputDeviceType::Type InInputDeviceType);
+
+	// 当玩家输入按键（键鼠或是手柄的按键）时调用。
+	virtual void OnHandleAnyPressableKey(const FKey& InHandledKey);
 
 public:
 	virtual void Tick(const float DeltaTime, FSlateApplication& SlateApp, TSharedRef<ICursor> Cursor) override
