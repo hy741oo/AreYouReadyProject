@@ -126,6 +126,11 @@ void FAYRInputProcessor::OnHandleAnyPressableKey(const FKey& InHandledKey)
 	{
 		while(1)
 		{
+			if (CurrentWindow == GameViewport)
+			{
+				break;
+			}
+
 			if (CurrentWindow->IsParentValid())
 			{
 				CurrentWindow = CurrentWindow->GetParentWidget();
@@ -135,10 +140,6 @@ void FAYRInputProcessor::OnHandleAnyPressableKey(const FKey& InHandledKey)
 				return;
 			}
 
-			if (CurrentWindow == GameViewport)
-			{
-				break;
-			}
 		}
 	}
 #endif
