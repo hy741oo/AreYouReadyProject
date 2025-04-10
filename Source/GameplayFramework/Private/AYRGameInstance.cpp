@@ -30,5 +30,10 @@ void UAYRGameInstance::Shutdown()
 
 EInputDeviceType::Type UAYRGameInstance::GetCurrentInputDeviceType() const
 {
-	return this->InputProcessor->GetCurrentInputDeviceType();
+	if (this->InputProcessor.IsValid())
+	{
+		return this->InputProcessor->GetCurrentInputDeviceType();
+	}
+
+	return EInputDeviceType::IDT_KeyboardAndMouse;
 }
