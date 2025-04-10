@@ -34,12 +34,15 @@ struct FAudioManagerDataTableRow : public FAYRTableRowBase
 	USoundAttenuation* OverriddenAttenuationSettings = nullptr;
 
 	// 是否为UI音频。如果为UI音频的话当游戏暂停后依然会播放。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	bool bIsUISound = false;
 
 	// 是否播放完后销毁。对“PlaySound2D”和“PlayerSound3D”不起效。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	bool bAutoDestroy = true;
 
 	// 是否在附加对象被销毁后停止播放。对“PlaySound2D”和“PlayerSound3D”不起效。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	bool bStopWhenAttachedToDestroyed = false;
 };
 
