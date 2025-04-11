@@ -5,6 +5,7 @@
 
 #include "GameConfigSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "AudioDevice.h"
 
 DEFINE_LOG_CATEGORY(LogWorldManager)
 
@@ -13,7 +14,7 @@ void UWorldManager::Initialize(FSubsystemCollectionBase& Collection)
 	
 }
 
-void UWorldManager::StartFade(const bool bFadeIn,const float DurationTime) const
+void UWorldManager::StartFade(const bool InbFadeIn,const float InDurationTime, const bool InbEnableFadeAudio)
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -25,12 +26,17 @@ void UWorldManager::StartFade(const bool bFadeIn,const float DurationTime) const
 			{
 				Viewport->AbortFade();
 			}
-			Viewport->StartFade(bFadeIn, DurationTime);
+			Viewport->StartFade(InbFadeIn, InDurationTime);
 		}
+	}
+
+	if (InbEnableFadeAudio)
+	{
+		this->StartFadeAudio(InbFadeIn, InDurationTime);
 	}
 }
 
-void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime) const
+void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime, const bool InbEnableFadeAudio)
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -45,9 +51,14 @@ void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const
 			Viewport->StartFadeWithEvent(InOnFadeEndBP, InbFadeIn, InDurationTime);
 		}
 	}
+
+	if (InbEnableFadeAudio)
+	{
+		this->StartFadeAudio(InbFadeIn, InDurationTime);
+	}
 }
 
-void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime) const
+void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime, const bool InbEnableFadeAudio)
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -57,14 +68,20 @@ void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const boo
 			// 如果正处于Fade状态，则先中断之前的Fade。
 			if (Viewport->IsFading())
 			{
-				Viewport->AbortFade();
+				//Viewport->AbortFade();
+				this->AbortFade();
 			}
 			Viewport->StartFadeWithEvent(InOnFadeEnd, InbFadeIn, InDurationTime);
 		}
 	}
+
+	if (InbEnableFadeAudio)
+	{
+		this->StartFadeAudio(InbFadeIn, InDurationTime);
+	}
 }
 
-void UWorldManager::StopFade() const
+void UWorldManager::StopFade()
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -74,9 +91,14 @@ void UWorldManager::StopFade() const
 			Viewport->StopFade();
 		}
 	}
+
+	if (this->bEnableFadeAudio)
+	{
+		this->StopFadeAudio();
+	}
 }
 
-void UWorldManager::AbortFade() const
+void UWorldManager::AbortFade()
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -85,6 +107,11 @@ void UWorldManager::AbortFade() const
 		{
 			Viewport->AbortFade();
 		}
+	}
+
+	if (this->bEnableFadeAudio)
+	{
+		this->StopFadeAudio();
 	}
 }
 
@@ -105,4 +132,46 @@ void UWorldManager::OpenNewLevel(const FName InNewLevelID) const
 
 	UE_LOG(LogWorldManager, Warning, TEXT("InNewLevelID is invalid!: \"%s\""), *InNewLevelID.ToString());
 }
+
+void UWorldManager::StartFadeAudio(const bool InbFadeIn, const float InDurationTime)
+{
+	this->bEnableFadeAudio = true;
+	this->ElapsedFadeTime = .0f;
+	this->bIsFadeIn = InbFadeIn;
+	this->TargetFadeTime = InDurationTime;
+}
+
+void UWorldManager::Tick(float InDeltaTime)
+{
+	if (this->bEnableFadeAudio)
+	{
+		this->ElapsedFadeTime += InDeltaTime;
+		if (this->ElapsedFadeTime < this->TargetFadeTime)
+		{
+			float CurrentFadeTime = this->ElapsedFadeTime / this->TargetFadeTime;
+			if (GEngine)
+			{
+				if (UWorld* World = this->GetWorld())
+				{
+					if (FAudioDevice* AudioDevice = World->GetAudioDeviceRaw())
+					{
+						AudioDevice->SetTransientMasterVolume(this->bIsFadeIn ? CurrentFadeTime : 1.f - CurrentFadeTime);
+					}
+				}
+			}
+		}
+		else
+		{
+			this->StopFadeAudio();
+		}
+	}
+}
+
+void UWorldManager::StopFadeAudio()
+{
+	this->bEnableFadeAudio = false;
+	this->ElapsedFadeTime = .0f;
+	this->TargetFadeTime = .0f;
+}
+
 
