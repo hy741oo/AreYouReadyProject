@@ -38,24 +38,9 @@ void UWorldManager::StartFade(const bool InbFadeIn,const float InDurationTime, c
 
 void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime, const bool InbEnableFadeAudio)
 {
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
-		{
-			// 如果正处于Fade状态，则先中断之前的Fade。
-			if (Viewport->IsFading())
-			{
-				Viewport->AbortFade();
-			}
-			Viewport->StartFadeWithEvent(InOnFadeEndBP, InbFadeIn, InDurationTime);
-		}
-	}
-
-	if (InbEnableFadeAudio)
-	{
-		this->StartFadeAudio(InbFadeIn, InDurationTime);
-	}
+	FOnFadeEndDelegate Delegate;
+	Delegate.BindUFunction(InOnFadeEndBP.GetUObject(), InOnFadeEndBP.GetFunctionName());
+	this->StartFadeWithEvent(Delegate, InbFadeIn, InDurationTime, InbEnableFadeAudio);
 }
 
 void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime, const bool InbEnableFadeAudio)
@@ -68,8 +53,7 @@ void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const boo
 			// 如果正处于Fade状态，则先中断之前的Fade。
 			if (Viewport->IsFading())
 			{
-				//Viewport->AbortFade();
-				this->AbortFade();
+				Viewport->AbortFade();
 			}
 			Viewport->StartFadeWithEvent(InOnFadeEnd, InbFadeIn, InDurationTime);
 		}

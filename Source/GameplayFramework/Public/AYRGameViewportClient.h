@@ -33,8 +33,6 @@ private:
 
 	// 当淡入淡出结束后需要调用的委托。
 	FOnFadeEndDelegate OnFadeEnd;
-	// 蓝图版本委托。
-	FOnFadeEndBPDelegate OnFadeEndBP;
 
 protected:
 	// 执行Fade后的绑定事件。
@@ -43,8 +41,6 @@ protected:
 public:
 	// 开始淡入淡出屏幕。无委托版本。
 	virtual void StartFade(const bool bFadeIn = false,const float DurationTime = .3f);
-	// 蓝图委托版本的渐变。
-	virtual void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = .3f);
 	// 普通委托版本的渐变。
 	virtual void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = .3f);
 
