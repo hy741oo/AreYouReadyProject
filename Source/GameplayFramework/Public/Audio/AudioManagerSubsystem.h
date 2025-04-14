@@ -54,6 +54,7 @@ class GAMEPLAYFRAMEWORK_API UAudioManagerSubsystem : public UGameInstanceSubsyst
 {
 	GENERATED_BODY()
 	
+public:
 	// 生成并播放2D音频。适用于播放UI音效、BGM等。
 	UFUNCTION(BlueprintCallable, Category = "Audio|2D")
 	void PlaySound2D(FName SoundID, float StartTime = -1.f, AActor* OwningActor = nullptr);
