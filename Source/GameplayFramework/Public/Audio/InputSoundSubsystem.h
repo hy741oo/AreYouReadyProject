@@ -8,6 +8,8 @@
 
 #include "InputSoundSubsystem.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogInputSoundSubsystem, Log, All);
+
 class UAudioManagerSubsystem;
 
 USTRUCT(BlueprintType)
@@ -19,9 +21,26 @@ struct FInputSoundTableRow : public FAYRTableRowBase
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FKey, FName> KeySoundMap;
 
-	// 是否阻挡按键往下传递。在按键音效栈顶中如果没有查找到当前按键对应的音效时，是否需要往栈的下一层寻找，true为继续寻找，false则不寻找。
+	// 是否阻挡按键往下传递。在按键音效栈顶中如果没有查找到当前按键对应的音效时，是否需要往栈的下一层寻找，true为不继续寻找，false则继续寻找。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	bool bHandled = true;
+};
+
+USTRUCT(BlueprintType)
+struct FInputSoundDataHandle
+{
+	GENERATED_BODY()
+
+	int32 StackIndex = -1;
+
+	int32 CurrentID = -1;
+};
+
+struct FInputSoundStackData
+{
+	FInputSoundTableRow* DataTableRow = nullptr;
+
+	int32 UniqueID = -1;
 };
 
 /**
@@ -35,13 +54,16 @@ class GAMEPLAYFRAMEWORK_API UInputSoundSubsystem : public UGameInstanceSubsystem
 
 private:
 	// 按键音效栈。
-	TArray<FInputSoundTableRow> InputSoundStack;
+	TArray<FInputSoundStackData> InputSoundStack;
 
 	// 音频子系统。用于播放音效。
 	UAudioManagerSubsystem* AudioManager = nullptr;
 
 	// GMS回调事件的句柄。
 	FGMSListenerHandle GMSHandle;
+
+	// 唯一标识符。用于在句柄上识别Input Sound数据。
+	int32 UniqueID = -1;
 private:
 	// 接受到GMS发送过来的处理输入按键的回调。
 	virtual void OnHandledInputKey(UGMSMessageBase* Message);
@@ -51,4 +73,11 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	virtual void Deinitialize() override;
+
+	// 入栈输入按键音效数据。
+	UFUNCTION(BlueprintCallable, Category = "Input Sound Subsystem")
+	bool PushInputSoundData(FName InputSdoundID, FInputSoundDataHandle& Handle);
+
+	UFUNCTION(BlueprintCallable, Category = "Input Sound Subsystem")
+	void PopInputSoundData(UPARAM(Ref)FInputSoundDataHandle& Handle);
 };
