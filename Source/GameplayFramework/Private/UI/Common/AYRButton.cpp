@@ -120,26 +120,29 @@ void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
 {
 	this->SetStyle(InStyle);
 
-	// 设置鼠标悬停音效。
-	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
-	FAudioManagerDataTableRow* TableRow = nullptr;
 	// 由于该部分代码会在Editor模式下被调用（如打开UMG Designer时），这个时候子系统还没有生成，所以需要判断一下。
-	if (Config && Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.HoveredSoundID, TableRow))
+	if (!this->IsDesignTime())
 	{
-		FSlateSound SlateSound;
-		SlateSound.SetResourceObject(TableRow->SoundBase);
-		TOptional<FSlateSound> ButtonSound = SlateSound;
-		this->MyButton->SetHoveredSound(ButtonSound);
-	}
+		// 设置鼠标悬停音效。
+		UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+		FAudioManagerDataTableRow* TableRow = nullptr;
+		if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.HoveredSoundID, TableRow))
+		{
+			FSlateSound SlateSound;
+			SlateSound.SetResourceObject(TableRow->SoundBase);
+			TOptional<FSlateSound> ButtonSound = SlateSound;
+			this->MyButton->SetHoveredSound(ButtonSound);
+		}
 
-	// 设置点击音效。
-	TableRow = nullptr;
-	if (Config && Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.PressedSoundID, TableRow))
-	{
-		FSlateSound SlateSound;
-		SlateSound.SetResourceObject(TableRow->SoundBase);
-		TOptional<FSlateSound> ButtonSound = SlateSound;
-		this->MyButton->SetPressedSound(ButtonSound);
+		// 设置点击音效。
+		TableRow = nullptr;
+		if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.PressedSoundID, TableRow))
+		{
+			FSlateSound SlateSound;
+			SlateSound.SetResourceObject(TableRow->SoundBase);
+			TOptional<FSlateSound> ButtonSound = SlateSound;
+			this->MyButton->SetPressedSound(ButtonSound);
+		}
 	}
 }
 
