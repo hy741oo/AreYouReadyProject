@@ -21,7 +21,7 @@ void UUISubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	this->CleanDelegateHandle = FCoreUObjectDelegates::PreLoadMap.AddWeakLambda(this,
 		[this](const FString& InMapPath)
 		{
-			UE_LOG(LogUISubsystem, Display, TEXT("Preloading new map, map path: %s, clearning UI subsystem."), *InMapPath);
+			UE_LOG(LogUISubsystem, Log, TEXT("Preloading new map, map path: %s, clearning UI subsystem."), *InMapPath);
 			this->ClearUIStack();
 		}
 	);

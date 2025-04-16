@@ -48,7 +48,7 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 		int32 AssetsCount = SearchedAssets.Num();
 		if (AssetsCount)
 		{
-			UE_LOG(LogGameConfigSubsystem, Display, TEXT("Searched Assets count is: %d"), AssetsCount);
+			UE_LOG(LogGameConfigSubsystem, Log, TEXT("Searched Assets count is: %d"), AssetsCount);
 		}
 		else
 		{
@@ -62,7 +62,7 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 				UDataTable* DT = CastChecked<UDataTable>(SearchedAsset.GetAsset());
 				UDataTable*& DataTable = this->LoadedDataTables.Add(DT->GetRowStruct()->GetFName());
 				DataTable = DT;
-				UE_LOG(LogGameConfigSubsystem, Display, TEXT("Load DataTable: %s"), *(DataTable->GetFName().ToString()));
+				UE_LOG(LogGameConfigSubsystem, Log, TEXT("Load DataTable: %s"), *(DataTable->GetFName().ToString()));
 			}
 			else
 			{

@@ -31,7 +31,7 @@ bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const
 			{
 				this->CurrentInputDeviceType = EInputDeviceType::IDT_Controller;
 
-				UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a KeyDown gamepad input, user index code: %d"), InKeyEvent.GetUserIndex());
+				UE_LOG(LogAYRInputProcessor, Log, TEXT("This is a KeyDown gamepad input, user index code: %d"), InKeyEvent.GetUserIndex());
 				this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 			}
 		}
@@ -41,7 +41,7 @@ bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const
 			{
 				this->CurrentInputDeviceType = EInputDeviceType::IDT_KeyboardAndMouse;
 
-				UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a KeyDown Keyboard input, user index code: %d"), InKeyEvent.GetUserIndex());
+				UE_LOG(LogAYRInputProcessor, Log, TEXT("This is a KeyDown Keyboard input, user index code: %d"), InKeyEvent.GetUserIndex());
 				this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 			}
 		}
@@ -60,7 +60,7 @@ bool FAYRInputProcessor::HandleMouseButtonDownEvent(FSlateApplication& InSlateAp
 	{
 		this->CurrentInputDeviceType = EInputDeviceType::IDT_KeyboardAndMouse;
 
-		UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a MouseButtonDown input, user index code: %d"), InMouseEvent.GetUserIndex());
+		UE_LOG(LogAYRInputProcessor, Log, TEXT("This is a MouseButtonDown input, user index code: %d"), InMouseEvent.GetUserIndex());
 		this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 	}
 
@@ -75,7 +75,7 @@ bool FAYRInputProcessor::HandleMouseMoveEvent(FSlateApplication& InSlateApp, con
 	{
 		this->CurrentInputDeviceType = EInputDeviceType::IDT_KeyboardAndMouse;
 
-		UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a MouseMove input, user index code: %d"), InMouseEvent.GetUserIndex());
+		UE_LOG(LogAYRInputProcessor, Log, TEXT("This is a MouseMove input, user index code: %d"), InMouseEvent.GetUserIndex());
 		this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 	}
 
@@ -89,7 +89,7 @@ bool FAYRInputProcessor::HandleMouseWheelOrGestureEvent(FSlateApplication& InSla
 	{
 		this->CurrentInputDeviceType = EInputDeviceType::IDT_KeyboardAndMouse;
 
-		UE_LOG(LogAYRInputProcessor, Display, TEXT("This is a MouseMove input, user index code: %d"), InWheelEvent.GetUserIndex());
+		UE_LOG(LogAYRInputProcessor, Log, TEXT("This is a MouseMove input, user index code: %d"), InWheelEvent.GetUserIndex());
 		this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 	}
 
@@ -145,7 +145,7 @@ void FAYRInputProcessor::OnHandleAnyPressableKey(const FKey& InHandledKey)
 #endif
 
 
-	UE_LOG(LogAYRInputProcessor, Display, TEXT("Pressed key is: %s"), *InHandledKey.ToString());
+	UE_LOG(LogAYRInputProcessor, Log, TEXT("Pressed key is: %s"), *InHandledKey.ToString());
 	FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.HandleKey"));
 	if (Tag.IsValid())
 	{
