@@ -80,7 +80,11 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 	}
 	else
 	{
-		UE_LOG(LogUISubsystem, Warning, TEXT("Can't find UIID: \"%s\""), *InUIID.ToString());
+		// 排除空Name的情况。
+		if (InUIID != NAME_None)
+		{
+			UE_LOG(LogUISubsystem, Warning, TEXT("Can't find UIID: \"%s\""), *InUIID.ToString());
+		}
 	}
 
 	return CreatedWidget;

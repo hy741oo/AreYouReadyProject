@@ -213,6 +213,12 @@ public:
 	template<typename TableRowType>
 	bool GetDataTableRowFromID(const FName& InRowName, TableRowType*& OutTableRow)
 	{
+		// 排除空Name的情况。
+		if (InRowName == NAME_None)
+		{
+			return false;
+		}
+
 		if (ensureAlways(this->LoadedDataTables.Contains(TableRowType::StaticStruct()->GetFName())))
 		{
 			UDataTable** LoadedDataTable = this->LoadedDataTables.Find(TableRowType::StaticStruct()->GetFName());
@@ -245,6 +251,12 @@ public:
 	template<typename TableRowType>
 	bool GetDataTableRowFromID(const FName& InRowName, const TableRowType*& OutTableRow) const
 	{
+		// 排除空Name的情况。
+		if (InRowName == NAME_None)
+		{
+			return false;
+		}
+
 		if (ensureAlways(this->LoadedDataTables.Contains(TableRowType::StaticStruct()->GetFName())))
 		{
 			UDataTable* const* LoadedDataTable = this->LoadedDataTables.Find(TableRowType::StaticStruct()->GetFName());
