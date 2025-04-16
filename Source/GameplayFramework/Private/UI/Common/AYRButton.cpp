@@ -6,6 +6,7 @@
 #include "Components/Button.h"
 #include "Components/ButtonSlot.h"
 #include "Blueprint/WidgetTree.h"
+#include "Audio/AudioManagerSubsystem.h"
 
 FReply SAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
 {
@@ -50,12 +51,12 @@ void UAYRButton::SynchronizeProperties()
 	if (this->bEnableFocusAppearance && this->HasAnyUserFocus())
 	{
 		// 当该Button启用Focus表现和被Focus的时候启用Focus Style...
-		this->SetStyle(this->FocusedWidgetStyle);
+		this->SetAYRButtonStyle(this->FocusedWidgetStyle);
 	}
 	else
 	{
 		// ...否则使用原本的Style。
-		this->SetStyle(this->NormalWidgetStyle);
+		this->SetAYRButtonStyle(this->NormalWidgetStyle);
 	}
 }
 
@@ -98,11 +99,11 @@ FReply UAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEv
 
 	if (this->bEnableFocusAppearance)
 	{
-		this->SetStyle(this->FocusedWidgetStyle);
+		this->SetAYRButtonStyle(this->FocusedWidgetStyle);
 	}
 	else
 	{
-		this->SetStyle(this->NormalWidgetStyle);
+		this->SetAYRButtonStyle(this->NormalWidgetStyle);
 	}
 
 	return FReply::Handled();
@@ -112,6 +113,33 @@ void UAYRButton::OnFocusLost(const FFocusEvent& InFocusEvent)
 {
 	this->OnButtonFocusLost.Broadcast();
 
-	this->SetStyle(this->NormalWidgetStyle);
+	this->SetAYRButtonStyle(this->NormalWidgetStyle);
+}
+
+void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
+{
+	this->SetStyle(InStyle);
+
+	// 设置鼠标悬停音效。
+	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+	FAudioManagerDataTableRow* TableRow = nullptr;
+	// 由于该部分代码会在Editor模式下被调用（如打开UMG Designer时），这个时候子系统还没有生成，所以需要判断一下。
+	if (Config && Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.HoveredSoundID, TableRow))
+	{
+		FSlateSound SlateSound;
+		SlateSound.SetResourceObject(TableRow->SoundWave);
+		TOptional<FSlateSound> ButtonSound = SlateSound;
+		this->MyButton->SetHoveredSound(ButtonSound);
+	}
+
+	// 设置点击音效。
+	TableRow = nullptr;
+	if (Config && Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.PressedSoundID, TableRow))
+	{
+		FSlateSound SlateSound;
+		SlateSound.SetResourceObject(TableRow->SoundWave);
+		TOptional<FSlateSound> ButtonSound = SlateSound;
+		this->MyButton->SetPressedSound(ButtonSound);
+	}
 }
 

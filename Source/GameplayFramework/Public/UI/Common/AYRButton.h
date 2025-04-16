@@ -29,7 +29,20 @@ public:
 	virtual void OnFocusLost( const FFocusEvent& InFocusEvent ) override;
 };
 
+USTRUCT()
+struct FAYRButtonStyle : public FButtonStyle
+{
+	GENERATED_BODY()
 
+	// 点击音效的ID。
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AYRButton Appearance")
+	FName PressedSoundID;
+
+	// 悬停音效的ID。
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AYRButton Appearance")
+	FName HoveredSoundID;
+
+};
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonFocusReceivedBP, UAYRButton*, FocusedButton);
@@ -46,15 +59,15 @@ class GAMEPLAYFRAMEWORK_API UAYRButton : public UButton
 
 public:
 	// 按钮通常状态下的Style。
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance")
-	FButtonStyle NormalWidgetStyle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AYRButton Appearance")
+	FAYRButtonStyle NormalWidgetStyle;
 
 	// 按钮被Focus后的Style。
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance")
-	FButtonStyle FocusedWidgetStyle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AYRButton Appearance")
+	FAYRButtonStyle FocusedWidgetStyle;
 
 	// 按钮是否启用Focus表现。
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Appearance")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AYRButton Appearance")
 	bool bEnableFocusAppearance = false;
 
 	// 按钮Focus Received时调用。
@@ -78,4 +91,8 @@ public:
 	virtual FReply OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent);
 
 	virtual void OnFocusLost(const FFocusEvent& InFocusEvent);
+
+	// 设置按钮样式，同时设置按钮音效。
+	UFUNCTION(BlueprintCallable)
+	virtual void SetAYRButtonStyle(FAYRButtonStyle Style);
 };
