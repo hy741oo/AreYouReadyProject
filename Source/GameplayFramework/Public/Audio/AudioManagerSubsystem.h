@@ -15,7 +15,7 @@ struct FAudioManagerDataTableRow : public FAYRTableRowBase
 
 	// 要播放的音频资产。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	USoundWave* SoundWave = nullptr;
+	USoundBase* SoundBase = nullptr;
 
 	// 音量系数。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

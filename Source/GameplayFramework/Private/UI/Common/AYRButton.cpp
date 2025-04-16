@@ -127,7 +127,7 @@ void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
 	if (Config && Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.HoveredSoundID, TableRow))
 	{
 		FSlateSound SlateSound;
-		SlateSound.SetResourceObject(TableRow->SoundWave);
+		SlateSound.SetResourceObject(TableRow->SoundBase);
 		TOptional<FSlateSound> ButtonSound = SlateSound;
 		this->MyButton->SetHoveredSound(ButtonSound);
 	}
@@ -137,7 +137,7 @@ void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
 	if (Config && Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.PressedSoundID, TableRow))
 	{
 		FSlateSound SlateSound;
-		SlateSound.SetResourceObject(TableRow->SoundWave);
+		SlateSound.SetResourceObject(TableRow->SoundBase);
 		TOptional<FSlateSound> ButtonSound = SlateSound;
 		this->MyButton->SetPressedSound(ButtonSound);
 	}

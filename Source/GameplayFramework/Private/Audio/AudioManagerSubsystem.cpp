@@ -12,7 +12,7 @@ void UAudioManagerSubsystem::PlaySound2D(FName InSoundID, float InStartTime, AAc
 	FAudioManagerDataTableRow* TableRow = nullptr;
 	if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
 	{
-		UGameplayStatics::PlaySound2D(this, TableRow->SoundWave, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenConcurrencySettings, InOwningActor, TableRow->bIsUISound);
+		UGameplayStatics::PlaySound2D(this, TableRow->SoundBase, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenConcurrencySettings, InOwningActor, TableRow->bIsUISound);
 	}
 }
 
@@ -24,7 +24,7 @@ UAudioComponent* UAudioManagerSubsystem::SpawnSound2D(FName InSoundID, float InS
 
 	if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
 	{
-		AudioComponent = UGameplayStatics::SpawnSound2D(this, TableRow->SoundWave, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenConcurrencySettings, bInPersistAcrossLevelTransition, TableRow->bAutoDestroy);
+		AudioComponent = UGameplayStatics::SpawnSound2D(this, TableRow->SoundBase, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenConcurrencySettings, bInPersistAcrossLevelTransition, TableRow->bAutoDestroy);
 	}
 
 	if (AudioComponent)
@@ -43,7 +43,7 @@ void UAudioManagerSubsystem::PlaySound3D(FName InSoundID, FVector InLocation, FR
 	FAudioManagerDataTableRow* TableRow = nullptr;
 	if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, TableRow->SoundWave, InLocation, InRotation, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenAttenuationSettings, TableRow->OverriddenConcurrencySettings, InOwningActor);
+		UGameplayStatics::PlaySoundAtLocation(this, TableRow->SoundBase, InLocation, InRotation, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenAttenuationSettings, TableRow->OverriddenConcurrencySettings, InOwningActor);
 	}
 }
 
@@ -55,7 +55,7 @@ UAudioComponent* UAudioManagerSubsystem::SpawnSound3D(FName InSoundID, FVector I
 
 	if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
 	{
-		AudioComponent = UGameplayStatics::SpawnSoundAtLocation(this, TableRow->SoundWave, InLocation, InRotation, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenAttenuationSettings, TableRow->OverriddenConcurrencySettings, TableRow->bAutoDestroy);
+		AudioComponent = UGameplayStatics::SpawnSoundAtLocation(this, TableRow->SoundBase, InLocation, InRotation, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenAttenuationSettings, TableRow->OverriddenConcurrencySettings, TableRow->bAutoDestroy);
 	}
 
 	if (AudioComponent)
