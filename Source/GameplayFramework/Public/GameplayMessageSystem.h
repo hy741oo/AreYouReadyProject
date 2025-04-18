@@ -18,8 +18,6 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMessageReceivedBP, UGMSMessageBase*, Messag
 // 订阅C++消息需要用到的委托。
 DECLARE_DELEGATE_OneParam(FOnMessageReceived, UGMSMessageBase*)
 
-using FGMSCallbackHolder = TVariant<FOnMessageReceivedBP, FOnMessageReceived>;
-
 // 注册信息后返回的句柄。
 USTRUCT(BlueprintType)
 struct FGMSListenerHandle
@@ -47,7 +45,7 @@ private:
 		int32 ID = -1;
 
 		// 接收消息的回调函数。
-		FGMSCallbackHolder ReceivedMessageCallback;
+		FOnMessageReceived ReceivedMessageCallback;
 
 		// 执行回调。
 		void Execute(UGMSMessageBase* InMessage) const;
@@ -55,7 +53,7 @@ private:
 		// 检测是否可用。
 		bool IsValid() const;
 
-		FMessageListenerData(int32 InID, FGMSCallbackHolder InCallback)
+		FMessageListenerData(int32 InID, FOnMessageReceived InCallback)
 			: ID(InID), ReceivedMessageCallback(InCallback)
 		{
 		}
@@ -77,7 +75,7 @@ protected:
 	FGMSListenerHandle K2_Register(FGameplayTag InGameplayTag, FOnMessageReceivedBP OnMessageReceived);
 
 	// 实际执行消息注册的接口。
-	FGMSListenerHandle RegisterInternal(FGameplayTag InGameplayTag, FGMSCallbackHolder InCallbackHolder);
+	FGMSListenerHandle RegisterInternal(FGameplayTag InGameplayTag, FOnMessageReceived InCallbackHolder);
 
 	// 实际执行注销信息。
 	void UnregisterInternal(FGameplayTag InGameplayTag, int32 HandleID);

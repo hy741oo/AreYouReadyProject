@@ -43,9 +43,9 @@ FGMSListenerHandle UGameplayMessageSystem::K2_Register(FGameplayTag InGameplayTa
 		return FGMSListenerHandle();
 	}
 
-	FGMSCallbackHolder CallbackHolder;
-	CallbackHolder.Set<FOnMessageReceivedBP>(OnMessageReceived);
-	return this->RegisterInternal(InGameplayTag, CallbackHolder);
+	FOnMessageReceived CppCallbackHolder;
+	CppCallbackHolder.BindUFunction(OnMessageReceived.GetUObject(), OnMessageReceived.GetFunctionName());
+	return this->RegisterInternal(InGameplayTag, CppCallbackHolder);
 }
 
 FGMSListenerHandle UGameplayMessageSystem::Register(FGameplayTag InGameplayTag, FOnMessageReceived OnMessageReceived)
@@ -61,12 +61,10 @@ FGMSListenerHandle UGameplayMessageSystem::Register(FGameplayTag InGameplayTag, 
 		UE_LOG(LogGameplayMessageSystem, Warning, TEXT("OnMessageReceived delegate is invalid on register message, abort."));
 	}
 
-	FGMSCallbackHolder CallbackHolder;
-	CallbackHolder.Set<FOnMessageReceived>(OnMessageReceived);
-	return this->RegisterInternal(InGameplayTag, CallbackHolder);
+	return this->RegisterInternal(InGameplayTag, OnMessageReceived);
 }
 
-FGMSListenerHandle UGameplayMessageSystem::RegisterInternal(FGameplayTag InGameplayTag, FGMSCallbackHolder InCallbackHolder)
+FGMSListenerHandle UGameplayMessageSystem::RegisterInternal(FGameplayTag InGameplayTag, FOnMessageReceived InCallbackHolder)
 {
 		FMessageListenerList& Listeners = this->MessageListeners.FindOrAdd(InGameplayTag);
 
@@ -81,28 +79,11 @@ FGMSListenerHandle UGameplayMessageSystem::RegisterInternal(FGameplayTag InGamep
 
 void UGameplayMessageSystem::FMessageListenerData::Execute(UGMSMessageBase* InMessage) const
 {
-	bool bSuccess = true;
-	if (this->ReceivedMessageCallback.IsType<FOnMessageReceivedBP>())
+	bool bSuccess = false;
+	if (this->ReceivedMessageCallback.IsBound())
 	{
-		if (this->ReceivedMessageCallback.Get<FOnMessageReceivedBP>().IsBound())
-		{
-			this->ReceivedMessageCallback.Get<FOnMessageReceivedBP>().Execute(InMessage);
-		}
-		else
-		{
-			bSuccess = false;
-		}
-	}
-	else if (this->ReceivedMessageCallback.IsType<FOnMessageReceived>())
-	{
-		if (this->ReceivedMessageCallback.Get<FOnMessageReceived>().IsBound())
-		{
-			this->ReceivedMessageCallback.Get<FOnMessageReceived>().Execute(InMessage);
-		}
-		else
-		{
-			bSuccess = false;
-		}
+		bSuccess = true;
+		this->ReceivedMessageCallback.Execute(InMessage);
 	}
 
 	if (bSuccess)
@@ -117,23 +98,7 @@ void UGameplayMessageSystem::FMessageListenerData::Execute(UGMSMessageBase* InMe
 
 bool UGameplayMessageSystem::FMessageListenerData::IsValid() const
 {
-	bool bSuccess = false;
-	if (this->ReceivedMessageCallback.IsType<FOnMessageReceivedBP>())
-	{
-		if (this->ReceivedMessageCallback.Get<FOnMessageReceivedBP>().IsBound())
-		{
-			bSuccess = true;
-		}
-	}
-	else if (this->ReceivedMessageCallback.IsType<FOnMessageReceived>())
-	{
-		if (this->ReceivedMessageCallback.Get<FOnMessageReceived>().IsBound())
-		{
-			bSuccess = true;
-		}
-	}
-
-	return bSuccess;
+	return this->ReceivedMessageCallback.IsBound();
 }
 
 void UGameplayMessageSystem::Unregister(UPARAM(Ref)FGMSListenerHandle& InHandle)
