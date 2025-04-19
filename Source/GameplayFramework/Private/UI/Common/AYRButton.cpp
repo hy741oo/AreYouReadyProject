@@ -126,7 +126,7 @@ void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
 		// 设置鼠标悬停音效。
 		UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 		FAudioManagerDataTableRow* TableRow = nullptr;
-		if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.HoveredSoundID, TableRow))
+		if (!InStyle.HoveredSoundID.IsNone() && Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.HoveredSoundID, TableRow))
 		{
 			FSlateSound SlateSound;
 			SlateSound.SetResourceObject(TableRow->SoundBase);
@@ -136,7 +136,7 @@ void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
 
 		// 设置点击音效。
 		TableRow = nullptr;
-		if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.PressedSoundID, TableRow))
+		if (!InStyle.HoveredSoundID.IsNone() && Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InStyle.PressedSoundID, TableRow))
 		{
 			FSlateSound SlateSound;
 			SlateSound.SetResourceObject(TableRow->SoundBase);
