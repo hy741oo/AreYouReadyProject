@@ -88,11 +88,7 @@ bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundD
 	}
 	else
 	{
-		// 如果不是空Name的话需要报错。
-		if (InInputSoundID != NAME_None)
-		{
-			UE_LOG(LogInputSoundSubsystem, Warning, TEXT("Can't find InputSoundID: %s"), *InInputSoundID.ToString());
-		}
+		UE_LOG(LogInputSoundSubsystem, Warning, TEXT("Can't find InputSoundID: %s"), *InInputSoundID.ToString());
 	}
 
 	return bSuccessful;

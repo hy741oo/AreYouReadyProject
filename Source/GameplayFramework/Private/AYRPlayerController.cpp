@@ -24,11 +24,7 @@ void AAYRPlayerController::BeginPlay()
 	FPlayerControllerInfoTableRow* PlayerControllerInfo = nullptr;
 	if (!GameConfigSubsystem->GetDataTableRowFromID(this->ID, PlayerControllerInfo))
 	{
-		// 排除空Name的情况。
-		if (this->ID != NAME_None)
-		{
-			UE_LOG(LogAYRPlayerController, Warning, TEXT("Can't find ID: \"%s\""), *this->ID.ToString());
-		}
+		UE_LOG(LogAYRPlayerController, Warning, TEXT("Can't find ID: \"%s\""), *this->ID.ToString());
 		return;
 	}
 
@@ -64,11 +60,7 @@ void AAYRPlayerController::BeginPlay()
 		}
 		else
 		{
-			// 排除空Name的情况。
-			if (this->PlayerControllerInfoTableRow->PlayerUIInputMappingID != NAME_None)
-			{
-				UE_LOG(LogAYRPlayerController, Warning, TEXT("Can't find PlayerUIInputMappingID: \"%s\""), *this->PlayerControllerInfoTableRow->PlayerUIInputMappingID.ToString());
-			}
+			UE_LOG(LogAYRPlayerController, Warning, TEXT("Can't find PlayerUIInputMappingID: \"%s\""), *this->PlayerControllerInfoTableRow->PlayerUIInputMappingID.ToString());
 		}
 	}
 }
