@@ -19,6 +19,12 @@ void AAYRPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (this->ID.IsNone())
+	{
+		// 如果ID为None，则不需要执行后续操作。
+		return;
+	}
+
 	// 从数据表里获取控制器信息。
 	UGameConfigSubsystem* GameConfigSubsystem = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 	FPlayerControllerInfoTableRow* PlayerControllerInfo = nullptr;
@@ -40,6 +46,12 @@ void AAYRPlayerController::BeginPlay()
 	UInputSettings* IS = UInputSettings::GetInputSettings();
 	if (ensure(IS))
 	{
+		if (this->PlayerControllerInfoTableRow->PlayerUIInputMappingID.IsNone())
+		{
+			// 如果ID为None，则不需要执行后续操作。
+			return;
+		}
+
 		FPlayerUIInputMappingTableRow* UIInputMappingTableRow = nullptr;
 		if (GameConfigSubsystem->GetDataTableRowFromID(this->PlayerControllerInfoTableRow->PlayerUIInputMappingID, UIInputMappingTableRow))
 		{

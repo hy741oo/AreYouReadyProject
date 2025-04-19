@@ -11,8 +11,6 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogAYRPlayerController, Log, All);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerControllerInputDeviceChangedDelegate, EInputDeviceType::Type, CurrentInputDeviceType);
-
 /**
  * 
  */
