@@ -8,6 +8,31 @@
 
 #include "AudioManagerSubsystem.generated.h"
 
+// 音频类混音类覆盖的数据表表行结构。
+USTRUCT()
+struct FSoundMixClassOverrideTableRow : public FAYRTableRowBase
+{
+	GENERATED_BODY()
+
+	// 要覆盖的混音资产。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundMix* SoundMix = nullptr;
+
+	// 要覆盖的音频类。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundClass* SoundClass = nullptr;
+};
+
+// 混音资产的数据表表行结构体。
+USTRUCT()
+struct FSoundMixTableRow : public FAYRTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundMix* SoundMix = nullptr;
+};
+
 USTRUCT()
 struct FAudioManagerDataTableRow : public FAYRTableRowBase
 {
@@ -53,8 +78,15 @@ UCLASS()
 class GAMEPLAYFRAMEWORK_API UAudioManagerSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
+
+private:
+	// 游戏配置子系统，后续不再需要反复获取。
+	UGameConfigSubsystem* GameConfig = nullptr;
 	
 public:
+	// 初始化。
+	void Initialize(FSubsystemCollectionBase& InCollection);
+
 	// 生成并播放2D音频。适用于播放UI音效、BGM等。
 	UFUNCTION(BlueprintCallable, Category = "Audio|2D")
 	void PlaySound2D(FName SoundID, float StartTime = -1.f, AActor* OwningActor = nullptr);
@@ -70,4 +102,21 @@ public:
 	// 生成并播放3D音频，同时返回Audio Component供后续使用。
 	UFUNCTION(BlueprintCallable, Category = "Audio|3D")
 	UAudioComponent* SpawnSound3D(FName SoundID, FVector Location, FRotator Rotation, float StartTime = -1.f, bool bPersistAcrossLevelTransition = false);
+
+	// 覆盖指定的混音资产和音频类资产的属性。
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+	void SetSoundMixClassOverride(FName InSoundMixClassID, float InVolume = 1.0f, float InPitch = 1.0f, float InFadeInTime = .0f, bool InbApplyToChildren = true);
+
+	// 取消覆盖的婚姻资产和音频类资产。
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+	void ClearSoundMixClassOverride(FName InSoundMixClassID, float InFadeOutTime = .0f);
+
+	// 设置混音。
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+	void PushSoundMix(FName InSoundMixID);
+
+	// 取消混音。
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+	void PopSoundMix(FName InSoundMixID);
+
 };

@@ -6,11 +6,16 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
 
+void UAudioManagerSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
+{
+	this->GameConfig = InCollection.InitializeDependency<UGameConfigSubsystem>();
+	check(this->GameConfig);
+}
+
 void UAudioManagerSubsystem::PlaySound2D(FName InSoundID, float InStartTime, AActor* InOwningActor)
 {
-	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 	FAudioManagerDataTableRow* TableRow = nullptr;
-	if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
+	if (this->GameConfig->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
 	{
 		UGameplayStatics::PlaySound2D(this, TableRow->SoundBase, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenConcurrencySettings, InOwningActor, TableRow->bIsUISound);
 	}
@@ -18,11 +23,10 @@ void UAudioManagerSubsystem::PlaySound2D(FName InSoundID, float InStartTime, AAc
 
 UAudioComponent* UAudioManagerSubsystem::SpawnSound2D(FName InSoundID, float InStartTime, bool bInPersistAcrossLevelTransition)
 {
-	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 	FAudioManagerDataTableRow* TableRow = nullptr;
 	UAudioComponent* AudioComponent = nullptr;
 
-	if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
+	if (this->GameConfig->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
 	{
 		AudioComponent = UGameplayStatics::SpawnSound2D(this, TableRow->SoundBase, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenConcurrencySettings, bInPersistAcrossLevelTransition, TableRow->bAutoDestroy);
 	}
@@ -39,9 +43,8 @@ UAudioComponent* UAudioManagerSubsystem::SpawnSound2D(FName InSoundID, float InS
 
 void UAudioManagerSubsystem::PlaySound3D(FName InSoundID, FVector InLocation, FRotator InRotation, float InStartTime, AActor* InOwningActor)
 {
-	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 	FAudioManagerDataTableRow* TableRow = nullptr;
-	if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
+	if (this->GameConfig->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, TableRow->SoundBase, InLocation, InRotation, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenAttenuationSettings, TableRow->OverriddenConcurrencySettings, InOwningActor);
 	}
@@ -49,11 +52,10 @@ void UAudioManagerSubsystem::PlaySound3D(FName InSoundID, FVector InLocation, FR
 
 UAudioComponent* UAudioManagerSubsystem::SpawnSound3D(FName InSoundID, FVector InLocation, FRotator InRotation, float InStartTime, bool bInPersistAcrossLevelTransition)
 {
-	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 	FAudioManagerDataTableRow* TableRow = nullptr;
 	UAudioComponent* AudioComponent = nullptr;
 
-	if (Config->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
+	if (this->GameConfig->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
 	{
 		AudioComponent = UGameplayStatics::SpawnSoundAtLocation(this, TableRow->SoundBase, InLocation, InRotation, TableRow->VolumeMultiplier, TableRow->PitchMultiplier, InStartTime, TableRow->OverriddenAttenuationSettings, TableRow->OverriddenConcurrencySettings, TableRow->bAutoDestroy);
 	}
@@ -68,3 +70,38 @@ UAudioComponent* UAudioManagerSubsystem::SpawnSound3D(FName InSoundID, FVector I
 	return AudioComponent;
 }
 
+void UAudioManagerSubsystem::SetSoundMixClassOverride(FName InSoundMixClassID, float InVolume, float InPitch, float InFadeInTime, bool InbApplyToChildren)
+{
+	FSoundMixClassOverrideTableRow* TableRow = nullptr;
+	if (this->GameConfig->GetDataTableRowFromID<FSoundMixClassOverrideTableRow>(InSoundMixClassID, TableRow))
+	{
+		UGameplayStatics::SetSoundMixClassOverride(this, TableRow->SoundMix, TableRow->SoundClass, InVolume, InPitch, InFadeInTime, InbApplyToChildren);
+	}
+}
+
+void UAudioManagerSubsystem::ClearSoundMixClassOverride(FName InSoundMixClassID, float InFadeOutTime)
+{
+	FSoundMixClassOverrideTableRow* TableRow = nullptr;
+	if (this->GameConfig->GetDataTableRowFromID<FSoundMixClassOverrideTableRow>(InSoundMixClassID, TableRow))
+	{
+		UGameplayStatics::ClearSoundMixClassOverride(this, TableRow->SoundMix, TableRow->SoundClass, InFadeOutTime);
+	}
+}
+
+void UAudioManagerSubsystem::PushSoundMix(FName InSoundMixID)
+{
+	FSoundMixTableRow* TableRow = nullptr;
+	if (this->GameConfig->GetDataTableRowFromID<FSoundMixTableRow>(InSoundMixID, TableRow))
+	{
+		UGameplayStatics::PushSoundMixModifier(this, TableRow->SoundMix);
+	}
+}
+
+void UAudioManagerSubsystem::PopSoundMix(FName InSoundMixID)
+{
+	FSoundMixTableRow* TableRow = nullptr;
+	if (this->GameConfig->GetDataTableRowFromID<FSoundMixTableRow>(InSoundMixID, TableRow))
+	{
+		UGameplayStatics::PopSoundMixModifier(this, TableRow->SoundMix);
+	}
+}

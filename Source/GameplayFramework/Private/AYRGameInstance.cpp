@@ -4,6 +4,7 @@
 #include "AYRGameInstance.h"
 
 #include "Framework/Application/SlateApplication.h"
+#include "GameSetting/GameSettingSubsystem.h"
 
 void UAYRGameInstance::OnStart()
 {
@@ -17,6 +18,10 @@ void UAYRGameInstance::OnStart()
 		this->InputProcessor = MakeShared<FAYRInputProcessor>(this);
 		App.RegisterInputPreProcessor(this->InputProcessor);
 	}
+
+	// 应用设置系统里面的设置。
+	UGameSettingSubsystem* GameSetting = UGameInstance::GetSubsystem<UGameSettingSubsystem>(this);
+	GameSetting->ApplySetting();
 }
 
 void UAYRGameInstance::Shutdown()
