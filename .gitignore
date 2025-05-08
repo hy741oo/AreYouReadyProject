@@ -8,5 +8,5 @@
 *.sln
 /Binaries/
 /Build/
-/Packaged/
+/Archived/
 /enc_temp_folder/
