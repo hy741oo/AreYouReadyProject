@@ -28,10 +28,16 @@ do
 done
 
 # 清理打包文件夹。
-if [[ -n $ClearArchived && -d "$ArchivedDirectory" ]]
+if [ -n $ClearArchived ] && [ -d "$ArchivedDirectory" ]
 then
 	echo "Deleting archived directory..."
 	rm -r $ArchivedDirectory
+fi
+
+if [ $? -ne 0 ]
+then
+	echo "Deleting archived directory failed, Aborting package..."
+	exit
 fi
 
 # 打包。
