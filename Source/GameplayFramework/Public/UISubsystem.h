@@ -8,19 +8,9 @@
 
 #include "UISubsystem.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogUISubsystem, Log, All);
+class UGameViewportClient;
 
-// 玩家输入类型。
-UENUM(BlueprintType)
-namespace EUIInputMode
-{
-	enum Type
-	{
-		IM_UIOnly UMETA(DisplayName = "UI Only"),
-		IM_GameOnly UMETA(DisplayName = "Game Only"),
-		IM_GameAndUI UMETA(DisplayName = "Game and UI")
-	};
-}
+DECLARE_LOG_CATEGORY_EXTERN(LogUISubsystem, Log, All);
 
 // UI状态信息。即每次激活UI时需要设置的
 USTRUCT(BlueprintType)
@@ -28,29 +18,29 @@ struct FUIStateInfoTableRow
 {
 	GENERATED_BODY()
 
+	// 是否为游戏UI，即不需要玩家交互，而是用来显示数据的UI。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode")
-	TEnumAsByte<EUIInputMode::Type> InputMode = EUIInputMode::IM_GameAndUI;
+	bool bIsGameUI = false;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode", Meta = (EditCondition = "InputMode == EUIInputMode::IM_GameAndUI || InputMode == EUIInputMode::IM_UIOnly"))
+	// 鼠标锁定类型。表明鼠标是会锁定在窗口内还是可以随意移动。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode")
 	EMouseLockMode MouseLockMode = EMouseLockMode::DoNotLock;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode", Meta = (EditCondition = "InputMode == EUIInputMode::IM_GameAndUI || InputMode == EUIInputMode::IM_UIOnly"))
-	bool bFocusWhenSetInputMode = false;
+	// 鼠标捕获类型。表明鼠标从窗口外移动到窗口内时执行什么操作会被窗口捕获。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode")
+	EMouseCaptureMode MouseCaptureMode = EMouseCaptureMode::CapturePermanently;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode", Meta = (EditCondition = "InputMode == EUIInputMode::IM_GameAndUI"))
+	// 鼠标被捕获后是否隐藏鼠标。true为捕获时隐藏。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode")
 	bool bHideCursorDuringCapture = true;
 
+	// 是否显示鼠标。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	bool bShowMouseCursor = false;
 
+	// UI显示的层级。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	int32 ZOrder = -1;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	bool bStopAction = false;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	int32 Priority = 0;
 };
 
 // UI管理系统栈需要用到的信息
@@ -80,6 +70,16 @@ struct FUIInfoTableRow : public FAYRTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FUIStateInfoTableRow UIStateInfo;
+};
+
+// 输入模式类。用于策略模式设置引擎的输入模式。
+struct  FAYRInputModeData : public FInputModeDataBase
+{
+	// UI输入信息。
+	FUIStateInfoTableRow UIStateInfo;
+
+	// 实际应用InputMode的接口。
+	virtual void ApplyInputMode(FReply& SlateOperations, UGameViewportClient& GameViewportClient) const override;
 };
 
 

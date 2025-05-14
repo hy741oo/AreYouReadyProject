@@ -8,6 +8,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Widgets/SViewport.h"
 
 DEFINE_LOG_CATEGORY(LogUISubsystem);
 
@@ -144,26 +145,9 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 	UAYRUserWidget* UI = InUIStackInfo->UserWidget;
 
 	// 设置输入模式。需要判断是否需要在SetInputMode时Focus我们生成的Widget，防止Widget的Construct函数里面设置好的Focus被这里的设置打乱了。
-	switch (InUIStackInfo->UIStateInfo.InputMode)
-	{
-	case EUIInputMode::IM_GameAndUI:
-		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(InPlayerController, InUIStackInfo->UIStateInfo.bFocusWhenSetInputMode ? UI : nullptr, UIStateInfo.MouseLockMode, UIStateInfo.bHideCursorDuringCapture);
-		break;
-	case EUIInputMode::IM_GameOnly:
-		UWidgetBlueprintLibrary::SetInputMode_GameOnly(InPlayerController);
-		break;
-	case EUIInputMode::IM_UIOnly:
-		UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(InPlayerController, InUIStackInfo->UIStateInfo.bFocusWhenSetInputMode ? UI : nullptr, UIStateInfo.MouseLockMode);
-		break;
-	default:
-		ensureAlways(false);
-	}
-
-	// 设置输入优先级。
-	UI->SetInputPriority(UIStateInfo.Priority);
-
-	// 设置是否阻挡Action。
-	UI->SetIsStopAction(UIStateInfo.bStopAction);
+	FAYRInputModeData InputMode;
+	InputMode.UIStateInfo = InUIStackInfo->UIStateInfo;
+	InPlayerController->SetInputMode(InputMode);
 
 	// 是否需要显示鼠标。
 	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
@@ -218,6 +202,32 @@ void UUISubsystem::OnInputDeviceChangeIntoGamepad(APlayerController* InPlayerCon
 		{
 			LastWidget->OnEnterThisWidget(InPlayerController, &LastUIStackInfo, EUIStateChangedReason::UISCR_InputDeviceChangedIntoGamepad);
 		}
+	}
+}
+
+void FAYRInputModeData::ApplyInputMode(FReply& SlateOperations, UGameViewportClient& GameViewportClient) const
+{
+	if (TSharedPtr<SViewport> Viewport = GameViewportClient.GetGameViewportWidget())
+	{
+		TSharedRef<SViewport> ViewportWidgetRef = Viewport.ToSharedRef();
+		if (this->UIStateInfo.bIsGameUI)
+		{
+			SlateOperations.UseHighPrecisionMouseMovement(ViewportWidgetRef);
+			SlateOperations.SetUserFocus(ViewportWidgetRef);
+			SlateOperations.LockMouseToWidget(ViewportWidgetRef);
+		}
+		else
+		{
+			SlateOperations.ReleaseMouseCapture();
+			if (this->UIStateInfo.MouseLockMode != EMouseLockMode::DoNotLock)
+			{
+				SlateOperations.LockMouseToWidget(ViewportWidgetRef);
+			}
+		}
+
+		GameViewportClient.SetMouseLockMode(this->UIStateInfo.MouseLockMode);
+		GameViewportClient.SetMouseCaptureMode(this->UIStateInfo.MouseCaptureMode);
+		GameViewportClient.SetHideCursorDuringCapture(this->UIStateInfo.bHideCursorDuringCapture);
 	}
 }
 
