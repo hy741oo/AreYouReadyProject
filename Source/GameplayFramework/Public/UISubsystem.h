@@ -18,10 +18,6 @@ struct FUIStateInfoTableRow
 {
 	GENERATED_BODY()
 
-	// 是否为游戏UI，即不需要玩家交互，而是用来显示数据的UI。
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode")
-	bool bIsGameUI = false;
-
 	// 鼠标锁定类型。表明鼠标是会锁定在窗口内还是可以随意移动。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode")
 	EMouseLockMode MouseLockMode = EMouseLockMode::DoNotLock;
@@ -30,13 +26,13 @@ struct FUIStateInfoTableRow
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode")
 	EMouseCaptureMode MouseCaptureMode = EMouseCaptureMode::CapturePermanently;
 
-	// 鼠标被捕获后是否隐藏鼠标。true为捕获时隐藏。
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode")
-	bool bHideCursorDuringCapture = true;
-
 	// 是否显示鼠标。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	bool bShowMouseCursor = false;
+	bool bShowMouseCursor = true;
+
+	// 鼠标被捕获后是否隐藏鼠标。true为捕获时隐藏。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input Mode", Meta = (EditCondition = "bShowMouseCursor == true"))
+	bool bHideCursorDuringCapture = true;
 
 	// UI显示的层级。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

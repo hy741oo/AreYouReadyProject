@@ -210,19 +210,20 @@ void FAYRInputModeData::ApplyInputMode(FReply& SlateOperations, UGameViewportCli
 	if (TSharedPtr<SViewport> Viewport = GameViewportClient.GetGameViewportWidget())
 	{
 		TSharedRef<SViewport> ViewportWidgetRef = Viewport.ToSharedRef();
-		if (this->UIStateInfo.bIsGameUI)
 		{
 			SlateOperations.UseHighPrecisionMouseMovement(ViewportWidgetRef);
 			SlateOperations.SetUserFocus(ViewportWidgetRef);
 			SlateOperations.LockMouseToWidget(ViewportWidgetRef);
 		}
-		else
+
+		if (this->UIStateInfo.MouseCaptureMode == EMouseCaptureMode::NoCapture)
 		{
 			SlateOperations.ReleaseMouseCapture();
-			if (this->UIStateInfo.MouseLockMode != EMouseLockMode::DoNotLock)
-			{
-				SlateOperations.LockMouseToWidget(ViewportWidgetRef);
-			}
+		}
+
+		if (this->UIStateInfo.MouseLockMode == EMouseLockMode::DoNotLock)
+		{
+			SlateOperations.ReleaseMouseLock();
 		}
 
 		GameViewportClient.SetMouseLockMode(this->UIStateInfo.MouseLockMode);
