@@ -5,7 +5,6 @@
 
 #include "InputAction.h"
 #include "InputMappingContext.h"
-#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
 void UPlayerInputSubsystem::BindActionTest(APlayerController* InPlayerController, UInputAction* InInputAction, UInputMappingContext* InInputMappingContext)
@@ -14,6 +13,8 @@ void UPlayerInputSubsystem::BindActionTest(APlayerController* InPlayerController
 	{
 		return;
 	}
+
+	this->BindPlayerInputAction("asdasd", InPlayerController, InInputAction, ETriggerEvent::Started, this, &UPlayerInputSubsystem::TestFunc);
 
 	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
 	{
@@ -26,8 +27,16 @@ void UPlayerInputSubsystem::BindActionTest(APlayerController* InPlayerController
 	}
 }
 
-void UPlayerInputSubsystem::TestFunc()
+void UPlayerInputSubsystem::TestFunc(const FInputActionInstance& In)
 {
 	UE_LOG(LogTemp, Warning, TEXT("asdasdasdsad"));
+}
+
+void UPlayerInputSubsystem::AddPlayerInputMappingContext(FName InActionID, APlayerController* InPlayerController, UInputMappingContext* InInputMappingContext)
+{
+	if (UEnhancedInputLocalPlayerSubsystem* System = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(InPlayerController->GetLocalPlayer()))
+	{
+		System->AddMappingContext(InInputMappingContext, 0);
+	}
 }
 
