@@ -3,7 +3,7 @@
 
 #include "Audio/InputSoundSubsystem.h"
 
-#include "GameplayMessageSystem.h"
+#include "GameplayMessageSubsystem.h"
 #include "Audio/AudioManagerSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogInputSoundSubsystem)
@@ -11,7 +11,7 @@ DEFINE_LOG_CATEGORY(LogInputSoundSubsystem)
 void UInputSoundSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 {
 	// 注册响应按键的回调事件。
-	UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GetGameInstance());
+	UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance());
 	FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.HandleKey"));
 	FOnMessageReceived Callback;
 	Callback.BindUObject(this, &UInputSoundSubsystem::OnHandledInputKey);
@@ -27,7 +27,7 @@ void UInputSoundSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 void UInputSoundSubsystem::Deinitialize()
 {
 	// 注销GMS的回调事件。
-	UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GetGameInstance());
+	UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance());
 	FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.HandleKey"));
 	GMS->Unregister(this->GMSHandle);
 

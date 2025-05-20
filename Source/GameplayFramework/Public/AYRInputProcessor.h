@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Framework/Application/IInputProcessor.h"
-#include "GameplayMessageSystem.h"
+#include "GameplayMessageSubsystem.h"
 
 #include "AYRInputProcessor.generated.h"
 

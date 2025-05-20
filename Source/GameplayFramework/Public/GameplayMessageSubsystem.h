@@ -8,9 +8,9 @@
 #include "GameplayTagsManager.h"
 #include "GMSMessageType.h"
 
-#include "GameplayMessageSystem.generated.h"
+#include "GameplayMessageSubsystem.generated.h"
 
-DECLARE_LOG_CATEGORY_CLASS(LogGameplayMessageSystem, Log, All);
+DECLARE_LOG_CATEGORY_CLASS(LogGameplayMessageSubsystem, Log, All);
 
 // 订阅蓝图函数需要用到的委托。
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnMessageReceivedBP, UGMSMessageBase*, Message);
@@ -33,7 +33,7 @@ struct FGMSListenerHandle
  * 发布-订阅（Pub-Sub）模式的全局消息系统。
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UGameplayMessageSystem : public UGameInstanceSubsystem
+class GAMEPLAYFRAMEWORK_API UGameplayMessageSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
@@ -71,7 +71,7 @@ private:
 
 protected:
 	// 蓝图订阅消息接口。
-	UFUNCTION(BlueprintCallable, Category = "GameplayMessageSystem", Meta = (DisplayName = "Register"))
+	UFUNCTION(BlueprintCallable, Category = "GameplayMessageSubsystem", Meta = (DisplayName = "Register"))
 	FGMSListenerHandle K2_Register(FGameplayTag InGameplayTag, FOnMessageReceivedBP OnMessageReceived);
 
 	// 实际执行消息注册的接口。

@@ -28,7 +28,7 @@ void UUISubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	);
 
 	// 注册输入设备切换事件。用于当玩家从键鼠切换到手柄时可以让当前栈顶UI接收到事件，并设置对应的Focus。
-	if (UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GetGameInstance()))
+	if (UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance()))
 	{
 		FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
 		FOnMessageReceived Callback;
@@ -42,7 +42,7 @@ void UUISubsystem::Deinitialize()
 	FCoreUObjectDelegates::PreLoadMap.Remove(this->CleanDelegateHandle);
 	this->CleanDelegateHandle.Reset();
 	this->ClearUIStack();
-	UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GetGameInstance())->Unregister(this->InputDeviceMessageHandle);
+	UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance())->Unregister(this->InputDeviceMessageHandle);
 }
 
 UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)

@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GameplayMessageSystem.h"
+#include "GameplayMessageSubsystem.h"
 
-void UGameplayMessageSystem::Broadcast(FGameplayTag InGameplayTag, UGMSMessageBase* InMessage)
+void UGameplayMessageSubsystem::Broadcast(FGameplayTag InGameplayTag, UGMSMessageBase* InMessage)
 {
 	if (!InGameplayTag.IsValid())
 	{
-		UE_LOG(LogGameplayMessageSystem, Warning, TEXT("GameplayTag is invalid on broadcast, abort."));
+		UE_LOG(LogGameplayMessageSubsystem, Warning, TEXT("GameplayTag is invalid on broadcast, abort."));
 		return;
 	}
 
@@ -29,17 +29,17 @@ void UGameplayMessageSystem::Broadcast(FGameplayTag InGameplayTag, UGMSMessageBa
 	}
 }
 
-FGMSListenerHandle UGameplayMessageSystem::K2_Register(FGameplayTag InGameplayTag, FOnMessageReceivedBP OnMessageReceived)
+FGMSListenerHandle UGameplayMessageSubsystem::K2_Register(FGameplayTag InGameplayTag, FOnMessageReceivedBP OnMessageReceived)
 {
 	if (!InGameplayTag.IsValid())
 	{
-		UE_LOG(LogGameplayMessageSystem, Warning, TEXT("GameplayTag is invalid on register blueprint message, abort."));
+		UE_LOG(LogGameplayMessageSubsystem, Warning, TEXT("GameplayTag is invalid on register blueprint message, abort."));
 		return FGMSListenerHandle();
 	}
 
 	if (!OnMessageReceived.IsBound())
 	{
-		UE_LOG(LogGameplayMessageSystem, Warning, TEXT("OnMessageReceived dynamic delegate is invalid on register blueprint message, abort."));
+		UE_LOG(LogGameplayMessageSubsystem, Warning, TEXT("OnMessageReceived dynamic delegate is invalid on register blueprint message, abort."));
 		return FGMSListenerHandle();
 	}
 
@@ -48,23 +48,23 @@ FGMSListenerHandle UGameplayMessageSystem::K2_Register(FGameplayTag InGameplayTa
 	return this->RegisterInternal(InGameplayTag, CppCallbackHolder);
 }
 
-FGMSListenerHandle UGameplayMessageSystem::Register(FGameplayTag InGameplayTag, FOnMessageReceived OnMessageReceived)
+FGMSListenerHandle UGameplayMessageSubsystem::Register(FGameplayTag InGameplayTag, FOnMessageReceived OnMessageReceived)
 {
 	if (!InGameplayTag.IsValid())
 	{
-		UE_LOG(LogGameplayMessageSystem, Warning, TEXT("GameplayTag is invalid on register message, abort."));
+		UE_LOG(LogGameplayMessageSubsystem, Warning, TEXT("GameplayTag is invalid on register message, abort."));
 		return FGMSListenerHandle();
 	}
 
 	if (!OnMessageReceived.IsBound())
 	{
-		UE_LOG(LogGameplayMessageSystem, Warning, TEXT("OnMessageReceived delegate is invalid on register message, abort."));
+		UE_LOG(LogGameplayMessageSubsystem, Warning, TEXT("OnMessageReceived delegate is invalid on register message, abort."));
 	}
 
 	return this->RegisterInternal(InGameplayTag, OnMessageReceived);
 }
 
-FGMSListenerHandle UGameplayMessageSystem::RegisterInternal(FGameplayTag InGameplayTag, FOnMessageReceived InCallbackHolder)
+FGMSListenerHandle UGameplayMessageSubsystem::RegisterInternal(FGameplayTag InGameplayTag, FOnMessageReceived InCallbackHolder)
 {
 		FMessageListenerList& Listeners = this->MessageListeners.FindOrAdd(InGameplayTag);
 
@@ -77,7 +77,7 @@ FGMSListenerHandle UGameplayMessageSystem::RegisterInternal(FGameplayTag InGamep
 		return Handle;
 }
 
-void UGameplayMessageSystem::FMessageListenerData::Execute(UGMSMessageBase* InMessage) const
+void UGameplayMessageSubsystem::FMessageListenerData::Execute(UGMSMessageBase* InMessage) const
 {
 	bool bSuccess = false;
 	if (this->ReceivedMessageCallback.IsBound())
@@ -88,27 +88,27 @@ void UGameplayMessageSystem::FMessageListenerData::Execute(UGMSMessageBase* InMe
 
 	if (bSuccess)
 	{
-		UE_LOG(LogGameplayMessageSystem, Verbose, TEXT("Broadcast message, message context: %s"), InMessage ? *InMessage->ToString() : TEXT("Empty parameter message."));
+		UE_LOG(LogGameplayMessageSubsystem, Verbose, TEXT("Broadcast message, message context: %s"), InMessage ? *InMessage->ToString() : TEXT("Empty parameter message."));
 	}
 	else
 	{
-		UE_LOG(LogGameplayMessageSystem, Warning, TEXT("Broadcast message failed because there is object is expired"));
+		UE_LOG(LogGameplayMessageSubsystem, Warning, TEXT("Broadcast message failed because there is object is expired"));
 	}
 }
 
-bool UGameplayMessageSystem::FMessageListenerData::IsValid() const
+bool UGameplayMessageSubsystem::FMessageListenerData::IsValid() const
 {
 	return this->ReceivedMessageCallback.IsBound();
 }
 
-void UGameplayMessageSystem::Unregister(UPARAM(Ref)FGMSListenerHandle& InHandle)
+void UGameplayMessageSubsystem::Unregister(UPARAM(Ref)FGMSListenerHandle& InHandle)
 {
 	this->UnregisterInternal(InHandle.Tag, InHandle.CurrentID);
 	InHandle.CurrentID = -1;
 	InHandle.Tag = FGameplayTag();
 }
 
-void UGameplayMessageSystem::UnregisterInternal(FGameplayTag InGameplayTag, int32 InHandleID)
+void UGameplayMessageSubsystem::UnregisterInternal(FGameplayTag InGameplayTag, int32 InHandleID)
 {
 	if (FMessageListenerList* ListenerList = this->MessageListeners.Find(InGameplayTag))
 	{
@@ -122,12 +122,12 @@ void UGameplayMessageSystem::UnregisterInternal(FGameplayTag InGameplayTag, int3
 		}
 		else
 		{
-			UE_LOG(LogGameplayMessageSystem, Warning, TEXT("Can't find handle id: \"%d\", unregister failed."), InHandleID);
+			UE_LOG(LogGameplayMessageSubsystem, Warning, TEXT("Can't find handle id: \"%d\", unregister failed."), InHandleID);
 		}
 	}
 	else
 	{
-		UE_LOG(LogGameplayMessageSystem, Warning, TEXT("Can't find gameplaytag: \"%s\", unregister failed."), *InGameplayTag.ToString());
+		UE_LOG(LogGameplayMessageSubsystem, Warning, TEXT("Can't find gameplaytag: \"%s\", unregister failed."), *InGameplayTag.ToString());
 	}
 }
 

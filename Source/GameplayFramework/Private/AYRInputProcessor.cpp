@@ -109,7 +109,7 @@ void FAYRInputProcessor::OnPlayerInputDeviceChanged(const EInputDeviceType::Type
 		UGMSInputDeviceType* Message = NewObject<UGMSInputDeviceType>();
 		Message->CurrentType = InInputDeviceType;
 
-		UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GameInstance);
+		UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GameInstance);
 		GMS->Broadcast(Tag, Message);
 	}
 }
@@ -152,7 +152,7 @@ void FAYRInputProcessor::OnHandleAnyPressableKey(const FKey& InHandledKey)
 		UGMSHandledKey* Message = NewObject<UGMSHandledKey>();
 		Message->HandledKey = InHandledKey;
 
-		UGameplayMessageSystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSystem>(this->GameInstance);
+		UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GameInstance);
 		GMS->Broadcast(Tag, Message);
 	}
 }
