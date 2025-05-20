@@ -43,20 +43,6 @@ public:
 #endif
 };
 
-// 输入映射上下文表行结构。
-USTRUCT(BlueprintType)
-struct FPlayerInputMappingTableRow : public FAYRTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	class UInputMappingContext* InputMappingContext = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	int32 Priority = -1;
-
-};
-
 // 玩家控制器信息。
 USTRUCT(BlueprintType)
 struct FPlayerControllerInfoTableRow : public FAYRTableRowBase
@@ -68,29 +54,6 @@ struct FPlayerControllerInfoTableRow : public FAYRTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FName PlayerUIInputMappingID;
-};
-
-// UI界面按键结构体。
-USTRUCT(BlueprintType)
-struct FUIInputMapping
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FName ActionName;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TArray<FInputActionKeyMapping> InputActions;
-};
-
-// UI界面绑定的按键信息。
-USTRUCT(BlueprintType)
-struct FPlayerUIInputMappingTableRow : public FAYRTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TArray<FUIInputMapping> UIInputActions;
 };
 
 // 关卡信息。

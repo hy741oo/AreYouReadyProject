@@ -7,36 +7,49 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 
-void UPlayerInputSubsystem::BindActionTest(APlayerController* InPlayerController, UInputAction* InInputAction, UInputMappingContext* InInputMappingContext)
+void UPlayerInputSubsystem::AddPlayerInputMappingContext(FName InInputMappingContextID, APlayerController* InPlayerController)
 {
-	if (!InPlayerController || !InInputAction || !InInputMappingContext)
+	// 合法性检查。
+	if (InInputMappingContextID.IsNone() || InPlayerController == nullptr)
 	{
 		return;
 	}
 
-	this->BindPlayerInputAction("asdasd", InPlayerController, InInputAction, ETriggerEvent::Started, this, &UPlayerInputSubsystem::TestFunc);
-
-	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
-	{
-		EIC->BindAction(InInputAction, ETriggerEvent::Started, this, &UPlayerInputSubsystem::TestFunc);
-	}
-
+	// 绑定Input Mapping Context。
 	if (UEnhancedInputLocalPlayerSubsystem* System = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(InPlayerController->GetLocalPlayer()))
 	{
-		System->AddMappingContext(InInputMappingContext, 0);
+		// 通过InputMappingContextID获取对应的InputMappingContext。
+		UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+		FPlayerInputMappingContextTableRow* InputMappingContextTableRow = nullptr;
+		if (Config->GetDataTableRowFromID<FPlayerInputMappingContextTableRow>(InInputMappingContextID, InputMappingContextTableRow))
+		{
+			// 绑定InputAction。
+			if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
+			{
+				System->AddMappingContext(InputMappingContextTableRow->InputMappingContext, InputMappingContextTableRow->Priority);
+			}
+		}
 	}
 }
 
-void UPlayerInputSubsystem::TestFunc(const FInputActionInstance& In)
+void UPlayerInputSubsystem::K2_BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute)
 {
-	UE_LOG(LogTemp, Warning, TEXT("asdasdasdsad"));
-}
-
-void UPlayerInputSubsystem::AddPlayerInputMappingContext(FName InActionID, APlayerController* InPlayerController, UInputMappingContext* InInputMappingContext)
-{
-	if (UEnhancedInputLocalPlayerSubsystem* System = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(InPlayerController->GetLocalPlayer()))
+	// 合法性检查。
+	if (InInputActionID.IsNone() || InPlayerController == nullptr || InOnInputActionExecute.IsBound() == false)
 	{
-		System->AddMappingContext(InInputMappingContext, 0);
+		return;
+	}
+
+	// 通过InputActionID获取对应的InputAction。
+	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+	FPlayerInputActionTableRow* InputActionTableRow = nullptr;
+	if (Config->GetDataTableRowFromID<FPlayerInputActionTableRow>(InInputActionID, InputActionTableRow))
+	{
+		// 绑定InputAction。
+		if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
+		{
+			EIC->BindAction(InputActionTableRow->InputAction, InputActionTableRow->TriggerEvent, InOnInputActionExecute.GetUObject(), InOnInputActionExecute.GetFunctionName());
+		}
 	}
 }
 

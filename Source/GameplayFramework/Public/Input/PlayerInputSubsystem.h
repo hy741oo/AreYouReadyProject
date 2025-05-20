@@ -6,12 +6,44 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "InputAction.h"
 #include "EnhancedInputComponent.h"
+#include "GameConfigSubsystem.h"
+
+#include "Kismet/GameplayStatics.h"
 
 #include "PlayerInputSubsystem.generated.h"
 
 class UInputMappingContext;
 
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnInputActionExecuteBP, const FInputActionInstance&, InputActionInstance);
+// Input Action数据表。
+USTRUCT(BlueprintType)
+struct FPlayerInputActionTableRow : public FAYRTableRowBase
+{
+	GENERATED_BODY()
+
+	// Input Action资产。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UInputAction* InputAction = nullptr;
+
+	// Input Action的触发方式。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	ETriggerEvent TriggerEvent = ETriggerEvent::Started;
+};
+
+// Input Mapping Context数据表。
+USTRUCT(BlueprintType)
+struct FPlayerInputMappingContextTableRow : public FAYRTableRowBase
+{
+	GENERATED_BODY()
+
+	// Input Mapping Context资产。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UInputMappingContext* InputMappingContext = nullptr;
+
+	// 优先级。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	int32 Priority = 0;
+
+};
 
 /**
  * 结合增强输入（Enhanced Input）系统实现Game和UI层级的输入管理。
@@ -22,30 +54,34 @@ class GAMEPLAYFRAMEWORK_API UPlayerInputSubsystem : public UGameInstanceSubsyste
 	GENERATED_BODY()
 	
 public:
-	// 测试用。
-	UFUNCTION(BlueprintCallable)
-	void BindActionTest(APlayerController* InPlayerController, UInputAction* InInputAction, UInputMappingContext* InInputMappingContext);
-	void TestFunc(const FInputActionInstance& In);
-	// 测试用End。
-
 	// 绑定Enhanced Input Action。
 	template<typename UObjectType>
-	void BindPlayerInputAction(FName InActionID, APlayerController* InPlayerController, UInputAction* InInputAction, ETriggerEvent InTriggerEvent, UObjectType* InBindingObject, void(UObjectType::*InOnInputActionExecute)(const FInputActionInstance&))
+	void BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, UObjectType* InBindingObject, void(UObjectType::*InOnInputActionExecute)(const FInputActionInstance&))
 	{
 		// 合法性检查。
-		if (InActionID.IsNone() || InPlayerController == nullptr || InInputAction == nullptr)
+		if (InInputActionID.IsNone() || InPlayerController == nullptr || InBindingObject == nullptr || InOnInputActionExecute == nullptr)
 		{
 			return;
 		}
 
-		// 绑定InputAction。
-		if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
+		// 通过InputActionID获取对应的InputAction。
+		UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+		FPlayerInputActionTableRow* InputActionTableRow = nullptr;
+		if (Config->GetDataTableRowFromID<FPlayerInputActionTableRow>(InInputActionID, InputActionTableRow))
 		{
-			EIC->BindAction(InInputAction, InTriggerEvent, InBindingObject, InOnInputActionExecute);
+			// 绑定InputAction。
+			if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
+			{
+				EIC->BindAction(InputActionTableRow->InputAction, InputActionTableRow->TriggerEvent, InBindingObject, InOnInputActionExecute);
+			}
 		}
 	}
 
 	// 添加Enhanced Input Mapping Context。
 	UFUNCTION(BlueprintCallable)
-	void AddPlayerInputMappingContext(FName InActionID, APlayerController* InPlayerController, UInputMappingContext* InInputMappingContext);
+	void AddPlayerInputMappingContext(FName InInputMappingContextID, APlayerController* InPlayerController);
+
+private:
+	UFUNCTION(BlueprintCallable, Category = "Input Action", Meta = (DisplayName = "Bind Player Input Action"))
+	void K2_BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute);
 };
