@@ -184,7 +184,7 @@ public:
 				OutTableRow = (*LoadedDataTable)->FindRow<TableRowType>(InRowName, TableRowType::StaticStruct()->GetFName().ToString());
 				if (OutTableRow)
 				{
-					UE_LOG(LogGameConfigSubsystem, Log, TEXT("Find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
+					UE_LOG(LogGameConfigSubsystem, Verbose, TEXT("Find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
 					return true;
 				}
 				else
@@ -216,7 +216,7 @@ public:
 				OutTableRow = (*LoadedDataTable)->FindRow<TableRowType>(InRowName, TableRowType::StaticStruct()->GetFName().ToString());
 				if (OutTableRow)
 				{
-					UE_LOG(LogGameConfigSubsystem, Log, TEXT("Find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
+					UE_LOG(LogGameConfigSubsystem, Verbose, TEXT("Find row \"%s\" in \"%s\""), *InRowName.ToString(), *(TableRowType::StaticStruct()->GetFName().ToString()));
 					return true;
 				}
 				else

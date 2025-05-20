@@ -88,7 +88,7 @@ void UGameplayMessageSystem::FMessageListenerData::Execute(UGMSMessageBase* InMe
 
 	if (bSuccess)
 	{
-		UE_LOG(LogGameplayMessageSystem, Log, TEXT("Broadcast message, message context: %s"), InMessage ? *InMessage->ToString() : TEXT("Empty parameter message."));
+		UE_LOG(LogGameplayMessageSystem, Verbose, TEXT("Broadcast message, message context: %s"), InMessage ? *InMessage->ToString() : TEXT("Empty parameter message."));
 	}
 	else
 	{
