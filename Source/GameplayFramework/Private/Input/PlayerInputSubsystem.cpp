@@ -32,24 +32,3 @@ void UPlayerInputSubsystem::AddPlayerInputMappingContext(FName InInputMappingCon
 	}
 }
 
-void UPlayerInputSubsystem::K2_BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute)
-{
-	// 合法性检查。
-	if (InInputActionID.IsNone() || InPlayerController == nullptr || InOnInputActionExecute.IsBound() == false)
-	{
-		return;
-	}
-
-	// 通过InputActionID获取对应的InputAction。
-	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
-	FPlayerInputActionTableRow* InputActionTableRow = nullptr;
-	if (Config->GetDataTableRowFromID<FPlayerInputActionTableRow>(InInputActionID, InputActionTableRow))
-	{
-		// 绑定InputAction。
-		if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
-		{
-			EIC->BindAction(InputActionTableRow->InputAction, InputActionTableRow->TriggerEvent, InOnInputActionExecute.GetUObject(), InOnInputActionExecute.GetFunctionName());
-		}
-	}
-}
-
