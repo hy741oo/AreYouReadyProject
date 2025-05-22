@@ -80,4 +80,8 @@ public:
 	// 添加Enhanced Input Mapping Context。
 	UFUNCTION(BlueprintCallable)
 	void AddPlayerInputMappingContext(FName InInputMappingContextID, APlayerController* InPlayerController);
+
+private:
+	UFUNCTION(BlueprintCallable, Category = "Input Action", Meta = (DisplayName = "Bind Player Input Action"))
+	void K2_BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute);
 };
