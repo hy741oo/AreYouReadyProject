@@ -45,23 +45,34 @@ struct FPlayerInputMappingContextTableRow : public FAYRTableRowBase
 
 };
 
+// 绑定Input Action后的句柄。
+USTRUCT(BlueprintType)
+struct FPlayerInputActionBindingHandle
+{
+	GENERATED_BODY()
+
+	uint32 InputActionBingdingHandle = 0;
+};
+
 /**
  * 结合增强输入（Enhanced Input）系统实现Game和UI层级的输入管理。
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UPlayerInputSubsystem : public UGameInstanceSubsystem
+class GAMEPLAYFRAMEWORK_API UPlayerInputSubsystem : public ULocalPlayerSubsystem
 {
 	GENERATED_BODY()
 	
 public:
 	// 绑定Enhanced Input Action。
 	template<typename UObjectType>
-	void BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, UObjectType* InBindingObject, void(UObjectType::*InOnInputActionExecute)(const FInputActionInstance&))
+	FPlayerInputActionBindingHandle BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, UObjectType* InBindingObject, void(UObjectType::*InOnInputActionExecute)(const FInputActionInstance&))
 	{
+		FPlayerInputActionBindingHandle Handle;
+
 		// 合法性检查。
 		if (InInputActionID.IsNone() || InPlayerController == nullptr || InBindingObject == nullptr || InOnInputActionExecute == nullptr)
 		{
-			return;
+			return Handle;
 		}
 
 		// 通过InputActionID获取对应的InputAction。
@@ -72,16 +83,30 @@ public:
 			// 绑定InputAction。
 			if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
 			{
-				EIC->BindAction(InputActionTableRow->InputAction, InputActionTableRow->TriggerEvent, InBindingObject, InOnInputActionExecute);
+				FEnhancedInputActionEventBinding& Binding = EIC->BindAction(InputActionTableRow->InputAction, InputActionTableRow->TriggerEvent, InBindingObject, InOnInputActionExecute);
+				Handle.InputActionBingdingHandle = Binding.GetHandle();
 			}
 		}
 	}
+
+	// 解绑Enhanced Input Action。
+	bool UnbindPlayerInputAction(APlayerController* InPlayerController, FPlayerInputActionBindingHandle Handle);
 
 	// 添加Enhanced Input Mapping Context。
 	UFUNCTION(BlueprintCallable)
 	void AddPlayerInputMappingContext(FName InInputMappingContextID, APlayerController* InPlayerController);
 
 private:
+	// 绑定InputAction蓝图版本。
 	UFUNCTION(BlueprintCallable, Category = "Input Action", Meta = (DisplayName = "Bind Player Input Action"))
-	void K2_BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute);
+	FPlayerInputActionBindingHandle K2_BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute);
+
+	// 解绑InputAction蓝图版本。
+	UFUNCTION(BlueprintCallable, Category = "Input Action", Meta = (DisplayName = "Unbind Player Input Action"))
+	bool K2_UnbindPlayerInputAction(APlayerController* InPlayerController, FPlayerInputActionBindingHandle Handle);
+
+	void TestFun(const FInputActionInstance& Ins)
+	{
+		UE_LOG(LogTemp, Log, TEXT("aasdasdasd"));
+	}
 };

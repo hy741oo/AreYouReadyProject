@@ -19,7 +19,7 @@ void UPlayerInputSubsystem::AddPlayerInputMappingContext(FName InInputMappingCon
 	if (UEnhancedInputLocalPlayerSubsystem* System = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(InPlayerController->GetLocalPlayer()))
 	{
 		// 通过InputMappingContextID获取对应的InputMappingContext。
-		UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+		UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(InPlayerController->GetGameInstance());
 		FPlayerInputMappingContextTableRow* InputMappingContextTableRow = nullptr;
 		if (Config->GetDataTableRowFromID<FPlayerInputMappingContextTableRow>(InInputMappingContextID, InputMappingContextTableRow))
 		{
@@ -32,24 +32,53 @@ void UPlayerInputSubsystem::AddPlayerInputMappingContext(FName InInputMappingCon
 	}
 }
 
-void UPlayerInputSubsystem::K2_BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute)
+bool UPlayerInputSubsystem::UnbindPlayerInputAction(APlayerController* InPlayerController, FPlayerInputActionBindingHandle Handle)
 {
+	bool bSuccess = false;
+
+	// 合法性检查。
+	if (InPlayerController == nullptr || Handle.InputActionBingdingHandle == 0)
+	{
+		return bSuccess;
+	}
+
+	// 解绑Input Action
+	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
+	{
+		bSuccess = EIC->RemoveBindingByHandle(Handle.InputActionBingdingHandle);
+	}
+
+	return bSuccess;
+}
+
+FPlayerInputActionBindingHandle UPlayerInputSubsystem::K2_BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute)
+{
+	FPlayerInputActionBindingHandle Handle;
+
 	// 合法性检查。
 	if (InInputActionID.IsNone() || InPlayerController == nullptr || InOnInputActionExecute.IsBound() == false)
 	{
-		return;
+		return Handle;
 	}
 
 	// 通过InputActionID获取对应的InputAction。
-	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(InPlayerController->GetGameInstance());
 	FPlayerInputActionTableRow* InputActionTableRow = nullptr;
 	if (Config->GetDataTableRowFromID<FPlayerInputActionTableRow>(InInputActionID, InputActionTableRow))
 	{
 		// 绑定InputAction。
 		if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
 		{
-			EIC->BindAction(InputActionTableRow->InputAction, InputActionTableRow->TriggerEvent, InOnInputActionExecute.GetUObject(), InOnInputActionExecute.GetFunctionName());
+			FEnhancedInputActionEventBinding& Binding = EIC->BindAction(InputActionTableRow->InputAction, InputActionTableRow->TriggerEvent, InOnInputActionExecute.GetUObject(), InOnInputActionExecute.GetFunctionName());
+			Handle.InputActionBingdingHandle = Binding.GetHandle();
 		}
 	}
+
+	return Handle;
+}
+
+bool UPlayerInputSubsystem::K2_UnbindPlayerInputAction(APlayerController* InPlayerController, FPlayerInputActionBindingHandle Handle)
+{
+	return this->UnbindPlayerInputAction(InPlayerController, Handle);
 }
 
