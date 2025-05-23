@@ -65,12 +65,12 @@ class GAMEPLAYFRAMEWORK_API UPlayerInputSubsystem : public ULocalPlayerSubsystem
 public:
 	// 绑定Enhanced Input Action。
 	template<typename UObjectType>
-	FPlayerInputActionBindingHandle BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, UObjectType* InBindingObject, void(UObjectType::*InOnInputActionExecute)(const FInputActionInstance&))
+	FPlayerInputActionBindingHandle BindPlayerInputAction(FName InInputActionID, UObjectType* InBindingObject, void(UObjectType::*InOnInputActionExecute)(const FInputActionInstance&))
 	{
 		FPlayerInputActionBindingHandle Handle;
 
 		// 合法性检查。
-		if (InInputActionID.IsNone() || InPlayerController == nullptr || InBindingObject == nullptr || InOnInputActionExecute == nullptr)
+		if (InInputActionID.IsNone() || InBindingObject == nullptr || InOnInputActionExecute == nullptr)
 		{
 			return Handle;
 		}
@@ -90,23 +90,18 @@ public:
 	}
 
 	// 解绑Enhanced Input Action。
-	bool UnbindPlayerInputAction(APlayerController* InPlayerController, FPlayerInputActionBindingHandle Handle);
+	bool UnbindPlayerInputAction(FPlayerInputActionBindingHandle Handle);
 
 	// 添加Enhanced Input Mapping Context。
 	UFUNCTION(BlueprintCallable)
-	void AddPlayerInputMappingContext(FName InInputMappingContextID, APlayerController* InPlayerController);
+	void AddPlayerInputMappingContext(FName InInputMappingContextID);
 
 private:
 	// 绑定InputAction蓝图版本。
 	UFUNCTION(BlueprintCallable, Category = "Input Action", Meta = (DisplayName = "Bind Player Input Action"))
-	FPlayerInputActionBindingHandle K2_BindPlayerInputAction(FName InInputActionID, APlayerController* InPlayerController, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute);
+	FPlayerInputActionBindingHandle K2_BindPlayerInputAction(FName InInputActionID, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute);
 
 	// 解绑InputAction蓝图版本。
 	UFUNCTION(BlueprintCallable, Category = "Input Action", Meta = (DisplayName = "Unbind Player Input Action"))
-	bool K2_UnbindPlayerInputAction(APlayerController* InPlayerController, FPlayerInputActionBindingHandle Handle);
-
-	void TestFun(const FInputActionInstance& Ins)
-	{
-		UE_LOG(LogTemp, Log, TEXT("aasdasdasd"));
-	}
+	bool K2_UnbindPlayerInputAction(FPlayerInputActionBindingHandle Handle);
 };
