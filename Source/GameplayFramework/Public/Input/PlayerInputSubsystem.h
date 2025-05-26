@@ -26,7 +26,7 @@ struct FPlayerInputActionTableRow : public FAYRTableRowBase
 
 	// Input Action的触发方式。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	ETriggerEvent TriggerEvent = ETriggerEvent::Started;
+	ETriggerEvent TriggerEvent = ETriggerEvent::Triggered;
 };
 
 // Input Mapping Context数据表。
@@ -90,11 +90,15 @@ public:
 	}
 
 	// 解绑Enhanced Input Action。
-	bool UnbindPlayerInputAction(FPlayerInputActionBindingHandle Handle);
+	bool UnbindPlayerInputAction(FPlayerInputActionBindingHandle& Handle);
 
 	// 添加Enhanced Input Mapping Context。
 	UFUNCTION(BlueprintCallable)
 	void AddPlayerInputMappingContext(FName InInputMappingContextID);
+
+	// 移除Enhanced Input Mapping Context。
+	UFUNCTION(BlueprintCallable)
+	void RemovePlayerInputMappingContext(FName InInputMappingContextID);
 
 private:
 	// 绑定InputAction蓝图版本。
@@ -103,5 +107,5 @@ private:
 
 	// 解绑InputAction蓝图版本。
 	UFUNCTION(BlueprintCallable, Category = "Input Action", Meta = (DisplayName = "Unbind Player Input Action"))
-	bool K2_UnbindPlayerInputAction(FPlayerInputActionBindingHandle Handle);
+	bool K2_UnbindPlayerInputAction(UPARAM(ref) FPlayerInputActionBindingHandle& Handle);
 };

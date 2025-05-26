@@ -34,7 +34,34 @@ void UPlayerInputSubsystem::AddPlayerInputMappingContext(FName InInputMappingCon
 	}
 }
 
-bool UPlayerInputSubsystem::UnbindPlayerInputAction(FPlayerInputActionBindingHandle Handle)
+void UPlayerInputSubsystem::RemovePlayerInputMappingContext(FName InInputMappingContextID)
+{
+	APlayerController* CurrentPlayerController = this->GetLocalPlayer()->GetPlayerController(this->GetWorld());
+
+	// 合法性检查。
+	if (InInputMappingContextID.IsNone() || CurrentPlayerController == nullptr)
+	{
+		return;
+	}
+
+	// 绑定Input Mapping Context。
+	if (UEnhancedInputLocalPlayerSubsystem* System = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(CurrentPlayerController->GetLocalPlayer()))
+	{
+		// 通过InputMappingContextID获取对应的InputMappingContext。
+		UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(CurrentPlayerController->GetGameInstance());
+		FPlayerInputMappingContextTableRow* InputMappingContextTableRow = nullptr;
+		if (Config->GetDataTableRowFromID<FPlayerInputMappingContextTableRow>(InInputMappingContextID, InputMappingContextTableRow))
+		{
+			// 绑定InputAction。
+			if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(CurrentPlayerController->InputComponent))
+			{
+				System->RemoveMappingContext(InputMappingContextTableRow->InputMappingContext);
+			}
+		}
+	}
+}
+
+bool UPlayerInputSubsystem::UnbindPlayerInputAction(FPlayerInputActionBindingHandle& Handle)
 {
 	bool bSuccess = false;
 
@@ -50,6 +77,12 @@ bool UPlayerInputSubsystem::UnbindPlayerInputAction(FPlayerInputActionBindingHan
 	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(CurrentPlayerController->InputComponent))
 	{
 		bSuccess = EIC->RemoveBindingByHandle(Handle.InputActionBingdingHandle);
+	}
+
+	// 如果解绑成功则重置句柄。
+	if (bSuccess)
+	{
+		Handle.InputActionBingdingHandle = 0;
 	}
 
 	return bSuccess;
@@ -83,7 +116,7 @@ FPlayerInputActionBindingHandle UPlayerInputSubsystem::K2_BindPlayerInputAction(
 	return Handle;
 }
 
-bool UPlayerInputSubsystem::K2_UnbindPlayerInputAction(FPlayerInputActionBindingHandle Handle)
+bool UPlayerInputSubsystem::K2_UnbindPlayerInputAction(FPlayerInputActionBindingHandle& Handle)
 {
 	return this->UnbindPlayerInputAction(Handle);
 }

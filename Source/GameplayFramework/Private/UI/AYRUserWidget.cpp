@@ -25,14 +25,3 @@ void UAYRUserWidget::OnLeaveThisWidget(EUIStateChangedReason::Type InReason)
 	// 调用蓝图版本。
 	this->BP_OnLeaveThisWidget(InReason);
 }
-
-void UAYRUserWidget::SetInputPriority(int32 InPriority)
-{
-	this->SetInputActionPriority(InPriority);
-}
-
-void UAYRUserWidget::SetIsStopAction(bool bInStopAction)
-{
-	this->SetInputActionBlocking(bInStopAction);
-}
-

@@ -109,7 +109,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 		if (this->UIStack.IsValidIndex(this->UIStack.Num() - 1))
 		{
 			FUIStackInfo& CurrentStackTop = this->UIStack[this->UIStack.Num() - 1];
-			CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::UISCR_NewWidgetEntered);
+			CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::UISCR_BePopped);
 		}
 	}
 	else 
