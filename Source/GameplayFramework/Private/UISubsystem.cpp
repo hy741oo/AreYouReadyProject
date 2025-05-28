@@ -210,20 +210,24 @@ void FAYRInputModeData::ApplyInputMode(FReply& SlateOperations, UGameViewportCli
 	if (TSharedPtr<SViewport> Viewport = GameViewportClient.GetGameViewportWidget())
 	{
 		TSharedRef<SViewport> ViewportWidgetRef = Viewport.ToSharedRef();
+		SlateOperations.UseHighPrecisionMouseMovement(ViewportWidgetRef);
+		SlateOperations.SetUserFocus(ViewportWidgetRef);
+		SlateOperations.LockMouseToWidget(ViewportWidgetRef);
+
 		{
-			SlateOperations.UseHighPrecisionMouseMovement(ViewportWidgetRef);
-			SlateOperations.SetUserFocus(ViewportWidgetRef);
-			SlateOperations.LockMouseToWidget(ViewportWidgetRef);
+			EMouseCaptureMode CurrentCaptureMode = this->UIStateInfo.MouseCaptureMode;
+			if (CurrentCaptureMode == EMouseCaptureMode::NoCapture || CurrentCaptureMode == EMouseCaptureMode::CaptureDuringMouseDown || CurrentCaptureMode == EMouseCaptureMode::CaptureDuringRightMouseDown)
+			{
+				SlateOperations.ReleaseMouseCapture();
+			}
 		}
 
-		if (this->UIStateInfo.MouseCaptureMode == EMouseCaptureMode::NoCapture)
 		{
-			SlateOperations.ReleaseMouseCapture();
-		}
-
-		if (this->UIStateInfo.MouseLockMode == EMouseLockMode::DoNotLock)
-		{
-			SlateOperations.ReleaseMouseLock();
+			EMouseLockMode CurrentLockMode = this->UIStateInfo.MouseLockMode;
+			if (CurrentLockMode != EMouseLockMode::LockAlways)
+			{
+				SlateOperations.ReleaseMouseLock();
+			}
 		}
 
 		GameViewportClient.SetMouseLockMode(this->UIStateInfo.MouseLockMode);
