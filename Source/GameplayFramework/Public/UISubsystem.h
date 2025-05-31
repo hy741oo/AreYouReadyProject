@@ -104,12 +104,6 @@ private:
 private:
 	// 对指定的UI应用状态信息。
 	void ApplyUIInfo(APlayerController* InPlayerController, const FUIStackInfo* InUIStackInfo);
-
-	// 当输入设备切换时调用的函数。
-	void OnInputDeviceChanged(UGMSMessageBase* InMessage);
-
-	// 当玩家输入设备切换到手柄时需要让栈顶UI响应的操作。
-	void OnInputDeviceChangeIntoGamepad(APlayerController* InPlayerController);
 public:
 	virtual void Initialize(FSubsystemCollectionBase& InCollection) override;
 

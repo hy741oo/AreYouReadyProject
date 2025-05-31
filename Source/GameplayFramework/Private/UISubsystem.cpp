@@ -26,15 +26,6 @@ void UUISubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 			this->ClearUIStack();
 		}
 	);
-
-	// 注册输入设备切换事件。用于当玩家从键鼠切换到手柄时可以让当前栈顶UI接收到事件，并设置对应的Focus。
-	if (UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance()))
-	{
-		FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
-		FOnMessageReceived Callback;
-		Callback.BindUObject(this, &UUISubsystem::OnInputDeviceChanged);
-		this->InputDeviceMessageHandle = GMS->Register(Tag, Callback);
-	}
 }
 
 void UUISubsystem::Deinitialize()
@@ -176,32 +167,6 @@ void UUISubsystem::ResetInputSetting() const
 		GameViewportClient->SetMouseCaptureMode(EMouseCaptureMode::CapturePermanently);
 		GameViewportClient->SetHideCursorDuringCapture(false);
 		GameViewportClient->SetMouseLockMode(EMouseLockMode::LockOnCapture);
-	}
-}
-
-
-void UUISubsystem::OnInputDeviceChanged(UGMSMessageBase* InMessage)
-{
-	if (UGMSInputDeviceType* Msg = Cast<UGMSInputDeviceType>(InMessage))
-	{
-		// 如果切换为控制器则让栈顶UI获得响应。
-		if (Msg->CurrentType == EInputDeviceType::IDT_Controller)
-		{
-			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-			this->OnInputDeviceChangeIntoGamepad(PlayerController);
-		}
-	}
-}
-
-void UUISubsystem::OnInputDeviceChangeIntoGamepad(APlayerController* InPlayerController)
-{
-	if (this->UIStack.Num() > 0)
-	{
-		FUIStackInfo& LastUIStackInfo = this->UIStack.Last();
-		if (UAYRUserWidget* LastWidget = LastUIStackInfo.UserWidget)
-		{
-			LastWidget->OnEnterThisWidget(InPlayerController, &LastUIStackInfo, EUIStateChangedReason::UISCR_InputDeviceChangedIntoGamepad);
-		}
 	}
 }
 

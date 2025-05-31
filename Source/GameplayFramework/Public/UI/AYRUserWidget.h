@@ -17,9 +17,7 @@ namespace EUIStateChangedReason
 		// 当处于Enter事件时表明该UI是最新添加的UI；当处于Leave事件时表明有新UI添加，而当前UI不再是栈顶UI。
 		UISCR_NewWidgetEntered UMETA(DisplayName = NewWidgetEntered),
 		// 当处于Enter事件时表明上层UI已经被移除，栈顶UI重新变为该UI；当处于Leave事件时表明当前UI被移除。
-		UISCR_BePopped UMETA(DisplayName = BePoped),
-		// 玩家输入设备变更时UI栈里最顶层的UI会接收到的事件，用于处理一些键鼠和手柄差异化功能。目前只在Enter事件会用到。
-		UISCR_InputDeviceChangedIntoGamepad UMETA(DisplayName = InputDeviceChangedIntoGamepad)
+		UISCR_BePopped UMETA(DisplayName = BePoped)
 	};
 }
 
