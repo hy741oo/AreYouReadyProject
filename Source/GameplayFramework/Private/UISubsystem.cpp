@@ -33,7 +33,6 @@ void UUISubsystem::Deinitialize()
 	FCoreUObjectDelegates::PreLoadMap.Remove(this->CleanDelegateHandle);
 	this->CleanDelegateHandle.Reset();
 	this->ClearUIStack();
-	UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance())->Unregister(this->InputDeviceMessageHandle);
 }
 
 UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)

@@ -95,9 +95,6 @@ private:
 	// 清理委托句柄。
 	FDelegateHandle CleanDelegateHandle;
 
-	// 输入设备切换时注册的消息句柄。
-	FGMSListenerHandle InputDeviceMessageHandle;
-
 	// 初始化界面的输入设置。
 	void ResetInputSetting() const;
 

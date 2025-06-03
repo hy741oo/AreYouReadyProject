@@ -24,14 +24,14 @@ void UAYRGameInstance::OnStart()
 	UGameSettingSubsystem* GameSetting = UGameInstance::GetSubsystem<UGameSettingSubsystem>(this);
 	GameSetting->ApplySetting();
 
-	// 使用空函数来取代引擎默认导航。但是暂时不启用。未来需要实现完全自定义导航逻辑时再启用。
-	//if (UGameViewportClient* Viewport = this->GetGameViewportClient())
-	//{
-	//	auto Functor = [](const uint32 InUserIndex, TSharedPtr<SWidget> InDestination) -> bool {
-	//		return true;
-	//		};
-	//	Viewport->OnNavigationOverride().BindLambda(Functor);
-	//}
+	// 使用空函数来取代引擎默认导航。目的是为了禁用引擎自带的UI导航系统。
+	if (UGameViewportClient* Viewport = this->GetGameViewportClient())
+	{
+		auto Functor = [](const uint32 InUserIndex, TSharedPtr<SWidget> InDestination) -> bool {
+			return true;
+			};
+		Viewport->OnNavigationOverride().BindLambda(Functor);
+	}
 }
 
 void UAYRGameInstance::Shutdown()

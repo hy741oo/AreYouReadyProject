@@ -8,6 +8,8 @@
 #include "Blueprint/WidgetTree.h"
 #include "Audio/AudioManagerSubsystem.h"
 
+TMap<int32, UAYRButton*> UAYRButton::RegisteredGroups = TMap<int32, UAYRButton*>();
+
 FReply SAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
 {
 	FReply ReturnReply = SBorder::OnFocusReceived(InMyGeometry, InFocusEvent);
@@ -37,6 +39,30 @@ void SAYRButton::SetOnButtonFocusLostDelegate(FOnButtonFocusLost InDelegate)
 	this->OnButtonFocusLost = InDelegate;
 }
 
+FReply SAYRButton::OnKeyDown( const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent )
+{
+	// 仅仅只做表现，不再让键盘/手柄响应“OnClicked”事件。
+
+	if (IsEnabled() && FSlateApplication::Get().GetNavigationActionFromKey(InKeyEvent) == EUINavigationAction::Accept)
+	{
+		Press();
+	}
+
+	return FReply::Unhandled();
+}
+
+FReply SAYRButton::OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+	// 仅仅只做表现，不再让键盘/手柄响应“OnClicked”事件。
+
+	if (IsEnabled() && FSlateApplication::Get().GetNavigationActionFromKey(InKeyEvent) == EUINavigationAction::Accept)
+	{
+		Release();
+	}
+
+	//return the constructed reply
+	return FReply::Unhandled();
+}
 
 UAYRButton::UAYRButton(const FObjectInitializer& InObjectInitializer)
 	:Super(InObjectInitializer)
@@ -48,26 +74,26 @@ void UAYRButton::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
 
-	if (this->bEnableFocusAppearance && this->HasAnyUserFocus())
+	if (this->bIsSelected)
 	{
-		// 当该Button启用Focus表现和被Focus的时候启用Focus Style...
-		this->SetAYRButtonStyle(this->FocusedWidgetStyle);
+		this->SetAYRButtonStyle(this->SelectedWidgetStyle);
 	}
 	else
 	{
-		// ...否则使用原本的Style。
 		this->SetAYRButtonStyle(this->NormalWidgetStyle);
 	}
+
+
 }
 
 TSharedRef<SWidget> UAYRButton::RebuildWidget()
 {
 	TSharedPtr<SAYRButton> AYRButton = SNew(SAYRButton)
-		.OnClicked(BIND_UOBJECT_DELEGATE(FOnClicked, SlateHandleClicked))
-		.OnPressed(BIND_UOBJECT_DELEGATE(FSimpleDelegate, SlateHandlePressed))
-		.OnReleased(BIND_UOBJECT_DELEGATE(FSimpleDelegate, SlateHandleReleased))
-		.OnHovered_UObject( this, &ThisClass::SlateHandleHovered )
-		.OnUnhovered_UObject( this, &ThisClass::SlateHandleUnhovered )
+		.OnClicked(BIND_UOBJECT_DELEGATE(FOnClicked, AYRSlateHandleClicked))
+		.OnPressed(BIND_UOBJECT_DELEGATE(FSimpleDelegate, AYRSlateHandlePressed))
+		.OnReleased(BIND_UOBJECT_DELEGATE(FSimpleDelegate, AYRSlateHandleReleased))
+		.OnHovered_UObject( this, &ThisClass::AYRSlateHandleHovered )
+		.OnUnhovered_UObject( this, &ThisClass::AYRSlateHandleUnhovered )
 		.ButtonStyle(&WidgetStyle)
 		.ClickMethod(ClickMethod)
 		.TouchMethod(TouchMethod)
@@ -97,23 +123,12 @@ FReply UAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEv
 {
 	this->OnButtonFocusReceived.Broadcast(this);
 
-	if (this->bEnableFocusAppearance)
-	{
-		this->SetAYRButtonStyle(this->FocusedWidgetStyle);
-	}
-	else
-	{
-		this->SetAYRButtonStyle(this->NormalWidgetStyle);
-	}
-
 	return FReply::Handled();
 }
 
 void UAYRButton::OnFocusLost(const FFocusEvent& InFocusEvent)
 {
 	this->OnButtonFocusLost.Broadcast();
-
-	this->SetAYRButtonStyle(this->NormalWidgetStyle);
 }
 
 void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
@@ -144,5 +159,129 @@ void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
 			this->MyButton->SetPressedSound(ButtonSound);
 		}
 	}
+}
+
+void UAYRButton::Select()
+{
+	if (!this->bIsSelected)
+	{
+		this->bIsSelected = true;
+
+		this->SetAYRButtonStyle(this->SelectedWidgetStyle);
+
+		// 处理组ID。
+		if (this->ButtonGroupID != -1)
+		{
+			if (UAYRButton** Button = this->RegisteredGroups.Find(this->ButtonGroupID))
+			{
+				(*Button)->Unselect();
+			}
+
+			this->RegisteredGroups.Add(this->ButtonGroupID, this);
+		}
+
+		this->OnButtonSelected.Broadcast(this);
+	}
+}
+
+void UAYRButton::Unselect()
+{
+	if (this->bIsSelected)
+	{
+		this->bIsSelected = false;
+
+		this->SetAYRButtonStyle(this->NormalWidgetStyle);
+
+		// 处理组ID。
+		if (UAYRButton* RegisteredButton = this->GetCurrentRegisteredButton(this->ButtonGroupID))
+		{
+			if (RegisteredButton == this)
+			{
+				this->RegisteredGroups.Remove(this->ButtonGroupID);
+			}
+		}
+
+		this->OnButtonUnselected.Broadcast(this);
+	}
+}
+
+void UAYRButton::SetButtonGroupID(const int32 InButtonGroupID)
+{
+	if (InButtonGroupID == this->ButtonGroupID) return;
+
+	if (this->bIsSelected == true && InButtonGroupID != -1)
+	{
+		if (UAYRButton* CurrentRegisteredButton = this->GetCurrentRegisteredButton(InButtonGroupID))
+		{
+			CurrentRegisteredButton->Unselect();
+		}
+	}
+
+	this->ButtonGroupID = InButtonGroupID;
+}
+
+UAYRButton* UAYRButton::GetCurrentRegisteredButton(const int32 InGroupID) const
+{
+	UAYRButton* Button = nullptr;
+
+	if (InGroupID != -1)
+	{
+		if (UAYRButton** FoundButton = this->RegisteredGroups.Find(InGroupID))
+		{
+			return *FoundButton;
+		}
+	}
+
+	return Button;
+}
+
+void UAYRButton::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	if (UAYRButton* Button = this->GetCurrentRegisteredButton(this->ButtonGroupID))
+	{
+		if (Button == this)
+		{
+			//Button->Unselect();
+
+			this->RegisteredGroups.Remove(this->ButtonGroupID);
+		}
+	}
+}
+
+FReply UAYRButton::AYRSlateHandleClicked()
+{
+	return this->SlateHandleClicked();
+}
+
+void UAYRButton::AYRSlateHandlePressed()
+{
+	if (!this->bIsSelectWhenHovered)
+	{
+		this->Select();
+	}
+
+	this->SlateHandlePressed();
+}
+
+void UAYRButton::AYRSlateHandleReleased()
+{
+	this->SlateHandleReleased();
+}
+
+void UAYRButton::AYRSlateHandleHovered()
+{
+	if (this->bIsSelectWhenHovered)
+	{
+		this->Select();
+	}
+
+	this->SlateHandleHovered();
+}
+
+void UAYRButton::AYRSlateHandleUnhovered()
+{
+	this->SlateHandleUnhovered();
 }
 
