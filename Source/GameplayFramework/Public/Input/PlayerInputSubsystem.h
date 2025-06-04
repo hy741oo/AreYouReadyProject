@@ -14,6 +14,8 @@
 
 class UInputMappingContext;
 
+DECLARE_LOG_CATEGORY_EXTERN(LogPlayerInputSubsystem, Log, All);
+
 // Input Action数据表。
 USTRUCT(BlueprintType)
 struct FPlayerInputActionTableRow : public FAYRTableRowBase

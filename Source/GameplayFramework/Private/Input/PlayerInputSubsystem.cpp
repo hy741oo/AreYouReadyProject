@@ -7,6 +7,8 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 
+DEFINE_LOG_CATEGORY(LogPlayerInputSubsystem);
+
 void UPlayerInputSubsystem::AddPlayerInputMappingContext(FName InInputMappingContextID)
 {
 	APlayerController* CurrentPlayerController = this->GetLocalPlayer()->GetPlayerController(this->GetWorld());
@@ -28,7 +30,15 @@ void UPlayerInputSubsystem::AddPlayerInputMappingContext(FName InInputMappingCon
 			// 绑定InputAction。
 			if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(CurrentPlayerController->InputComponent))
 			{
-				System->AddMappingContext(InputMappingContextTableRow->InputMappingContext, InputMappingContextTableRow->Priority);
+				// 当IMC不存在时才添加，防止重复添加。
+				if (!System->HasMappingContext(InputMappingContextTableRow->InputMappingContext))
+				{
+					System->AddMappingContext(InputMappingContextTableRow->InputMappingContext, InputMappingContextTableRow->Priority);
+				}
+				else
+				{
+					UE_LOG(LogPlayerInputSubsystem, Warning, TEXT("Input mapping context \"%s\" is exist, Adding Aabort."), *InputMappingContextTableRow->InputMappingContext->GetName())
+				}
 			}
 		}
 	}
