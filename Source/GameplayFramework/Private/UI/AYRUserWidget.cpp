@@ -7,7 +7,7 @@ void UAYRUserWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	verify(this->UISubsystem = UGameInstance::GetSubsystem<UUISubsystem>(this->GetGameInstance()));
+	verify(this->UISubsystem = ULocalPlayer::GetSubsystem<UUISubsystem>(this->GetOwningLocalPlayer()));
 
 }
 

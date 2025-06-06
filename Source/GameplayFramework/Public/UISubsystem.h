@@ -83,7 +83,7 @@ struct  FAYRInputModeData : public FInputModeDataBase
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UUISubsystem : public UGameInstanceSubsystem
+class GAMEPLAYFRAMEWORK_API UUISubsystem : public ULocalPlayerSubsystem
 {
 	GENERATED_BODY()
 

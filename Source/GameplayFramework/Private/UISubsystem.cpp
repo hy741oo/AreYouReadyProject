@@ -32,7 +32,6 @@ void UUISubsystem::Deinitialize()
 {
 	FCoreUObjectDelegates::PreLoadMap.Remove(this->CleanDelegateHandle);
 	this->CleanDelegateHandle.Reset();
-	this->ClearUIStack();
 }
 
 UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
@@ -43,14 +42,14 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 	FUIInfoTableRow* UIInfoTableRow = nullptr;
 	if (ConfigSubsystem->GetDataTableRowFromID(InUIID, UIInfoTableRow))
 	{
-		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		APlayerController* PlayerController = this->GetLocalPlayerChecked()->GetPlayerController(this->GetWorld());
 
 		// 生成UI。
 		CreatedWidget = CreateWidget<UAYRUserWidget>(PlayerController, UIInfoTableRow->UIClass, UIInfoTableRow->UIName);
 		if (ensureAlways(CreatedWidget))
 		{
 			FUIStackInfo UIStackInfo;
-			CreatedWidget->AddToViewport(UIInfoTableRow->UIStateInfo.ZOrder);
+			CreatedWidget->AddToPlayerScreen(UIInfoTableRow->UIStateInfo.ZOrder);
 			UIStackInfo.UserWidget = CreatedWidget;
 			UIStackInfo.UIStateInfo = UIInfoTableRow->UIStateInfo;
 
@@ -99,7 +98,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 		if (this->UIStack.IsValidIndex(this->UIStack.Num() - 1))
 		{
 			FUIStackInfo& CurrentStackTop = this->UIStack[this->UIStack.Num() - 1];
-			CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::UISCR_BePopped);
+			CurrentStackTop.UserWidget->OnEnterThisWidget(this->GetLocalPlayer()->GetPlayerController(this->GetWorld()), &CurrentStackTop, EUIStateChangedReason::UISCR_BePopped);
 		}
 	}
 	else 
@@ -114,7 +113,7 @@ void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
 			if (this->UIStack.IsValidIndex(this->UIStack.Num() - 1))
 			{
 				FUIStackInfo& CurrentStackTop = this->UIStack[this->UIStack.Num() - 1];
-				CurrentStackTop.UserWidget->OnEnterThisWidget(UGameplayStatics::GetPlayerController(this, 0), &CurrentStackTop, EUIStateChangedReason::UISCR_BePopped);
+				CurrentStackTop.UserWidget->OnEnterThisWidget(this->GetLocalPlayer()->GetPlayerController(this->GetWorld()), &CurrentStackTop, EUIStateChangedReason::UISCR_BePopped);
 			}
 		}
 	}
@@ -140,9 +139,9 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 	InPlayerController->SetInputMode(InputMode);
 
 	// 是否需要显示鼠标。
-	if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
+	if (InPlayerController)
 	{
-		PlayerController->SetShowMouseCursor(UIStateInfo.bShowMouseCursor);
+		InPlayerController->SetShowMouseCursor(UIStateInfo.bShowMouseCursor);
 	}
 }
 
