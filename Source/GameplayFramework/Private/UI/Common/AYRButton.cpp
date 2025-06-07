@@ -8,7 +8,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Audio/AudioManagerSubsystem.h"
 
-TMap<int32, UAYRButton*> UAYRButton::RegisteredGroups = TMap<int32, UAYRButton*>();
+TMap<int32, TWeakObjectPtr<UAYRButton>> UAYRButton::RegisteredGroups = TMap<int32, TWeakObjectPtr<UAYRButton>>();
 
 FReply SAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
 {
@@ -172,9 +172,12 @@ void UAYRButton::Select()
 		// 处理组ID。
 		if (this->ButtonGroupID != -1)
 		{
-			if (UAYRButton** Button = this->RegisteredGroups.Find(this->ButtonGroupID))
+			if (TWeakObjectPtr<UAYRButton>* Button = this->RegisteredGroups.Find(this->ButtonGroupID))
 			{
-				(*Button)->Unselect();
+				if (Button->IsValid())
+				{
+					(*Button)->Unselect();
+				}
 			}
 
 			this->RegisteredGroups.Add(this->ButtonGroupID, this);
@@ -193,7 +196,8 @@ void UAYRButton::Unselect()
 		this->SetAYRButtonStyle(this->NormalWidgetStyle);
 
 		// 处理组ID。
-		if (UAYRButton* RegisteredButton = this->GetCurrentRegisteredButton(this->ButtonGroupID))
+		TWeakObjectPtr<UAYRButton> RegisteredButton = this->GetCurrentRegisteredButton(this->ButtonGroupID);
+		if (RegisteredButton.IsValid())
 		{
 			if (RegisteredButton == this)
 			{
@@ -211,7 +215,8 @@ void UAYRButton::SetButtonGroupID(const int32 InButtonGroupID)
 
 	if (this->bIsSelected == true && InButtonGroupID != -1)
 	{
-		if (UAYRButton* CurrentRegisteredButton = this->GetCurrentRegisteredButton(InButtonGroupID))
+		TWeakObjectPtr<UAYRButton> CurrentRegisteredButton = this->GetCurrentRegisteredButton(InButtonGroupID);
+		if (CurrentRegisteredButton.IsValid())
 		{
 			CurrentRegisteredButton->Unselect();
 		}
@@ -220,13 +225,13 @@ void UAYRButton::SetButtonGroupID(const int32 InButtonGroupID)
 	this->ButtonGroupID = InButtonGroupID;
 }
 
-UAYRButton* UAYRButton::GetCurrentRegisteredButton(const int32 InGroupID) const
+TWeakObjectPtr<UAYRButton> UAYRButton::GetCurrentRegisteredButton(const int32 InGroupID) const
 {
-	UAYRButton* Button = nullptr;
+	TWeakObjectPtr<UAYRButton> Button = nullptr;
 
 	if (InGroupID != -1)
 	{
-		if (UAYRButton** FoundButton = this->RegisteredGroups.Find(InGroupID))
+		if (TWeakObjectPtr<UAYRButton>* FoundButton = this->RegisteredGroups.Find(this->ButtonGroupID))
 		{
 			return *FoundButton;
 		}
@@ -235,19 +240,20 @@ UAYRButton* UAYRButton::GetCurrentRegisteredButton(const int32 InGroupID) const
 	return Button;
 }
 
-void UAYRButton::BeginDestroy()
+void UAYRButton::ReleaseSlateResources(bool bInReleaseChildren)
 {
-	Super::BeginDestroy();
-
-	if (UAYRButton* Button = this->GetCurrentRegisteredButton(this->ButtonGroupID))
+	TWeakObjectPtr<UAYRButton> Button = this->GetCurrentRegisteredButton(this->ButtonGroupID);
+	if (Button.IsValid())
 	{
 		if (Button == this)
 		{
-			//Button->Unselect();
+			Button->Unselect();
 
 			this->RegisteredGroups.Remove(this->ButtonGroupID);
 		}
 	}
+
+	Super::ReleaseSlateResources(bInReleaseChildren);
 }
 
 FReply UAYRButton::AYRSlateHandleClicked()

@@ -72,11 +72,11 @@ private:
 	int32 ButtonGroupID = -1;
 
 	// 已经注册了的ID和Widget映射。Key为组ID，Value为当前组ID中被选中的Widget。
-	static TMap<int32, UAYRButton*> RegisteredGroups;
+	static TMap<int32, TWeakObjectPtr<UAYRButton>> RegisteredGroups;
 
 private:
 	// 获取指定已经注册了的指定ID对应的Button。
-	UAYRButton* GetCurrentRegisteredButton(const int32 InGroupID) const;
+	TWeakObjectPtr<UAYRButton> GetCurrentRegisteredButton(const int32 InGroupID) const;
 
 protected:
 	// 替代原本绑定到SButton的版本，利于扩展。
@@ -143,6 +143,6 @@ public:
 	// 设置当前按钮的组ID。
 	void SetButtonGroupID(const int32 InButtonGroupID);
 
-	// 销毁时检测该Button是否已经被注册。
-	virtual void BeginDestroy() override;
+	// 当UserWidget被移除时如果该Button已经被注册则需要执行取消注册操作。
+	virtual void ReleaseSlateResources(bool bInReleaseChildren) override;
 };
