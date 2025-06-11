@@ -247,6 +247,8 @@ void UAYRButton::ReleaseSlateResources(bool bInReleaseChildren)
 	{
 		if (Button == this)
 		{
+			this->Unselect();
+			
 			this->RegisteredGroups.Remove(this->ButtonGroupID);
 		}
 	}
