@@ -291,3 +291,18 @@ void UAYRButton::AYRSlateHandleUnhovered()
 	this->SlateHandleUnhovered();
 }
 
+void UAYRButton::ClearRegisteredButtons()
+{
+	TMap<int32, TWeakObjectPtr<UAYRButton>> Groups = RegisteredGroups;
+
+	for (TPair<int32, TWeakObjectPtr<UAYRButton>> Element : Groups)
+	{
+		if (Element.Value.IsValid())
+		{
+			Element.Value->Unselect();
+		}
+
+		RegisteredGroups.Remove(Element.Key);
+	}
+}
+

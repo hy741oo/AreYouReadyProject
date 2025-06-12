@@ -6,6 +6,8 @@
 #include "Framework/Application/SlateApplication.h"
 #include "GameSetting/GameSettingSubsystem.h"
 #include "Widgets/SViewport.h"
+#include "UI/Common/AYRButton.h"
+#include "GameDelegates.h"
 
 void UAYRGameInstance::OnStart()
 {
@@ -32,6 +34,15 @@ void UAYRGameInstance::OnStart()
 			};
 		Viewport->OnNavigationOverride().BindLambda(Functor);
 	}
+
+	// 在引擎退出之前清理AYRButton的组。
+	// 通常情况下AYRButton的组会在该Button被销毁时自动执行Unselect操作，但是如果我们在Unselect操作里访问了一些引擎的对象（如PlayerController）则会因为这些对象提前被销毁而拿不到该对象，
+	// 因此我们优先执行清理操作，防止我们要访问的对象在我们访问之前就被清理了。
+	FGameDelegates::Get().GetExitCommandDelegate().AddLambda(
+		[]() {
+			UAYRButton::ClearRegisteredButtons();
+		}
+	);
 }
 
 void UAYRGameInstance::Shutdown()

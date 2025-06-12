@@ -145,4 +145,7 @@ public:
 
 	// 当UserWidget被移除时如果该Button已经被注册则需要执行取消注册操作。
 	virtual void ReleaseSlateResources(bool bInReleaseChildren) override;
+
+	// 清除已经注册在组的Button。
+	static void ClearRegisteredButtons();
 };
