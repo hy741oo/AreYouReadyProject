@@ -17,18 +17,13 @@ class GAMEPLAYFRAMEWORK_API SAYRComboBox : public SComboBox<OptionType>
 
 public:
 	// 当我们设置Focus时就开始让ComboBox开启。
-	virtual FReply OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent) override
-	{
-		// 当用户在下拉菜单选中选项后引擎的Focus又会回到该Slate上，这个时候可以通过判断当前是否打开下拉菜单来确认我们是否要让Focus回到GameViewport上。
-		if (!this->ShouldOpenDueToClick())
-		{
-			FReply Reply = SComboButton::OnButtonClicked();
-			Reply.SetUserFocus(FSlateApplication::Get().GetGameViewport().ToSharedRef());
-			return Reply;
-		}
+	virtual FReply OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent) override;
 
-		return SComboButton::OnButtonClicked();
-	}
+	// 绑定下拉菜单开关事件。
+	void BindOnMenuOpenStateChangedDelegate();
+
+	// 开关下拉菜单的回调事件。
+	virtual void OnMenuOpenStateChanged(bool bInIsOpened);
 };
 
 /**
