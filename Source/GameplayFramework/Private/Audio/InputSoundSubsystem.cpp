@@ -38,8 +38,8 @@ void UInputSoundSubsystem::OnHandledInputKey(UGMSMessageBase* InMessage)
 {
 	if (UGMSHandledKey* Msg = Cast<UGMSHandledKey>(InMessage))
 	{
-		// 逆序搜索。
-		for (int32 Index = this->InputSoundStack.Num() - 1; Index >= 0; --Index)
+		// 顺序搜索。
+		for (int32 Index = 0; Index < this->InputSoundStack.Num(); ++Index)
 		{
 			FInputSoundStackData& InputSoundStackData = this->InputSoundStack[Index];
 			FInputSoundTableRow* InputSoundTableRow = InputSoundStackData.DataTableRow;
@@ -82,9 +82,34 @@ bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundD
 		StackData.UniqueID = CurrentUniqueID;
 
 		FInputSoundDataHandle Handle;
-		Handle.StackIndex = this->InputSoundStack.Add(StackData);
+		// 如果当前按键音效栈为空的话，则直接插入数据。
+		if (this->InputSoundStack.Num() == 0)
+		{
+			Handle.StackIndex = this->InputSoundStack.Add(StackData);
+		}
+		else
+		{
+			// 遍历数组，根据优先级来查找需要插入的Index。
+			bool bIsFound = false;
+			for (int32 CurrentIndex = 0; CurrentIndex < this->InputSoundStack.Num(); ++CurrentIndex)
+			{
+				FInputSoundStackData& ElementData = this->InputSoundStack[CurrentIndex];
+				if (TableRow->Priority >= ElementData.DataTableRow->Priority)
+				{
+					Handle.StackIndex = this->InputSoundStack.Insert(StackData, CurrentIndex);
+					bIsFound = true;
+					break;
+				}
+			}
+			if (bIsFound == false)
+			{
+				Handle.StackIndex = this->InputSoundStack.Add(StackData);
+			}
+		}
 		Handle.CurrentID = CurrentUniqueID;
 		OutHandle = Handle;
+
+		bSuccessful = true;
 	}
 	else
 	{
@@ -96,13 +121,10 @@ bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundD
 
 void UInputSoundSubsystem::PopInputSoundData(FInputSoundDataHandle& Handle)
 {
-	while (this->InputSoundStack.Num() > 0)
+	// 删除Handle指定Index的按键音效数据。
+	if (this->InputSoundStack.IsValidIndex(Handle.StackIndex))
 	{
-		FInputSoundStackData StackData = this->InputSoundStack.Pop();
-		if (StackData.UniqueID == Handle.CurrentID)
-		{
-			return;
-		}
+		this->InputSoundStack.RemoveAt(Handle.StackIndex);
 	}
 }
 

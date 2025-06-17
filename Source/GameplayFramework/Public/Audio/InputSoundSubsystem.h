@@ -24,6 +24,10 @@ struct FInputSoundTableRow : public FAYRTableRowBase
 	// 是否阻挡按键往下传递。在按键音效栈顶中如果没有查找到当前按键对应的音效时，是否需要往栈的下一层寻找，true为不继续寻找，false则继续寻找。
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	bool bHandled = true;
+
+	// 优先级。值越大则越在按键音效栈顶层。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	int32 Priority = 0;
 };
 
 USTRUCT(BlueprintType)
