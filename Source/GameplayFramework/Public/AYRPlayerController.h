@@ -33,6 +33,9 @@ public:
 
 	virtual void BeginPlay() override;
 
+	// 清理该Controller生成的所有UI。
+	virtual void CleanupGameViewport() override;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FPlayerControllerInfoTableRow GetPlayerControllerInfo()
 	{
