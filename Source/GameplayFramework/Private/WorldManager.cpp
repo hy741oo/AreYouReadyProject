@@ -133,14 +133,11 @@ void UWorldManager::Tick(float InDeltaTime)
 		if (this->ElapsedFadeTime < this->TargetFadeTime)
 		{
 			float CurrentFadeTime = this->ElapsedFadeTime / this->TargetFadeTime;
-			if (GEngine)
+			if (UWorld* World = this->GetWorld())
 			{
-				if (UWorld* World = this->GetWorld())
+				if (FAudioDevice* AudioDevice = World->GetAudioDeviceRaw())
 				{
-					if (FAudioDevice* AudioDevice = World->GetAudioDeviceRaw())
-					{
-						AudioDevice->SetTransientMasterVolume(this->bIsFadeIn ? CurrentFadeTime : 1.f - CurrentFadeTime);
-					}
+					AudioDevice->SetTransientMasterVolume(this->bIsFadeIn ? CurrentFadeTime : 1.f - CurrentFadeTime);
 				}
 			}
 		}
@@ -153,6 +150,14 @@ void UWorldManager::Tick(float InDeltaTime)
 
 void UWorldManager::StopFadeAudio()
 {
+	// 停止渐变音频时需要将总音频音量调为原来的值。
+	if (UWorld* World = this->GetWorld())
+	{
+		if (FAudioDevice* AudioDevice = World->GetAudioDeviceRaw())
+		{
+			AudioDevice->SetTransientMasterVolume(1.f);
+		}
+	}
 	this->bEnableFadeAudio = false;
 	this->ElapsedFadeTime = .0f;
 	this->TargetFadeTime = .0f;
