@@ -8,6 +8,8 @@
 
 void AMainLevelCharacter::BeginPlay()
 {
+	Super::BeginPlay();
+
 	// 绑定基础运动。
 	if (AMainLevelPlayerController* OwningController = this->GetController<AMainLevelPlayerController>())
 	{
