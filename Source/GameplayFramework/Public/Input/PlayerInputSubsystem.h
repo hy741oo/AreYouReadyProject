@@ -78,17 +78,19 @@ public:
 		}
 
 		// 通过InputActionID获取对应的InputAction。
-		UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+		UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetLocalPlayer()->GetGameInstance());
 		FPlayerInputActionTableRow* InputActionTableRow = nullptr;
 		if (Config->GetDataTableRowFromID<FPlayerInputActionTableRow>(InInputActionID, InputActionTableRow))
 		{
 			// 绑定InputAction。
-			if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InPlayerController->InputComponent))
+			if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(this->GetLocalPlayer()->GetPlayerController(this->GetWorld())->InputComponent))
 			{
 				FEnhancedInputActionEventBinding& Binding = EIC->BindAction(InputActionTableRow->InputAction, InputActionTableRow->TriggerEvent, InBindingObject, InOnInputActionExecute);
 				Handle.InputActionBingdingHandle = Binding.GetHandle();
 			}
 		}
+
+		return Handle;
 	}
 
 	// 解绑Enhanced Input Action。
@@ -102,12 +104,28 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemovePlayerInputMappingContext(FName InInputMappingContextID);
 
+	// 判断当前InputActionInstance的值是否为bool类型的值。
+	UFUNCTION(BlueprintCallable, Category = "Player Input")
+	static bool GetBoolTypeInstanceValue(const FInputActionInstance& InInstance, bool& OutValue);
+
+	// 判断当前InputActionInstance的值是否为Axis1D类型的值。
+	UFUNCTION(BlueprintCallable, Category = "Player Input")
+	static bool GetAxis1DTypeInstanceValue(const FInputActionInstance& InInstance, float& OutValue);
+
+	// 判断当前InputActionInstance的值是否为Axis2D类型的值。
+	UFUNCTION(BlueprintCallable, Category = "Player Input")
+	static bool GetAxis2DTypeInstanceValue(const FInputActionInstance& InInstance, FVector2D& OutValue);
+
+	// 判断当前InputActionInstance的值是否为Axis3D类型的值。
+	UFUNCTION(BlueprintCallable, Category = "Player Input")
+	static bool GetAxis3DTypeInstanceValue(const FInputActionInstance& InInstance, FVector& OutValue);
+
 private:
 	// 绑定InputAction蓝图版本。
-	UFUNCTION(BlueprintCallable, Category = "Input Action", Meta = (DisplayName = "Bind Player Input Action"))
+	UFUNCTION(BlueprintCallable, Category = "Player Input|Input Action", Meta = (DisplayName = "Bind Player Input Action"))
 	FPlayerInputActionBindingHandle K2_BindPlayerInputAction(FName InInputActionID, FEnhancedInputActionHandlerDynamicSignature InOnInputActionExecute);
 
 	// 解绑InputAction蓝图版本。
-	UFUNCTION(BlueprintCallable, Category = "Input Action", Meta = (DisplayName = "Unbind Player Input Action"))
+	UFUNCTION(BlueprintCallable, Category = "Player Input|Input Action", Meta = (DisplayName = "Unbind Player Input Action"))
 	bool K2_UnbindPlayerInputAction(UPARAM(ref) FPlayerInputActionBindingHandle& Handle);
 };

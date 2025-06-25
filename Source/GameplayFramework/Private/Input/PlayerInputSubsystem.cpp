@@ -131,3 +131,63 @@ bool UPlayerInputSubsystem::K2_UnbindPlayerInputAction(FPlayerInputActionBinding
 	return this->UnbindPlayerInputAction(Handle);
 }
 
+bool UPlayerInputSubsystem::GetBoolTypeInstanceValue(const FInputActionInstance& InInstance, bool& OutValue)
+{
+	bool IsTheType = false;
+
+	FInputActionValue InputActionValue = InInstance.GetValue();
+	if (InputActionValue.GetValueType() == EInputActionValueType::Boolean)
+	{
+		IsTheType = true;
+
+		OutValue = InputActionValue.Get<bool>();
+	}
+
+	return IsTheType;
+}
+
+bool UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(const FInputActionInstance& InInstance, float& OutValue)
+{
+	bool IsTheType = false;
+
+	FInputActionValue InputActionValue = InInstance.GetValue();
+	if (InputActionValue.GetValueType() == EInputActionValueType::Axis1D)
+	{
+		IsTheType = true;
+
+		OutValue = InputActionValue.Get<FInputActionValue::Axis1D>();
+	}
+
+	return IsTheType;
+}
+
+bool UPlayerInputSubsystem::GetAxis2DTypeInstanceValue(const FInputActionInstance& InInstance, FVector2D& OutValue)
+{
+	bool IsTheType = false;
+
+	FInputActionValue InputActionValue = InInstance.GetValue();
+	if (InputActionValue.GetValueType() == EInputActionValueType::Axis2D)
+	{
+		IsTheType = true;
+
+		OutValue = InputActionValue.Get<FInputActionValue::Axis2D>();
+	}
+
+	return IsTheType;
+}
+
+bool UPlayerInputSubsystem::GetAxis3DTypeInstanceValue(const FInputActionInstance& InInstance, FVector& OutValue)
+{
+	bool IsTheType = false;
+
+	FInputActionValue InputActionValue = InInstance.GetValue();
+	if (InputActionValue.GetValueType() == EInputActionValueType::Axis3D)
+	{
+		IsTheType = true;
+
+		OutValue = InputActionValue.Get<FInputActionValue::Axis3D>();
+	}
+
+	return IsTheType;
+}
+
