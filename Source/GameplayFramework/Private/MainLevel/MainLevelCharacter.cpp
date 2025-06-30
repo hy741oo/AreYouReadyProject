@@ -7,6 +7,7 @@
 #include "MainLevel/MainLevelPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectInitializer)
 {
@@ -23,6 +24,15 @@ AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectIniti
 	{
 		PlayerCapsule->SetCapsuleRadius(42);
 		PlayerCapsule->SetCapsuleHalfHeight(96);
+	}
+
+	// 设置运动组件。
+	if (UCharacterMovementComponent* MC = this->GetCharacterMovement())
+	{
+		MC->MaxAcceleration = 700.f;
+		MC->BrakingFrictionFactor = 1.f;
+		MC->MaxWalkSpeed = 300.f;
+		MC->BrakingDecelerationWalking = 1000.f;
 	}
 }
 
