@@ -104,3 +104,12 @@ void AMainLevelCharacter::LookUp(const FInputActionInstance& InValue)
 	}
 }
 
+void AMainLevelCharacter::Tick(float InDeltaTime)
+{
+	TArray<FHitResult> HitResults;
+	FVector CameraLocationInWorld = this->PlayerCamera->GetComponentLocation();
+	FVector StartLocation = CameraLocationInWorld;
+	FVector EndLocation = CameraLocationInWorld + this->PlayerCamera->GetForwardVector() * this->LineTraceDistance;
+	UKismetSystemLibrary::LineTraceMulti(this, StartLocation, EndLocation, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, HitResults, true);
+}
+

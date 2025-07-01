@@ -19,8 +19,12 @@ class GAMEPLAYFRAMEWORK_API AMainLevelCharacter : public AAYRCharacter
 	GENERATED_BODY()
 	
 protected:
+	// 玩家摄像机。
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	UCameraComponent* PlayerCamera = nullptr;
+
+	// 射线追踪距离。
+	float LineTraceDistance = 150.f;
 
 public:
 	// 构造函数
@@ -40,4 +44,7 @@ public:
 
 	// 上下移动摄像机逻辑。
 	virtual void LookUp(const FInputActionInstance& InValue);
+
+	// Tick函数。包含交互物检测等逻辑。
+	virtual void Tick(float InDeltaTime) override;
 };
