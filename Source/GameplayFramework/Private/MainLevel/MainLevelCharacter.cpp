@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Interface/Interactive/InteractableObjectInterface.h"
 
 AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectInitializer)
 {
@@ -63,6 +64,17 @@ void AMainLevelCharacter::BeginPlay()
 	}
 }
 
+void AMainLevelCharacter::EndPlay(const EEndPlayReason::Type InEndPlayReason)
+{
+	Super::EndPlay(InEndPlayReason);
+
+	// 清理可交互对象。
+	if (IInteractableObjectInterface* OldActor = Cast<IInteractableObjectInterface>(this->InteractableActor.Get()))
+	{
+		OldActor->Execute_LeaveInteractableState(this->InteractableActor.Get());
+	}
+}
+
 void AMainLevelCharacter::MoveForward(const FInputActionInstance& InValue)
 {
 	float Value = .0f;
@@ -108,8 +120,44 @@ void AMainLevelCharacter::Tick(float InDeltaTime)
 {
 	TArray<FHitResult> HitResults;
 	FVector CameraLocationInWorld = this->PlayerCamera->GetComponentLocation();
+	// 球形射线初始位置。位于摄像机中点。
 	FVector StartLocation = CameraLocationInWorld;
-	FVector EndLocation = CameraLocationInWorld + this->PlayerCamera->GetForwardVector() * this->LineTraceDistance;
-	UKismetSystemLibrary::LineTraceMulti(this, StartLocation, EndLocation, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, HitResults, true);
+	// 球形射线终止位置。位于摄像机正前方CapsuleTraceDistance距离。
+	FVector EndLocation = CameraLocationInWorld + this->PlayerCamera->GetForwardVector() * this->SphereTraceDistance;
+	// 球形射线检测可交互Actor。
+	UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, HitResults, true);
+	if (HitResults.Num() > 0)
+	{
+		for (const FHitResult& HitResult : HitResults)
+		{
+			AActor* HitActor = HitResult.GetActor();
+			if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractableObjectInterface::StaticClass()))
+			{
+				// 即使实现了接口，如果不可交互的话需要跳过该Actor。
+				if (!IInteractableObjectInterface::Execute_IsInteractable(HitResult.Actor.Get()))
+				{
+					continue;
+				}
+
+				// 判断当前可交互对象是否和上次检测到的对象一致。
+				if (HitResult.Actor == this->InteractableActor)
+				{
+					break;
+				}
+				else
+				{
+					if (AActor* OldActor = this->InteractableActor.Get())
+					{
+						IInteractableObjectInterface::Execute_LeaveInteractableState(this->InteractableActor.Get());
+					}
+
+					this->InteractableActor = HitActor;
+					IInteractableObjectInterface::Execute_EnterInteractableState(HitActor);
+
+					break;
+				}
+			}
+		}
+	}
 }
 

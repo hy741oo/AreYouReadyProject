@@ -10,12 +10,7 @@ bool IInteractableObjectInterface::IsInteractable_Implementation()
 	return this->bIsInteractable;
 }
 
-void IInteractableObjectInterface::EnterInteractableState_Implementation()
+void IInteractableObjectInterface::SetIsInteractable_Implementation(bool bInIsInteractable)
 {
-	this->bIsInteractable = true;
-}
-
-void IInteractableObjectInterface::LeaveInteractableState_Implementation()
-{
-	this->bIsInteractable = false;
+	this->bIsInteractable = bInIsInteractable;
 }

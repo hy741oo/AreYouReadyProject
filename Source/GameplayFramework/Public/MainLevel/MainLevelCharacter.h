@@ -9,6 +9,7 @@
 
 struct FInputActionInstance;
 class UCameraComponent;
+class IInteractableObjectInterface;
 
 /**
  * 
@@ -23,8 +24,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	UCameraComponent* PlayerCamera = nullptr;
 
-	// 射线追踪距离。
-	float LineTraceDistance = 150.f;
+	// 球形射线追踪距离。
+	float SphereTraceDistance = 150.f;
+
+	// 球形形射线半径。
+	float SphereTraceRadius = 10.f;
+
+	// 当前可交互的对象。
+	TWeakObjectPtr<AActor> InteractableActor;
 
 public:
 	// 构造函数
@@ -32,6 +39,9 @@ public:
 
 	// 执行绑定运动等操作。
 	virtual void BeginPlay() override;
+
+	// 结束时的清理操作。
+	virtual void EndPlay(const EEndPlayReason::Type InEndPlayReason) override;
 
 	// 前后移动逻辑。
 	virtual void MoveForward(const FInputActionInstance& InValue);

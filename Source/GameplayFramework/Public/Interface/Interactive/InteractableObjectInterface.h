@@ -36,12 +36,15 @@ public:
 	void Interact();
 
 	// 进入可交互状态。例如玩家进入一个按钮的可交互范围时用于显示交互按键。
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interactable")
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Interactable")
 	void EnterInteractableState();
-	virtual void EnterInteractableState_Implementation();
 
 	// 离开可交互状态。例如玩家离开一个按钮的可交互范围时用于隐藏交互按键。
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interactable")
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Interactable")
 	void LeaveInteractableState();
-	virtual void LeaveInteractableState_Implementation();
+
+	// 设置是否可交互。
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interactable")
+	void SetIsInteractable(bool bInIsInteractable);
+	virtual void SetIsInteractable_Implementation(bool bInIsInteractable);
 };
