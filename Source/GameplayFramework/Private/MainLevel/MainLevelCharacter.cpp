@@ -126,6 +126,8 @@ void AMainLevelCharacter::Tick(float InDeltaTime)
 	FVector EndLocation = CameraLocationInWorld + this->PlayerCamera->GetForwardVector() * this->SphereTraceDistance;
 	// 球形射线检测可交互Actor。
 	UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, HitResults, true);
+
+	bool bGetInteractableActor = false;
 	if (HitResults.Num() > 0)
 	{
 		for (const FHitResult& HitResult : HitResults)
@@ -142,6 +144,7 @@ void AMainLevelCharacter::Tick(float InDeltaTime)
 				// 判断当前可交互对象是否和上次检测到的对象一致。
 				if (HitResult.Actor == this->InteractableActor)
 				{
+					bGetInteractableActor = true;
 					break;
 				}
 				else
@@ -154,9 +157,21 @@ void AMainLevelCharacter::Tick(float InDeltaTime)
 					this->InteractableActor = HitActor;
 					IInteractableObjectInterface::Execute_EnterInteractableState(HitActor);
 
+					bGetInteractableActor = true;
 					break;
 				}
 			}
+		}
+	}
+
+	// 如果在上面的逻辑中没有找到可交互物，或者射线检测没有检测到任何物体，则需要将之前检测到的可交互物脱离交互状态。
+	if (!bGetInteractableActor)
+	{
+		// 如果射线检测不再能够检测到
+		if (AActor* OldActor = this->InteractableActor.Get())
+		{
+			IInteractableObjectInterface::Execute_LeaveInteractableState(OldActor);
+			this->InteractableActor.Reset();
 		}
 	}
 }
