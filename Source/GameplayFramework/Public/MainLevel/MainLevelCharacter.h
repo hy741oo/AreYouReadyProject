@@ -10,6 +10,8 @@
 struct FInputActionInstance;
 class UCameraComponent;
 class IInteractableObjectInterface;
+class UGeneralStateMachineComponent;
+struct FGeneralStateMachineNode;
 
 /**
  * 
@@ -18,7 +20,7 @@ UCLASS()
 class GAMEPLAYFRAMEWORK_API AMainLevelCharacter : public AAYRCharacter
 {
 	GENERATED_BODY()
-	
+
 protected:
 	// 玩家摄像机。
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
@@ -27,11 +29,42 @@ protected:
 	// 球形射线追踪距离。
 	float SphereTraceDistance = 150.f;
 
-	// 球形形射线半径。
+	// 球形射线半径。
 	float SphereTraceRadius = 10.f;
 
 	// 当前可交互的对象。
 	TWeakObjectPtr<AActor> InteractableActor;
+
+	/* 状态机相关--------------------Begin*/
+	// 待机状态。
+	TSharedPtr<FGeneralStateMachineNode> IdleState;
+	
+	// 走路状态。
+	TSharedPtr<FGeneralStateMachineNode> WalkState;
+
+	// 奔跑状态。
+	TSharedPtr<FGeneralStateMachineNode> RunState;
+
+	// 跳跃状态。
+	TSharedPtr<FGeneralStateMachineNode> JumpState;
+
+protected:
+	// 状态机初始化。
+	void InitializeGeneralStateMachine();
+
+	void OnEnterIdleState();
+
+	void OnEnterWalkState();
+
+	void OnEnterRunState();
+
+	void OnEnterJumpState();
+	/* 状态机相关--------------------End*/
+	
+public:
+	// 状态机组件。
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UGeneralStateMachineComponent* GeneralStateMachineComponent = nullptr;
 
 public:
 	// 构造函数
@@ -57,4 +90,7 @@ public:
 
 	// Tick函数。包含交互物检测等逻辑。
 	virtual void Tick(float InDeltaTime) override;
+
+	// 移动按键被释放时（如按下的W、A、S、D等按键被释放）调用，用于转换状态。
+	virtual void OnMoveButtonReleased(const FInputActionInstance& InValue);
 };
