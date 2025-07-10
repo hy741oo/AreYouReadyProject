@@ -56,6 +56,12 @@ void AMainLevelCharacter::BeginPlay()
 			// 上下移动镜头。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_LookUp", this, &AMainLevelCharacter::LookUp);
 
+			// 奔跑。
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Run", this, &AMainLevelCharacter::Run);
+
+			// 停止奔跑。
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_StopRun", this, &AMainLevelCharacter::StopRun);
+
 			// 基础运动的IMC。
 			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_Movement");
 		}
@@ -78,7 +84,7 @@ void AMainLevelCharacter::EndPlay(const EEndPlayReason::Type InEndPlayReason)
 
 void AMainLevelCharacter::MoveForward(const FInputActionInstance& InValue)
 {
-	if (this->GeneralStateMachineComponent->ChangeStateTo(this->WalkState))
+	if (this->GeneralStateMachineComponent->ChangeStateTo("Walk"))
 	{
 		float Value = .0f;
 		if (UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(InValue, Value))
@@ -90,7 +96,7 @@ void AMainLevelCharacter::MoveForward(const FInputActionInstance& InValue)
 
 void AMainLevelCharacter::MoveRight(const FInputActionInstance& InValue)
 {
-	if (this->GeneralStateMachineComponent->ChangeStateTo(this->WalkState))
+	if (this->GeneralStateMachineComponent->ChangeStateTo("Walk"))
 	{
 		float Value = .0f;
 		if (UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(InValue, Value))
@@ -230,137 +236,95 @@ void AMainLevelCharacter::OnEnterJumpState()
 void AMainLevelCharacter::InitializeGeneralStateMachine()
 {
 	// 创建状态节点，并绑定激活节点时执行的逻辑。
-	this->IdleState = this->GeneralStateMachineComponent->CreateStateMachineNode("Idle");
-	this->IdleState->OnActivatedNode.BindUObject(this, &AMainLevelCharacter::OnEnterIdleState);
+	FGeneralStateMachineNode& IdleState = this->GeneralStateMachineComponent->CreateStateMachineNode("Idle");
+	IdleState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterIdleState);
 
-	this->WalkState = this->GeneralStateMachineComponent->CreateStateMachineNode("Walk");
-	this->WalkState->OnActivatedNode.BindUObject(this, &AMainLevelCharacter::OnEnterWalkState);
+	FGeneralStateMachineNode& WalkState = this->GeneralStateMachineComponent->CreateStateMachineNode("Walk");
+	WalkState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterWalkState);
 
-	this->RunState = this->GeneralStateMachineComponent->CreateStateMachineNode("Run");
-	this->RunState->OnActivatedNode.BindUObject(this, &AMainLevelCharacter::OnEnterRunState);
+	FGeneralStateMachineNode& RunState = this->GeneralStateMachineComponent->CreateStateMachineNode("Run");
+	RunState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterRunState);
 
-	this->JumpState = this->GeneralStateMachineComponent->CreateStateMachineNode("Jump");
-	this->JumpState->OnActivatedNode.BindUObject(this, &AMainLevelCharacter::OnEnterJumpState);
+	FGeneralStateMachineNode& JumpState = this->GeneralStateMachineComponent->CreateStateMachineNode("Jump");
+	JumpState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterJumpState);
 
-	// Idle状态可以切换到Idle、Walk、Run和Jump状态且不需要任何判断。
+	// Idle状态可以切换到Idle、Walk和Jump状态且不需要任何判断。
 	FGeneralStateMachineCondition IdleToIdle;
-	IdleToIdle.NextState = this->IdleState;
+	IdleToIdle.NextStateName = "Idle";
 	IdleToIdle.Condition.BindLambda(
 		[]() {
 			return true;
 		}
 	);
-	this->IdleState->NextStates.Add(this->IdleState, IdleToIdle);
+	IdleState.NextStates.Add("Idle", IdleToIdle);
 	FGeneralStateMachineCondition IdleToWalk;
-	IdleToWalk.NextState = this->WalkState;
+	IdleToWalk.NextStateName = "Walk";
 	IdleToWalk.Condition.BindLambda(
 		[]() {
 			return true;
 		}
 	);
-	this->IdleState->NextStates.Add(this->WalkState, IdleToWalk);
-	FGeneralStateMachineCondition IdleToRun;
-	IdleToRun.NextState = this->RunState;
-	IdleToRun.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
-	this->IdleState->NextStates.Add(this->RunState, IdleToRun);
+	IdleState.NextStates.Add("Walk", IdleToWalk);
 	FGeneralStateMachineCondition IdleToJump;
-	IdleToJump.NextState = this->JumpState;
+	IdleToJump.NextStateName = "Jump";
 	IdleToJump.Condition.BindLambda(
 		[]() {
 			return true;
 		}
 	);
-	this->IdleState->NextStates.Add(this->JumpState, IdleToJump);
+	IdleState.NextStates.Add("Jump", IdleToJump);
 
-	// Walk状态可以切换到Walk、Idle、Run和Jump状态。
+	// Walk状态可以切换到Walk、Idle和Jump状态。
 	FGeneralStateMachineCondition WalkToWalk;
-	WalkToWalk.NextState = this->WalkState;
+	WalkToWalk.NextStateName = "Walk";
 	WalkToWalk.Condition.BindLambda(
 		[]() {
 			return true;
 		}
 	);
-	this->WalkState->NextStates.Add(this->WalkState, WalkToWalk);
+	WalkState.NextStates.Add("Walk", WalkToWalk);
 	FGeneralStateMachineCondition WalkToIdle;
-	WalkToIdle.NextState = this->IdleState;
+	WalkToIdle.NextStateName = "Idle";
 	WalkToIdle.Condition.BindLambda(
 		[]() {
 			return true;
 		}
 	);
-	this->WalkState->NextStates.Add(this->IdleState, WalkToIdle);
-	FGeneralStateMachineCondition WalkToRun;
-	WalkToRun.NextState = this->RunState;
-	WalkToRun.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
-	this->WalkState->NextStates.Add(this->RunState, WalkToRun);
+	WalkState.NextStates.Add("Idle", WalkToIdle);
 	FGeneralStateMachineCondition WalkToJump;
-	WalkToJump.NextState = this->JumpState;
+	WalkToJump.NextStateName = "Jump";
 	WalkToJump.Condition.BindLambda(
 		[]() {
 			return true;
 		}
 	);
-	this->WalkState->NextStates.Add(this->JumpState, WalkToJump);
-
-	// Run状态可以切换到Run、Idle、Walk和Jump状态。
-	FGeneralStateMachineCondition RunToRun;
-	RunToRun.NextState = this->RunState;
-	RunToRun.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
-	this->RunState->NextStates.Add(this->RunState, RunToRun);
-	FGeneralStateMachineCondition RunToIdle;
-	RunToIdle.NextState = this->IdleState;
-	RunToIdle.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
-	this->RunState->NextStates.Add(this->IdleState, RunToIdle);
-	FGeneralStateMachineCondition RunToWalk;
-	RunToWalk.NextState = this->WalkState;
-	RunToWalk.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
-	this->RunState->NextStates.Add(this->WalkState, RunToWalk);
-	FGeneralStateMachineCondition RunToJump;
-	RunToJump.NextState = this->JumpState;
-	RunToJump.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
-	this->RunState->NextStates.Add(this->JumpState, RunToJump);
+	WalkState.NextStates.Add("Jump", WalkToJump);
 
 	// Jump状态可以切换到Idle状态，即落地的一瞬间。
 	FGeneralStateMachineCondition JumpToIdle;
-	JumpToIdle.NextState = this->IdleState;
+	JumpToIdle.NextStateName = "Idle";
 	JumpToIdle.Condition.BindLambda(
 		[]() {
 			return true;
 		}
 	);
-	this->JumpState->NextStates.Add(this->IdleState, JumpToIdle);
+	JumpState.NextStates.Add("Idle", JumpToIdle);
 
 	// 初始化状态机，选择一个状态机节点作为最初始的状态。
-	this->GeneralStateMachineComponent->InitGeneralStateMachine(this->IdleState);
+	this->GeneralStateMachineComponent->InitGeneralStateMachine("Idle");
 }
 /* 状态机相关--------------------End*/
 
 void AMainLevelCharacter::OnMoveButtonReleased(const FInputActionInstance& InValue)
 {
-	this->GeneralStateMachineComponent->ChangeStateTo(this->IdleState);
+	this->GeneralStateMachineComponent->ChangeStateTo("Idle");
+}
+
+void AMainLevelCharacter::Run(const FInputActionInstance& InValue)
+{
+}
+
+void AMainLevelCharacter::StopRun(const FInputActionInstance& InValue)
+{
 }
 

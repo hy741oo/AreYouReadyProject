@@ -18,9 +18,9 @@ struct FGeneralStateMachineNode;
 struct FGeneralStateMachineCondition
 {
 	// 记录着可以转换的次态。
-	TSharedPtr<FGeneralStateMachineNode> NextState;
+	FName NextStateName;
 
-	// 转换次态时需要判断的条件，条件满足即可转换状态，不满足的话状态机不会做任何变动。
+	// 转换次态时需要判断的条件，条件满足即可转换状态，不满足的话状态机不会做任何变动。如果用户没有绑定对应的事件，则认为该此转换无条件通过。
 	FGeneralStateMachineConditionCheck Condition;
 
 	// 条件判断成功之后执行的动作，可为空。
@@ -34,19 +34,23 @@ struct FGeneralStateMachineCondition
 struct FGeneralStateMachineNode
 {
 	// 可以转换的次态。
-	TMap<TSharedPtr<FGeneralStateMachineNode>, FGeneralStateMachineCondition> NextStates;
+	TMap<FName, FGeneralStateMachineCondition> NextStates;
 
-	// 当进入到该状态时执行的逻辑。
-	FSimpleDelegate OnActivatedNode;
+	// 进入到该状态时执行的逻辑。
+	FSimpleDelegate OnEnterState;
+
+	// 离开该状态时执行的逻辑。
+	FSimpleDelegate OnLeaveState;
+
+	// 如果状态转换是在自发生时（即“奔跑状态”切换到“奔跑状态”），不执行OnEnterState逻辑，而是执行更新逻辑。
+	FSimpleDelegate OnUpdateState;
 
 	// 节点名称。
 	FName NodeName;
 
 	FGeneralStateMachineNode() = default;
 
-	FGeneralStateMachineNode(const FGeneralStateMachineNode&) = delete;
 	FGeneralStateMachineNode& operator=(const FGeneralStateMachineNode&) = delete;
-
 };
 
 /**
@@ -59,7 +63,10 @@ class GAMEPLAYFRAMEWORK_API UGeneralStateMachineComponent : public UActorCompone
 
 private:
 	// 当前状态。即“现态”。
-	TSharedPtr<FGeneralStateMachineNode> CurrentState;
+	FName CurrentState;
+
+	// 已经生成的全部状态映射。
+	TMap<FName, FGeneralStateMachineNode> CreatedStates;
 
 public:	
 	// Sets default values for this component's properties
@@ -70,14 +77,17 @@ public:
 	virtual void TickComponent(float InDeltaTime, ELevelTick InTickType, FActorComponentTickFunction* InThisTickFunction) override;
 
 	// 创建状态机节点。
-	TSharedPtr<FGeneralStateMachineNode> CreateStateMachineNode(const FName& InNodeName);
+	FGeneralStateMachineNode& CreateStateMachineNode(const FName& InNodeName);
 
 	// 初始化状态机，状态机在启用之前必须指定一个状态用于“最初的状态”。
-	void InitGeneralStateMachine(const TSharedPtr<FGeneralStateMachineNode>& InInitState);
+	void InitGeneralStateMachine(const FName& InInitState);
 
 	// 切换状态。
-	bool ChangeStateTo(const TSharedPtr<FGeneralStateMachineNode>& InStateChangeTo);
+	bool ChangeStateTo(const FName& InStateChangeTo);
 
 	// 检测传入的状态是否是现态。
-	bool IsSameState(const TSharedPtr<FGeneralStateMachineNode>& InState) const;
+	bool IsSameState(const FName& InState) const;
+
+	// 检测是否可以切换状态。
+	bool CanChangeToState(const FName& InNewState) const;
 };

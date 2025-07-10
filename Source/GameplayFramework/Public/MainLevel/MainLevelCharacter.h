@@ -36,18 +36,6 @@ protected:
 	TWeakObjectPtr<AActor> InteractableActor;
 
 	/* 状态机相关--------------------Begin*/
-	// 待机状态。
-	TSharedPtr<FGeneralStateMachineNode> IdleState;
-	
-	// 走路状态。
-	TSharedPtr<FGeneralStateMachineNode> WalkState;
-
-	// 奔跑状态。
-	TSharedPtr<FGeneralStateMachineNode> RunState;
-
-	// 跳跃状态。
-	TSharedPtr<FGeneralStateMachineNode> JumpState;
-
 protected:
 	// 状态机初始化。
 	void InitializeGeneralStateMachine();
@@ -76,11 +64,17 @@ public:
 	// 结束时的清理操作。
 	virtual void EndPlay(const EEndPlayReason::Type InEndPlayReason) override;
 
+	// Tick函数。包含交互物检测等逻辑。
+	virtual void Tick(float InDeltaTime) override;
+
 	// 前后移动逻辑。
 	virtual void MoveForward(const FInputActionInstance& InValue);
 
 	// 左右移动逻辑。
 	virtual void MoveRight(const FInputActionInstance& InValue);
+
+	// 移动按键被释放时（如按下的W、A、S、D等按键被释放）调用，用于转换状态。
+	virtual void OnMoveButtonReleased(const FInputActionInstance& InValue);
 
 	// 左右移动摄像机逻辑。
 	virtual void LookAround(const FInputActionInstance& InValue);
@@ -88,9 +82,9 @@ public:
 	// 上下移动摄像机逻辑。
 	virtual void LookUp(const FInputActionInstance& InValue);
 
-	// Tick函数。包含交互物检测等逻辑。
-	virtual void Tick(float InDeltaTime) override;
+	// 奔跑。
+	virtual void Run(const FInputActionInstance& InValue);
 
-	// 移动按键被释放时（如按下的W、A、S、D等按键被释放）调用，用于转换状态。
-	virtual void OnMoveButtonReleased(const FInputActionInstance& InValue);
+	// 停止奔跑。
+	virtual void StopRun(const FInputActionInstance& InValue);
 };
