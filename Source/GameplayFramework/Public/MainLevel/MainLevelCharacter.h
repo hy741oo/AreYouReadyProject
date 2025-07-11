@@ -89,4 +89,12 @@ public:
 
 	// 停止奔跑。
 	virtual void StopRun(const FInputActionInstance& InValue);
+
+	// 跳跃。
+	virtual void CharacterJump(const FInputActionInstance& InValue);
+	// 停止跳跃。
+	virtual void StopCharacterJumping(const FInputActionInstance& InValue);
+
+	// 玩家落地。
+	virtual void Landed(const FHitResult& Hit) override;
 };

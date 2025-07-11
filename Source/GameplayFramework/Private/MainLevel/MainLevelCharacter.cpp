@@ -61,9 +61,13 @@ void AMainLevelCharacter::BeginPlay()
 
 			// 奔跑。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Run", this, &AMainLevelCharacter::Run);
-
 			// 停止奔跑。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_StopRun", this, &AMainLevelCharacter::StopRun);
+
+			// 跳跃。
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Jump", this, &AMainLevelCharacter::CharacterJump);
+			// 停止跳跃。
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_StopJumping", this, &AMainLevelCharacter::StopCharacterJumping);
 
 			// 基础运动的IMC。
 			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_Movement");
@@ -328,5 +332,21 @@ void AMainLevelCharacter::Run(const FInputActionInstance& InValue)
 void AMainLevelCharacter::StopRun(const FInputActionInstance& InValue)
 {
 	this->MovementDataStateMachineComponent->ChangeStateTo("NormalSpeed");
+}
+
+void AMainLevelCharacter::CharacterJump(const FInputActionInstance& InValue)
+{
+	this->MovementStateMachineComponent->ChangeStateTo("Jump");
+}
+
+void AMainLevelCharacter::StopCharacterJumping(const FInputActionInstance& InValue)
+{
+	this->StopJumping();
+}
+
+void AMainLevelCharacter::Landed(const FHitResult& Hit)
+{
+	this->StopJumping();
+	this->MovementStateMachineComponent->ChangeStateTo("Idle");
 }
 
