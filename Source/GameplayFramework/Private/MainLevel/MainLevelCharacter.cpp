@@ -28,8 +28,11 @@ AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectIniti
 		PlayerCapsule->SetCapsuleHalfHeight(96);
 	}
 
-	// 生成状态机组件。
-	this->GeneralStateMachineComponent = CreateDefaultSubobject<UGeneralStateMachineComponent>(TEXT("State Mechine"));
+	// 生成运动状态机组件。
+	this->MovementStateMachineComponent = CreateDefaultSubobject<UGeneralStateMachineComponent>(TEXT("Movement State Mechine"));
+
+	// 生成移动数据状态机组件。
+	this->MovementDataStateMachineComponent = CreateDefaultSubobject<UGeneralStateMachineComponent>(TEXT("Movement Data State Mechine"));
 }
 
 void AMainLevelCharacter::BeginPlay()
@@ -84,7 +87,7 @@ void AMainLevelCharacter::EndPlay(const EEndPlayReason::Type InEndPlayReason)
 
 void AMainLevelCharacter::MoveForward(const FInputActionInstance& InValue)
 {
-	if (this->GeneralStateMachineComponent->ChangeStateTo("Walk"))
+	if (this->MovementStateMachineComponent->ChangeStateTo("Walk"))
 	{
 		float Value = .0f;
 		if (UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(InValue, Value))
@@ -96,7 +99,7 @@ void AMainLevelCharacter::MoveForward(const FInputActionInstance& InValue)
 
 void AMainLevelCharacter::MoveRight(const FInputActionInstance& InValue)
 {
-	if (this->GeneralStateMachineComponent->ChangeStateTo("Walk"))
+	if (this->MovementStateMachineComponent->ChangeStateTo("Walk"))
 	{
 		float Value = .0f;
 		if (UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(InValue, Value))
@@ -190,19 +193,7 @@ void AMainLevelCharacter::Tick(float InDeltaTime)
 }
 
 /* 状态机相关--------------------Begin*/
-void AMainLevelCharacter::OnEnterIdleState()
-{
-	// 设置Idle状态。
-	if (UCharacterMovementComponent* MC = this->GetCharacterMovement())
-	{
-		MC->MaxAcceleration = 700.f;
-		MC->BrakingFrictionFactor = 1.f;
-		MC->MaxWalkSpeed = 300.f;
-		MC->BrakingDecelerationWalking = 1000.f;
-	}
-}
-
-void AMainLevelCharacter::OnEnterWalkState()
+void AMainLevelCharacter::OnEnterNormalSpeedState()
 {
 	// 设置Walk状态。
 	if (UCharacterMovementComponent* MC = this->GetCharacterMovement())
@@ -215,14 +206,14 @@ void AMainLevelCharacter::OnEnterWalkState()
 
 }
 
-void AMainLevelCharacter::OnEnterRunState()
+void AMainLevelCharacter::OnEnterHighSpeedState()
 {
 	// 设置Run状态。
 	if (UCharacterMovementComponent* MC = this->GetCharacterMovement())
 	{
 		MC->MaxAcceleration = 1000.f;
 		MC->BrakingFrictionFactor = 1.f;
-		MC->MaxWalkSpeed = 400.f;
+		MC->MaxWalkSpeed = 700.f;
 		MC->BrakingDecelerationWalking = 1000.f;
 	}
 }
@@ -235,17 +226,10 @@ void AMainLevelCharacter::OnEnterJumpState()
 
 void AMainLevelCharacter::InitializeGeneralStateMachine()
 {
-	// 创建状态节点，并绑定激活节点时执行的逻辑。
-	FGeneralStateMachineNode& IdleState = this->GeneralStateMachineComponent->CreateStateMachineNode("Idle");
-	IdleState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterIdleState);
-
-	FGeneralStateMachineNode& WalkState = this->GeneralStateMachineComponent->CreateStateMachineNode("Walk");
-	WalkState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterWalkState);
-
-	FGeneralStateMachineNode& RunState = this->GeneralStateMachineComponent->CreateStateMachineNode("Run");
-	RunState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterRunState);
-
-	FGeneralStateMachineNode& JumpState = this->GeneralStateMachineComponent->CreateStateMachineNode("Jump");
+	// 创建状态节点。
+	FGeneralStateMachineNode& IdleState = this->MovementStateMachineComponent->CreateStateMachineNode("Idle");
+	FGeneralStateMachineNode& WalkState = this->MovementStateMachineComponent->CreateStateMachineNode("Walk");
+	FGeneralStateMachineNode& JumpState = this->MovementStateMachineComponent->CreateStateMachineNode("Jump");
 	JumpState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterJumpState);
 
 	// Idle状态可以切换到Idle、Walk和Jump状态且不需要任何判断。
@@ -311,20 +295,38 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 	JumpState.NextStates.Add("Idle", JumpToIdle);
 
 	// 初始化状态机，选择一个状态机节点作为最初始的状态。
-	this->GeneralStateMachineComponent->InitGeneralStateMachine("Idle");
+	this->MovementStateMachineComponent->InitGeneralStateMachine("Idle");
+
+	// 创建移动数据状态节点并绑定。
+	FGeneralStateMachineNode& NormalSpeedState = this->MovementDataStateMachineComponent->CreateStateMachineNode("NormalSpeed");
+	NormalSpeedState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterNormalSpeedState);
+	FGeneralStateMachineNode& HighSpeedState = this->MovementDataStateMachineComponent->CreateStateMachineNode("HighSpeed");
+	HighSpeedState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterHighSpeedState);
+
+	FGeneralStateMachineCondition NormalSpeedToHighSpeed;
+	NormalSpeedToHighSpeed.NextStateName = "HighSpeed";
+	NormalSpeedState.NextStates.Add("HighSpeed", NormalSpeedToHighSpeed);
+
+	FGeneralStateMachineCondition HighSpeedToNormalSpeed;
+	HighSpeedToNormalSpeed.NextStateName = "NormalSpeed";
+	HighSpeedState.NextStates.Add("NormalSpeed", HighSpeedToNormalSpeed);
+
+	this->MovementDataStateMachineComponent->InitGeneralStateMachine("NormalSpeed");
 }
 /* 状态机相关--------------------End*/
 
 void AMainLevelCharacter::OnMoveButtonReleased(const FInputActionInstance& InValue)
 {
-	this->GeneralStateMachineComponent->ChangeStateTo("Idle");
+	this->MovementStateMachineComponent->ChangeStateTo("Idle");
 }
 
 void AMainLevelCharacter::Run(const FInputActionInstance& InValue)
 {
+	this->MovementDataStateMachineComponent->ChangeStateTo("HighSpeed");
 }
 
 void AMainLevelCharacter::StopRun(const FInputActionInstance& InValue)
 {
+	this->MovementDataStateMachineComponent->ChangeStateTo("NormalSpeed");
 }
 

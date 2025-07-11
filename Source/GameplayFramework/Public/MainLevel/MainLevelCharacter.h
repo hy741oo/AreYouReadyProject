@@ -40,19 +40,21 @@ protected:
 	// 状态机初始化。
 	void InitializeGeneralStateMachine();
 
-	void OnEnterIdleState();
+	void OnEnterNormalSpeedState();
 
-	void OnEnterWalkState();
-
-	void OnEnterRunState();
+	void OnEnterHighSpeedState();
 
 	void OnEnterJumpState();
 	/* 状态机相关--------------------End*/
 	
 public:
-	// 状态机组件。
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	UGeneralStateMachineComponent* GeneralStateMachineComponent = nullptr;
+	// 运动状态机。
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UGeneralStateMachineComponent* MovementStateMachineComponent = nullptr;
+
+	// 移动数据状态机。
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UGeneralStateMachineComponent* MovementDataStateMachineComponent = nullptr;
 
 public:
 	// 构造函数
