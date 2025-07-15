@@ -14,4 +14,8 @@ class GAMEPLAYFRAMEWORK_API AMainLevelPlayerController : public AAYRPlayerContro
 {
 	GENERATED_BODY()
 	
+public:
+	AMainLevelPlayerController(const FObjectInitializer& InObjectInitializer = FObjectInitializer::Get());
+
+	virtual void BeginPlay() override;
 };

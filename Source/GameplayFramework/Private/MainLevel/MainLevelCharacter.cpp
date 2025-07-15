@@ -19,6 +19,7 @@ AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectIniti
 	{
 		this->PlayerCamera->SetupAttachment(this->GetRootComponent());
 		this->PlayerCamera->SetRelativeLocation(this->GetPawnViewLocation());
+		this->PlayerCamera->bUsePawnControlRotation = true;
 	}
 
 	// 设置胶囊体尺寸。
@@ -126,13 +127,7 @@ void AMainLevelCharacter::LookUp(const FInputActionInstance& InValue)
 	float Value = .0f;
 	if (UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(InValue, Value))
 	{
-		if (this->PlayerCamera)
-		{
-			FRotator LastRotator = this->PlayerCamera->GetRelativeRotation();
-			Value = FMath::Clamp(LastRotator.Pitch + Value, -70.f, 70.f);
-			FRotator NewRotator(Value, .0f, .0f);
-			this->PlayerCamera->SetRelativeRotation(NewRotator);
-		}
+		this->AddControllerPitchInput(Value);
 	}
 }
 
@@ -220,6 +215,9 @@ void AMainLevelCharacter::OnEnterHighSpeedState()
 		MC->MaxWalkSpeed = 700.f;
 		MC->BrakingDecelerationWalking = 1000.f;
 	}
+
+	// 切换摄像机。
+	//this->GetController<AMainLevelPlayerController>()->SetViewTargetWithBlend(this->RunningPlayerCamera, 0.3f);
 }
 
 void AMainLevelCharacter::OnEnterJumpState()
@@ -309,11 +307,20 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 
 	FGeneralStateMachineCondition NormalSpeedToHighSpeed;
 	NormalSpeedToHighSpeed.NextStateName = "HighSpeed";
+	NormalSpeedToHighSpeed.Condition.BindWeakLambda(this, 
+		[this]() {
+			return this->MovementStateMachineComponent->CanChangeToState("Walk");
+		}
+		);
 	NormalSpeedState.NextStates.Add("HighSpeed", NormalSpeedToHighSpeed);
 
 	FGeneralStateMachineCondition HighSpeedToNormalSpeed;
 	HighSpeedToNormalSpeed.NextStateName = "NormalSpeed";
 	HighSpeedState.NextStates.Add("NormalSpeed", HighSpeedToNormalSpeed);
+
+	FGeneralStateMachineCondition HighSpeedToHighSpeed;
+	HighSpeedToNormalSpeed.NextStateName = "HighSpeed";
+	HighSpeedState.NextStates.Add("HighSpeed", HighSpeedToHighSpeed);
 
 	this->MovementDataStateMachineComponent->InitGeneralStateMachine("NormalSpeed");
 }
@@ -346,6 +353,8 @@ void AMainLevelCharacter::StopCharacterJumping(const FInputActionInstance& InVal
 
 void AMainLevelCharacter::Landed(const FHitResult& Hit)
 {
+	Super::Landed(Hit);
+
 	this->StopJumping();
 	this->MovementStateMachineComponent->ChangeStateTo("Idle");
 }

@@ -23,7 +23,7 @@ class GAMEPLAYFRAMEWORK_API AMainLevelCharacter : public AAYRCharacter
 
 protected:
 	// 玩家摄像机。
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UCameraComponent* PlayerCamera = nullptr;
 
 	// 球形射线追踪距离。
