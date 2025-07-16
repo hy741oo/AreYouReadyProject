@@ -25,8 +25,20 @@ struct FAYRTableRowBase : public FTableRowBase
 	GENERATED_BODY()
 
 #if WITH_EDITORONLY_DATA
+	// 用于描述行信息。
 	UPROPERTY(EditDefaultsOnly, Category = "Editor", Meta = (DisplayPriority = 0))
 	FName Description;
+
+	// 显示用的行名称，用于代码调试是表明该数据的RowName。
+	UPROPERTY(VisibleAnywhere, Category = "Editor", Meta = (DisplayPriority = 0))
+	FName DisplayRowName;
+#endif
+
+#if WITH_EDITOR
+	virtual void OnDataTableChanged(const UDataTable* InDataTable, const FName InRowName) override
+	{
+		DisplayRowName = InRowName;
+	}
 #endif
 };
 
