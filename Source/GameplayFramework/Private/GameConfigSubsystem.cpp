@@ -62,6 +62,17 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 				UDataTable* DT = CastChecked<UDataTable>(SearchedAsset.GetAsset());
 				UDataTable*& DataTable = this->LoadedDataTables.Add(DT->GetRowStruct()->GetFName());
 				DataTable = DT;
+#if (!UE_BUILD_SHIPPING || UE_BUILD_TEST)
+				// 手动将每个加载的数据表的DisplayRowName用RowName填充，供以后项目调试时可以查询当前表行结构是哪个RowName。
+				TArray<FName> RowNames = DT->GetRowNames();
+				for (const FName& RowName : RowNames)
+				{
+					if (FAYRTableRowBase* TableRow = DT->FindRow<FAYRTableRowBase>(RowName, TEXT("GameConfigSubsystem Initialize")))
+					{
+						TableRow->DisplayRowName = RowName;
+					}
+				}
+#endif
 				UE_LOG(LogGameConfigSubsystem, Log, TEXT("Load DataTable: %s"), *(DataTable->GetFName().ToString()));
 			}
 			else
