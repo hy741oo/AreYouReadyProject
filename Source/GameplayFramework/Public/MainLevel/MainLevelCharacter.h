@@ -69,31 +69,26 @@ public:
 	// Tick函数。包含交互物检测等逻辑。
 	virtual void Tick(float InDeltaTime) override;
 
-	// 前后移动逻辑。
-	virtual void MoveForward(const FInputActionInstance& InValue);
+	// 移动逻辑。
+	virtual void Move(const FInputActionInstance& InValue);
 
-	// 左右移动逻辑。
-	virtual void MoveRight(const FInputActionInstance& InValue);
+	// 移动停止时调用。
+	virtual void OnMoveStopped(const FInputActionInstance& InValue);
 
-	// 移动按键被释放时（如按下的W、A、S、D等按键被释放）调用，用于转换状态。
-	virtual void OnMoveButtonReleased(const FInputActionInstance& InValue);
-
-	// 左右移动摄像机逻辑。
+	// 旋转摄像机逻辑。
 	virtual void LookAround(const FInputActionInstance& InValue);
-
-	// 上下移动摄像机逻辑。
-	virtual void LookUp(const FInputActionInstance& InValue);
 
 	// 奔跑。
 	virtual void Run(const FInputActionInstance& InValue);
 
 	// 停止奔跑。
-	virtual void StopRun(const FInputActionInstance& InValue);
+	virtual void OnRunStopped(const FInputActionInstance& InValue);
 
 	// 跳跃。
 	virtual void CharacterJump(const FInputActionInstance& InValue);
+
 	// 停止跳跃。
-	virtual void StopCharacterJumping(const FInputActionInstance& InValue);
+	virtual void OnCharacterJumpStopped(const FInputActionInstance& InValue);
 
 	// 玩家落地。
 	virtual void Landed(const FHitResult& Hit) override;

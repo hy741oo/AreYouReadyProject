@@ -46,29 +46,23 @@ void AMainLevelCharacter::BeginPlay()
 		if (UPlayerInputSubsystem* PlayerInputSubsystem = ULocalPlayer::GetSubsystem<UPlayerInputSubsystem>(OwningController->GetLocalPlayer()))
 		{
 			// 前后移动。
-			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_MoveForward", this, &AMainLevelCharacter::MoveForward);
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Move", this, &AMainLevelCharacter::Move);
 
-			// 左右移动。
-			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_MoveRight", this, &AMainLevelCharacter::MoveRight);
-
-			// 左右移动镜头。
+			// 旋转镜头。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_LookAround", this, &AMainLevelCharacter::LookAround);
 
-			// 松开移动按键。
-			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_ReleaseMoveButton", this, &AMainLevelCharacter::OnMoveButtonReleased);
-
-			// 上下移动镜头。
-			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_LookUp", this, &AMainLevelCharacter::LookUp);
+			// 停止移动。
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_OnMoveStopped", this, &AMainLevelCharacter::OnMoveStopped);
 
 			// 奔跑。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Run", this, &AMainLevelCharacter::Run);
 			// 停止奔跑。
-			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_StopRun", this, &AMainLevelCharacter::StopRun);
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_OnRunStopped", this, &AMainLevelCharacter::OnRunStopped);
 
 			// 跳跃。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Jump", this, &AMainLevelCharacter::CharacterJump);
 			// 停止跳跃。
-			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_StopJumping", this, &AMainLevelCharacter::StopCharacterJumping);
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_OnJumpStopped", this, &AMainLevelCharacter::OnCharacterJumpStopped);
 
 			// 基础运动的IMC。
 			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_Movement");
@@ -90,44 +84,27 @@ void AMainLevelCharacter::EndPlay(const EEndPlayReason::Type InEndPlayReason)
 	}
 }
 
-void AMainLevelCharacter::MoveForward(const FInputActionInstance& InValue)
+void AMainLevelCharacter::Move(const FInputActionInstance& InValue)
 {
 	if (this->MovementStateMachineComponent->ChangeStateTo("Walk"))
 	{
-		float Value = .0f;
-		if (UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(InValue, Value))
+		FVector2D Value = .0f;
+		if (UPlayerInputSubsystem::GetAxis2DTypeInstanceValue(InValue, Value))
 		{
-			this->AddMovementInput(this->GetActorForwardVector(), Value);
+			FVector Direction(Value, .0f);
+			Direction = this->GetActorRotation().RotateVector(Direction);
+			this->AddMovementInput(Direction, Value.Size());
 		}
 	}
 }
 
-void AMainLevelCharacter::MoveRight(const FInputActionInstance& InValue)
-{
-	if (this->MovementStateMachineComponent->ChangeStateTo("Walk"))
-	{
-		float Value = .0f;
-		if (UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(InValue, Value))
-		{
-			this->AddMovementInput(this->GetActorRightVector(), Value);
-		}
-	}
-}
 void AMainLevelCharacter::LookAround(const FInputActionInstance& InValue)
 {
-	float Value = .0f;
-	if (UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(InValue, Value))
+	FVector2D Value = .0f;
+	if (UPlayerInputSubsystem::GetAxis2DTypeInstanceValue(InValue, Value))
 	{
-		this->AddControllerYawInput(Value);
-	}
-}
-
-void AMainLevelCharacter::LookUp(const FInputActionInstance& InValue)
-{
-	float Value = .0f;
-	if (UPlayerInputSubsystem::GetAxis1DTypeInstanceValue(InValue, Value))
-	{
-		this->AddControllerPitchInput(Value);
+		this->AddControllerYawInput(Value.X);
+		this->AddControllerPitchInput(Value.Y);
 	}
 }
 
@@ -326,7 +303,7 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 }
 /* 状态机相关--------------------End*/
 
-void AMainLevelCharacter::OnMoveButtonReleased(const FInputActionInstance& InValue)
+void AMainLevelCharacter::OnMoveStopped(const FInputActionInstance& InValue)
 {
 	this->MovementStateMachineComponent->ChangeStateTo("Idle");
 }
@@ -336,7 +313,7 @@ void AMainLevelCharacter::Run(const FInputActionInstance& InValue)
 	this->MovementDataStateMachineComponent->ChangeStateTo("HighSpeed");
 }
 
-void AMainLevelCharacter::StopRun(const FInputActionInstance& InValue)
+void AMainLevelCharacter::OnRunStopped(const FInputActionInstance& InValue)
 {
 	this->MovementDataStateMachineComponent->ChangeStateTo("NormalSpeed");
 }
@@ -346,7 +323,7 @@ void AMainLevelCharacter::CharacterJump(const FInputActionInstance& InValue)
 	this->MovementStateMachineComponent->ChangeStateTo("Jump");
 }
 
-void AMainLevelCharacter::StopCharacterJumping(const FInputActionInstance& InValue)
+void AMainLevelCharacter::OnCharacterJumpStopped(const FInputActionInstance& InValue)
 {
 	this->StopJumping();
 }
