@@ -5,9 +5,6 @@
 
 #include "Framework/Application/SlateApplication.h"
 #include "GameSetting/GameSettingSubsystem.h"
-#include "Widgets/SViewport.h"
-#include "UI/Common/AYRButton.h"
-#include "GameDelegates.h"
 
 void UAYRGameInstance::OnStart()
 {

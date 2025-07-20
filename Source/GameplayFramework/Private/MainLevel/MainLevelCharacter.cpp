@@ -10,16 +10,17 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interface/Interactive/InteractableObjectInterface.h"
 #include "Component/GeneralStateMachine/GeneralStateMachineComponent.h"
+#include "Component/Camera/AYRCameraComponent.h"
 
 AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectInitializer)
 {
 	// 生成摄像机。
-	this->PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Character Camera"));
+	this->PlayerCamera = CreateDefaultSubobject<UAYRCameraComponent>(TEXT("Character Camera"));
 	if (this->PlayerCamera)
 	{
+		this->PlayerCamera->InitCameraInfo("Default");
 		this->PlayerCamera->SetupAttachment(this->GetRootComponent());
 		this->PlayerCamera->SetRelativeLocation(this->GetPawnViewLocation());
-		this->PlayerCamera->bUsePawnControlRotation = true;
 	}
 
 	// 设置胶囊体尺寸。
@@ -30,10 +31,10 @@ AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectIniti
 	}
 
 	// 生成运动状态机组件。
-	this->MovementStateMachineComponent = CreateDefaultSubobject<UGeneralStateMachineComponent>(TEXT("Movement State Mechine"));
+	this->MovementStateMachineComponent = CreateDefaultSubobject<UGeneralStateMachineComponent>(TEXT("Movement State Machine"));
 
 	// 生成移动数据状态机组件。
-	this->MovementDataStateMachineComponent = CreateDefaultSubobject<UGeneralStateMachineComponent>(TEXT("Movement Data State Mechine"));
+	this->MovementDataStateMachineComponent = CreateDefaultSubobject<UGeneralStateMachineComponent>(TEXT("Movement Data State Machine"));
 }
 
 void AMainLevelCharacter::BeginPlay()
@@ -45,14 +46,13 @@ void AMainLevelCharacter::BeginPlay()
 	{
 		if (UPlayerInputSubsystem* PlayerInputSubsystem = ULocalPlayer::GetSubsystem<UPlayerInputSubsystem>(OwningController->GetLocalPlayer()))
 		{
-			// 前后移动。
+			// 移动。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Move", this, &AMainLevelCharacter::Move);
+			// 停止移动。
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_OnMoveStopped", this, &AMainLevelCharacter::OnMoveStopped);
 
 			// 旋转镜头。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_LookAround", this, &AMainLevelCharacter::LookAround);
-
-			// 停止移动。
-			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_OnMoveStopped", this, &AMainLevelCharacter::OnMoveStopped);
 
 			// 奔跑。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Run", this, &AMainLevelCharacter::Run);
@@ -168,7 +168,7 @@ void AMainLevelCharacter::Tick(float InDeltaTime)
 	}
 }
 
-/* 状态机相关--------------------Begin*/
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////状态机相关Begin
 void AMainLevelCharacter::OnEnterNormalSpeedState()
 {
 	// 设置Walk状态。
@@ -180,6 +180,7 @@ void AMainLevelCharacter::OnEnterNormalSpeedState()
 		MC->BrakingDecelerationWalking = 1000.f;
 	}
 
+	this->PlayerCamera->ChangeCameraTo("Default");
 }
 
 void AMainLevelCharacter::OnEnterHighSpeedState()
@@ -194,7 +195,7 @@ void AMainLevelCharacter::OnEnterHighSpeedState()
 	}
 
 	// 切换摄像机。
-	//this->GetController<AMainLevelPlayerController>()->SetViewTargetWithBlend(this->RunningPlayerCamera, 0.3f);
+	this->PlayerCamera->ChangeCameraTo("Running");
 }
 
 void AMainLevelCharacter::OnEnterJumpState()
@@ -207,71 +208,66 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 {
 	// 创建状态节点。
 	FGeneralStateMachineNode& IdleState = this->MovementStateMachineComponent->CreateStateMachineNode("Idle");
+	IdleState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterIdleState);
 	FGeneralStateMachineNode& WalkState = this->MovementStateMachineComponent->CreateStateMachineNode("Walk");
+	WalkState.OnEnterState.BindLambda(
+		[this]()
+		{
+			if (this->MovementDataStateMachineComponent->IsSameState("HighSpeed"))
+			{
+				this->PlayerCamera->ChangeCameraTo("Running");
+			}
+		}
+	);
 	FGeneralStateMachineNode& JumpState = this->MovementStateMachineComponent->CreateStateMachineNode("Jump");
 	JumpState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterJumpState);
+	FGeneralStateMachineNode& JumpLandedState = this->MovementStateMachineComponent->CreateStateMachineNode("JumpLanded");
+	JumpLandedState.OnEnterState.BindLambda(
+		[this]() {
+			this->MovementStateMachineComponent->ChangeStateTo("Idle");
+			this->MovementDataStateMachineComponent->ChangeStateTo("NormalSpeed");
+		}
+	);
 
 	// Idle状态可以切换到Idle、Walk和Jump状态且不需要任何判断。
 	FGeneralStateMachineCondition IdleToIdle;
 	IdleToIdle.NextStateName = "Idle";
-	IdleToIdle.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
 	IdleState.NextStates.Add("Idle", IdleToIdle);
 	FGeneralStateMachineCondition IdleToWalk;
 	IdleToWalk.NextStateName = "Walk";
-	IdleToWalk.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
 	IdleState.NextStates.Add("Walk", IdleToWalk);
 	FGeneralStateMachineCondition IdleToJump;
 	IdleToJump.NextStateName = "Jump";
-	IdleToJump.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
 	IdleState.NextStates.Add("Jump", IdleToJump);
 
 	// Walk状态可以切换到Walk、Idle和Jump状态。
 	FGeneralStateMachineCondition WalkToWalk;
 	WalkToWalk.NextStateName = "Walk";
-	WalkToWalk.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
 	WalkState.NextStates.Add("Walk", WalkToWalk);
 	FGeneralStateMachineCondition WalkToIdle;
 	WalkToIdle.NextStateName = "Idle";
 	WalkToIdle.Condition.BindLambda(
-		[]() {
-			return true;
+		[this]() {
+			return !this->MovementStateMachineComponent->IsSameState("Jump");
 		}
 	);
 	WalkState.NextStates.Add("Idle", WalkToIdle);
 	FGeneralStateMachineCondition WalkToJump;
 	WalkToJump.NextStateName = "Jump";
-	WalkToJump.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
 	WalkState.NextStates.Add("Jump", WalkToJump);
 
-	// Jump状态可以切换到Idle状态，即落地的一瞬间。
-	FGeneralStateMachineCondition JumpToIdle;
-	JumpToIdle.NextStateName = "Idle";
-	JumpToIdle.Condition.BindLambda(
-		[]() {
-			return true;
-		}
-	);
-	JumpState.NextStates.Add("Idle", JumpToIdle);
+	// Jump状态唯一可以切换的状态是JumpLanded，即落地的一瞬间。
+	FGeneralStateMachineCondition JumpToJumpLanded;
+	JumpToJumpLanded.NextStateName = "JumpLanded";
+	JumpState.NextStates.Add("JumpLanded", JumpToJumpLanded);
+
+	// JumpLanded可以转换到Idle和Walk状态。
+	FGeneralStateMachineCondition JumpLandedToIdle;
+	JumpLandedToIdle.NextStateName = "Idle";
+	JumpLandedState.NextStates.Add("Idle", JumpLandedToIdle);
+	FGeneralStateMachineCondition JumpLandedToWalk;
+	JumpLandedToWalk.NextStateName = "Walk";
+	JumpLandedState.NextStates.Add("Walk", JumpLandedToWalk);
 
 	// 初始化状态机，选择一个状态机节点作为最初始的状态。
 	this->MovementStateMachineComponent->InitGeneralStateMachine("Idle");
@@ -286,22 +282,31 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 	NormalSpeedToHighSpeed.NextStateName = "HighSpeed";
 	NormalSpeedToHighSpeed.Condition.BindWeakLambda(this, 
 		[this]() {
-			return this->MovementStateMachineComponent->CanChangeToState("Walk");
+			return this->MovementStateMachineComponent->IsSameState("Walk");
 		}
 		);
 	NormalSpeedState.NextStates.Add("HighSpeed", NormalSpeedToHighSpeed);
 
 	FGeneralStateMachineCondition HighSpeedToNormalSpeed;
 	HighSpeedToNormalSpeed.NextStateName = "NormalSpeed";
+	HighSpeedToNormalSpeed.Condition.BindLambda(
+		[this]() {
+			return !this->MovementStateMachineComponent->IsSameState("Jump");
+		}
+	);
 	HighSpeedState.NextStates.Add("NormalSpeed", HighSpeedToNormalSpeed);
 
 	FGeneralStateMachineCondition HighSpeedToHighSpeed;
-	HighSpeedToNormalSpeed.NextStateName = "HighSpeed";
+	HighSpeedToHighSpeed.NextStateName = "HighSpeed";
+	HighSpeedToHighSpeed.Condition.BindLambda(
+		[this]() {
+			return this->MovementStateMachineComponent->IsSameState("Walk");
+		}
+	);
 	HighSpeedState.NextStates.Add("HighSpeed", HighSpeedToHighSpeed);
 
 	this->MovementDataStateMachineComponent->InitGeneralStateMachine("NormalSpeed");
 }
-/* 状态机相关--------------------End*/
 
 void AMainLevelCharacter::OnMoveStopped(const FInputActionInstance& InValue)
 {
@@ -315,7 +320,10 @@ void AMainLevelCharacter::Run(const FInputActionInstance& InValue)
 
 void AMainLevelCharacter::OnRunStopped(const FInputActionInstance& InValue)
 {
-	this->MovementDataStateMachineComponent->ChangeStateTo("NormalSpeed");
+	if (!this->MovementStateMachineComponent->IsSameState("Jump"))
+	{
+		this->MovementDataStateMachineComponent->ChangeStateTo("NormalSpeed");
+	}
 }
 
 void AMainLevelCharacter::CharacterJump(const FInputActionInstance& InValue)
@@ -328,11 +336,18 @@ void AMainLevelCharacter::OnCharacterJumpStopped(const FInputActionInstance& InV
 	this->StopJumping();
 }
 
+void AMainLevelCharacter::OnEnterIdleState()
+{
+	//this->MovementDataStateMachineComponent->ChangeStateTo("NormalSpeed");
+	this->PlayerCamera->ChangeCameraTo("Default");
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////状态机相关End
+
 void AMainLevelCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
 	this->StopJumping();
-	this->MovementStateMachineComponent->ChangeStateTo("Idle");
+	this->MovementStateMachineComponent->ChangeStateTo("JumpLanded");
 }
 

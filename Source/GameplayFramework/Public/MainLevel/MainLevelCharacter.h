@@ -8,7 +8,7 @@
 #include "MainLevelCharacter.generated.h"
 
 struct FInputActionInstance;
-class UCameraComponent;
+class UAYRCameraComponent;
 class IInteractableObjectInterface;
 class UGeneralStateMachineComponent;
 struct FGeneralStateMachineNode;
@@ -24,7 +24,7 @@ class GAMEPLAYFRAMEWORK_API AMainLevelCharacter : public AAYRCharacter
 protected:
 	// 玩家摄像机。
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	UCameraComponent* PlayerCamera = nullptr;
+	UAYRCameraComponent* PlayerCamera = nullptr;
 
 	// 球形射线追踪距离。
 	float SphereTraceDistance = 150.f;
@@ -35,7 +35,7 @@ protected:
 	// 当前可交互的对象。
 	TWeakObjectPtr<AActor> InteractableActor;
 
-	/* 状态机相关--------------------Begin*/
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////状态机相关Begin
 protected:
 	// 状态机初始化。
 	void InitializeGeneralStateMachine();
@@ -45,7 +45,8 @@ protected:
 	void OnEnterHighSpeedState();
 
 	void OnEnterJumpState();
-	/* 状态机相关--------------------End*/
+
+	void OnEnterIdleState();
 	
 public:
 	// 运动状态机。
@@ -55,6 +56,7 @@ public:
 	// 移动数据状态机。
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UGeneralStateMachineComponent* MovementDataStateMachineComponent = nullptr;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////状态机相关End
 
 public:
 	// 构造函数
@@ -69,6 +71,7 @@ public:
 	// Tick函数。包含交互物检测等逻辑。
 	virtual void Tick(float InDeltaTime) override;
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////状态机相关Begin
 	// 移动逻辑。
 	virtual void Move(const FInputActionInstance& InValue);
 
@@ -89,6 +92,7 @@ public:
 
 	// 停止跳跃。
 	virtual void OnCharacterJumpStopped(const FInputActionInstance& InValue);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////状态机相关End
 
 	// 玩家落地。
 	virtual void Landed(const FHitResult& Hit) override;

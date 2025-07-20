@@ -41,13 +41,13 @@ void UGeneralStateMachineComponent::InitGeneralStateMachine(const FName& InInitS
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("Init general state machine failed, InitState:\"%s\" is no valid."), *InInitState.ToString());
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("\"%s\" Init general state machine failed, InitState:\"%s\" is no valid."), *this->GetFName().ToString(), *InInitState.ToString());
 	}
 }
 
 bool UGeneralStateMachineComponent::ChangeStateTo(const FName& InStateChangeTo)
 {
-	UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("Changing State...current state:%s, next state:%s"), *this->CurrentState.ToString(), *InStateChangeTo.ToString());
+	UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("\"%s\" Changing State...current state:\"%s\", next state:\"%s\"."), *this->GetFName().ToString(), *this->CurrentState.ToString(), *InStateChangeTo.ToString());
 
 	bool bSuccessful = this->CanChangeToState(InStateChangeTo);
 
@@ -61,9 +61,9 @@ bool UGeneralStateMachineComponent::ChangeStateTo(const FName& InStateChangeTo)
 		else
 		{
 			FGeneralStateMachineNode& NewNode = this->CreatedStates[InStateChangeTo];
+			this->CurrentState = InStateChangeTo;
 			OldNode.OnLeaveState.ExecuteIfBound();
 			NewNode.OnEnterState.ExecuteIfBound();
-			this->CurrentState = InStateChangeTo;
 		}
 	}
 
@@ -98,22 +98,22 @@ bool UGeneralStateMachineComponent::CanChangeToState(const FName& InNewState) co
 
 				if (bSuccessful)
 				{
-					UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("Changing success, now current state become:%s"), *this->CurrentState.ToString());
+					UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("\"%s\" Changing success, now current state become:\"%s\"."), *this->GetFName().ToString(), *InNewState.ToString());
 				}
 				else
 				{
-					UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("Changing failed, the condition of next state:%s did not pass."), *this->CurrentState.ToString(), *InNewState.ToString());
+					UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("\"%s\" Changing failed, the condition of state \"%s\" to \"%s\" did not pass."), *this->GetFName().ToString(), *this->CurrentState.ToString(), *InNewState.ToString());
 				}
 			}
 			else
 			{
-				UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("Changing state failed, current state:%s has not next state:%s."), *this->CurrentState.ToString(), *InNewState.ToString());
+				UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("\"%s\" Changing state failed, current state:%s has no next state:\"%s\"."), *this->GetFName().ToString(), *this->CurrentState.ToString(), *InNewState.ToString());
 			}
 		}
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("Changing state failed, current state:%s has not next state:%s."), *this->CurrentState.ToString(), *InNewState.ToString());
+		UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("\"%s\" Changing state failed, new state:\"%s\" has not exist."), *this->GetFName().ToString(), *InNewState.ToString());
 	}
 
 	return bSuccessful;
