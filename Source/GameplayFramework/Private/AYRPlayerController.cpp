@@ -37,6 +37,20 @@ void AAYRPlayerController::BeginPlay()
 	}
 
 	this->PlayerControllerInfoTableRow = PlayerControllerInfo;
+
+	// 设置相机管理器参数。
+	if (this->PlayerCameraManager)
+	{
+		this->PlayerCameraManager->ViewPitchMax = this->PlayerControllerInfoTableRow->CameraManagerLimitPitchMax;
+		this->PlayerCameraManager->ViewPitchMin = this->PlayerControllerInfoTableRow->CameraManagerLimitPitchMin;
+		this->PlayerCameraManager->ViewYawMax = this->PlayerControllerInfoTableRow->CameraManagerLimitYawMax;
+		this->PlayerCameraManager->ViewYawMin = this->PlayerControllerInfoTableRow->CameraManagerLimitYawMin;
+	}
+
+	// 设置输入系数，用于放大或缩小玩家的输入。
+	this->InputPitchScale = this->PlayerControllerInfoTableRow->InputPitchScale;
+	this->InputYawScale = this->PlayerControllerInfoTableRow->InputYawScale;
+	this->InputRollScale = this->PlayerControllerInfoTableRow->InputRollScale;
 }
 
 void AAYRPlayerController::CleanupGameViewport()

@@ -9,11 +9,4 @@ AMainLevelPlayerController::AMainLevelPlayerController(const FObjectInitializer&
 
 }
 
-void AMainLevelPlayerController::BeginPlay()
-{
-	// 初始化输入系数。
-	this->InputPitchScale = 1.f;
-	this->InputYawScale = 1.f;
-	this->InputRollScale = 1.f;
-}
 

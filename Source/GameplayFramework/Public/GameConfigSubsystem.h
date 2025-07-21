@@ -55,11 +55,33 @@ struct FPlayerControllerInfoTableRow : public FAYRTableRowBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FName PlayerInputMappingID;
+	// 摄像机管理器最大Pitch。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Camera Manager")
+	float CameraManagerLimitPitchMax = 89.9f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FName PlayerUIInputMappingID;
+	// 摄像机管理器最小Pitch。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Camera Manager")
+	float CameraManagerLimitPitchMin = -89.9f;
+
+	// 摄像机管理器最大Yaw。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Camera Manager")
+	float CameraManagerLimitYawMax = 359.9f;
+
+	// 摄像机管理器最小Yaw。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Camera Manager")
+	float CameraManagerLimitYawMin = 0.f;
+
+	// Pitch输入系数。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input")
+	float InputPitchScale = 1.f;
+
+	// Yaw输入系数。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input")
+	float InputYawScale = 1.f;
+
+	// Roll输入系数。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Input")
+	float InputRollScale = 1.f;
 };
 
 // 关卡信息。
