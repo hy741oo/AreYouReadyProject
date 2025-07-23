@@ -11,6 +11,7 @@
 #include "Interface/Interactive/InteractableObjectInterface.h"
 #include "Component/GeneralStateMachine/GeneralStateMachineComponent.h"
 #include "Component/Camera/AYRCameraComponent.h"
+#include "Camera/AYRPlayerCameraManager.h"
 
 AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectInitializer)
 {
@@ -117,7 +118,7 @@ void AMainLevelCharacter::Tick(float InDeltaTime)
 	// 球形射线终止位置。位于摄像机正前方CapsuleTraceDistance距离。
 	FVector EndLocation = CameraLocationInWorld + this->PlayerCamera->GetForwardVector() * this->SphereTraceDistance;
 	// 球形射线检测可交互Actor。
-	UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, HitResults, true);
+	UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::None, HitResults, true);
 
 	bool bGetInteractableActor = false;
 	if (HitResults.Num() > 0)
@@ -209,6 +210,16 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 	// 创建状态节点。
 	FGeneralStateMachineNode& IdleState = this->MovementStateMachineComponent->CreateStateMachineNode("Idle");
 	IdleState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterIdleState);
+	IdleState.OnTickState.BindLambda(
+		[this](const float& InDeltaTime, const float& InTickingElapsedTime) {
+			this->StartCameraShake("IdleCameraShake");
+		}
+	);
+	IdleState.OnLeaveState.BindLambda(
+		[this]() {
+			this->StopCameraShake("IdleCameraShake");
+		}
+	);
 	FGeneralStateMachineNode& WalkState = this->MovementStateMachineComponent->CreateStateMachineNode("Walk");
 	WalkState.OnEnterState.BindLambda(
 		[this]()
@@ -217,6 +228,24 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 			{
 				this->PlayerCamera->ChangeCameraTo("Running");
 			}
+		}
+	);
+	WalkState.OnUpdateState.BindLambda(
+		[this]() {
+			if (this->MovementDataStateMachineComponent->IsSameState("HighSpeed"))
+			{
+				this->StartCameraShake("RunningCameraShake");
+			}
+			else
+			{
+				this->StartCameraShake("WalkingCameraShake");
+			}
+		}
+	);
+	WalkState.OnLeaveState.BindLambda(
+		[this]() {
+			this->StopCameraShake("WalkingCameraShake");
+			this->StopCameraShake("RunningCameraShake");
 		}
 	);
 	FGeneralStateMachineNode& JumpState = this->MovementStateMachineComponent->CreateStateMachineNode("Jump");
@@ -338,7 +367,6 @@ void AMainLevelCharacter::OnCharacterJumpStopped(const FInputActionInstance& InV
 
 void AMainLevelCharacter::OnEnterIdleState()
 {
-	//this->MovementDataStateMachineComponent->ChangeStateTo("NormalSpeed");
 	this->PlayerCamera->ChangeCameraTo("Default");
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////状态机相关End

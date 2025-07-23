@@ -42,4 +42,7 @@ public:
 		ensureAlways(this->PlayerControllerInfoTableRow);
 		return this->PlayerControllerInfoTableRow ? *this->PlayerControllerInfoTableRow : FPlayerControllerInfoTableRow();
 	}
+
+	UFUNCTION(BlueprintCallable, Category = "AYRCamera")
+	AAYRPlayerCameraManager* GetPlayerCameraManager() const;
 };

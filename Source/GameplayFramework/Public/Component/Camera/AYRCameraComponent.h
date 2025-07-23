@@ -75,7 +75,6 @@ struct FCameraInfoTableRow : public FAYRTableRowBase
 	FPostProcessSettings PostProcessSettings;
 };
 
-
 /**
  * 新摄像机组件。
  * 

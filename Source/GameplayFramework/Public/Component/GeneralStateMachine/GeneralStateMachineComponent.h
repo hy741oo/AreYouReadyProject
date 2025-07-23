@@ -10,6 +10,8 @@ DECLARE_LOG_CATEGORY_EXTERN(LogGeneralStateMachineComponent, Log, All);
 
 DECLARE_DELEGATE_RetVal(bool, FGeneralStateMachineConditionCheck);
 
+DECLARE_DELEGATE_TwoParams(FOnStateTicked, const float& /* InDeltaTime */, const float& /* InTickingElapsedTime*/);
+
 struct FGeneralStateMachineNode;
 
 /**
@@ -45,6 +47,9 @@ struct FGeneralStateMachineNode
 	// 如果状态转换是在自发生时（即“奔跑状态”切换到“奔跑状态”），不执行OnEnterState逻辑，而是执行更新逻辑。
 	FSimpleDelegate OnUpdateState;
 
+	// 状态的Tick，只要进入过该状态，哪怕不是自发生状态也依然会每帧调用。
+	FOnStateTicked OnTickState;
+
 	// 节点名称。
 	FName NodeName;
 
@@ -68,6 +73,8 @@ private:
 	// 已经生成的全部状态映射。
 	TMap<FName, FGeneralStateMachineNode> CreatedStates;
 
+	// 用于记录当前状态已经持续了多长时间。
+	float TickingElapsedTime = .0f;
 public:	
 	// Sets default values for this component's properties
 	UGeneralStateMachineComponent(const FObjectInitializer& InObjectInitializer = FObjectInitializer::Get());

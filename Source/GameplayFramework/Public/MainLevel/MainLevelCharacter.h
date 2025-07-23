@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AYRCharacter.h"
+#include "Character/AYRPlayerCharacter.h"
 
 #include "MainLevelCharacter.generated.h"
 
@@ -17,7 +17,7 @@ struct FGeneralStateMachineNode;
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AMainLevelCharacter : public AAYRCharacter
+class GAMEPLAYFRAMEWORK_API AMainLevelCharacter : public AAYRPlayerCharacter
 {
 	GENERATED_BODY()
 

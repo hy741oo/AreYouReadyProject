@@ -20,7 +20,11 @@ void UGeneralStateMachineComponent::TickComponent(float InDeltaTime, ELevelTick 
 {
 	Super::TickComponent(InDeltaTime, InTickType, InThisTickFunction);
 
-	// ...
+	if (FGeneralStateMachineNode* Node = this->CreatedStates.Find(this->CurrentState))
+	{
+		this->TickingElapsedTime += InDeltaTime;
+		Node->OnTickState.ExecuteIfBound(InDeltaTime, TickingElapsedTime);
+	}
 }
 
 FGeneralStateMachineNode& UGeneralStateMachineComponent::CreateStateMachineNode(const FName& InNodeName)
@@ -62,6 +66,8 @@ bool UGeneralStateMachineComponent::ChangeStateTo(const FName& InStateChangeTo)
 		{
 			FGeneralStateMachineNode& NewNode = this->CreatedStates[InStateChangeTo];
 			this->CurrentState = InStateChangeTo;
+			this->TickingElapsedTime = .0f;
+
 			OldNode.OnLeaveState.ExecuteIfBound();
 			NewNode.OnEnterState.ExecuteIfBound();
 		}

@@ -8,13 +8,15 @@
 #include "GameConfigSubsystem.h"
 #include "UI/Common/AYRButton.h"
 #include "UISubsystem.h"
+#include "Camera/AYRPlayerCameraManager.h"
 
 DEFINE_LOG_CATEGORY(LogAYRPlayerController);
 
 AAYRPlayerController::AAYRPlayerController(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
-
+	// 设置PlayerCameraManager为我们自己的类。
+	this->PlayerCameraManagerClass = AAYRPlayerCameraManager::StaticClass();
 }
 
 void AAYRPlayerController::BeginPlay()
@@ -64,3 +66,7 @@ void AAYRPlayerController::CleanupGameViewport()
 	Super::CleanupGameViewport();
 }
 
+AAYRPlayerCameraManager* AAYRPlayerController::GetPlayerCameraManager() const
+{
+	return Cast<AAYRPlayerCameraManager>(this->PlayerCameraManager);
+}
