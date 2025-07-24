@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AYRCharacter.h"
+#include "Character/AYRCharacter.h"
 
 // Sets default values
 AAYRCharacter::AAYRCharacter()
