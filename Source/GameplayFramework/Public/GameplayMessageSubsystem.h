@@ -27,6 +27,11 @@ struct FGMSListenerHandle
 	FGameplayTag Tag;
 
 	int32 CurrentID = -1;
+
+	bool IsValid() const
+	{
+		return this->Tag.IsValid() && this->CurrentID >= 0;
+	}
 };
 
 /**

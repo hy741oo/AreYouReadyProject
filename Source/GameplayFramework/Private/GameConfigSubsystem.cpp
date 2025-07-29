@@ -91,7 +91,7 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	}
 }
 
-bool UGameConfigSubsystem::GetCurrentInputIconData(const FName InRowName, FInputIconDataTableRow& OutInputIconDataTableRow, FSlateBrush& OutIconBrush) const
+bool UGameConfigSubsystem::GetCurrentInputIconData(const FName& InRowName, const FInputIconDataTableRow*& OutInputIconDataTableRow, const FSlateBrush*& OutIconBrush) const
 {
 	UAYRGameInstance* GI = Cast<UAYRGameInstance>(this->GetGameInstance());
 	bool bIsFind = this->GetInputIconData(InRowName, GI->GetCurrentInputDeviceType(), OutInputIconDataTableRow, OutIconBrush);
@@ -99,24 +99,22 @@ bool UGameConfigSubsystem::GetCurrentInputIconData(const FName InRowName, FInput
 	return bIsFind;
 }
 
-bool UGameConfigSubsystem::GetInputIconData(const FName InRowName, EInputDeviceType::Type InInputDeviceType, FInputIconDataTableRow& OutInputIconDataTableRow, FSlateBrush& OutIconBrush) const
+bool UGameConfigSubsystem::GetInputIconData(const FName& InRowName, EInputDeviceType::Type InInputDeviceType, const FInputIconDataTableRow*& OutInputIconDataTableRow, const FSlateBrush*& OutIconBrush) const
 {
 	// 获取输入设备按键数据表行结构。
-	const FInputIconDataTableRow* Row = nullptr;
 	bool bIconIsFind = false;
-	bool bTableRowIsFind = this->GetDataTableRowFromID(InRowName, Row);
+	bool bTableRowIsFind = this->GetDataTableRowFromID(InRowName, OutInputIconDataTableRow);
 	if (bTableRowIsFind)
 	{
-		OutInputIconDataTableRow = *Row;
 
 		// 获取输入按键对应的图标信息。
-		if (const FKey* Key = Row->InputKeys.Find(InInputDeviceType))
+		if (const FKey* Key = OutInputIconDataTableRow->InputKeys.Find(InInputDeviceType))
 		{
 			if (UInputIconDataAsset* DataAsset = GetDefault<UAYRSettings>()->InputIconData.LoadSynchronous())
 			{
 				if (FSlateBrush* Brush = DataAsset->InputIconData.Find(*Key))
 				{
-					OutIconBrush = *Brush;
+					OutIconBrush = Brush;
 					bIconIsFind = true;
 				}
 			}
@@ -125,4 +123,5 @@ bool UGameConfigSubsystem::GetInputIconData(const FName InRowName, EInputDeviceT
 
 	return bTableRowIsFind && bIconIsFind;
 }
+
 

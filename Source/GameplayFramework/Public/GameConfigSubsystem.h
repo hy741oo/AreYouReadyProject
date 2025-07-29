@@ -188,15 +188,6 @@ private:
 	UPROPERTY()
 	TMap<FName, UDataTable*> LoadedDataTables;
 
-private:
-	// 获取指定输入设备按键图标信息的蓝图函数。
-	UFUNCTION(BlueprintCallable, Category = "Game Config|Input Device")
-	bool GetInputIconData(const FName InRowName, EInputDeviceType::Type InInputDeviceType, FInputIconDataTableRow& OutInputIconDataTableRow, FSlateBrush& OutIconBrush) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Game Config|Input Device")
-	// 获取当前输入设备按键图标信息的蓝图函数。
-	bool GetCurrentInputIconData(const FName InRowName, FInputIconDataTableRow& OutInputIconDataTableRow, FSlateBrush& OutIconBrush) const;
-
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
@@ -272,6 +263,13 @@ public:
 		this->GetDataTableRowFromID(InRowName, TempTableRow);
 		return TempTableRow != nullptr;
 	}
+
+	// 获取指定输入设备按键图标信息。
+	bool GetInputIconData(const FName& InRowName, EInputDeviceType::Type InInputDeviceType, const FInputIconDataTableRow*& OutInputIconDataTableRow, const FSlateBrush*& OutIconBrush) const;
+
+	// 获取当前输入设备按键图标信息。
+	bool GetCurrentInputIconData(const FName& InRowName, const FInputIconDataTableRow*& OutInputIconDataTableRow, const FSlateBrush*& OutIconBrush) const;
+
 
 };
 
