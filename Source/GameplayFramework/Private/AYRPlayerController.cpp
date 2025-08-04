@@ -70,3 +70,10 @@ AAYRPlayerCameraManager* AAYRPlayerController::GetPlayerCameraManager() const
 {
 	return Cast<AAYRPlayerCameraManager>(this->PlayerCameraManager);
 }
+
+void AAYRPlayerController::UpdateCameraManager(float InDeltaTime)
+{
+	Super::UpdateCameraManager(InDeltaTime);
+
+	this->OnPlayerCameraManagerUpdateDelegate.Broadcast();
+}

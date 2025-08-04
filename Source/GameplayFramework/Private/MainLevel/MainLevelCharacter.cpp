@@ -12,6 +12,9 @@
 #include "Component/GeneralStateMachine/GeneralStateMachineComponent.h"
 #include "Component/Camera/AYRCameraComponent.h"
 #include "Camera/AYRPlayerCameraManager.h"
+#include "UISubsystem.h"
+#include "UI/MainLevel/PlayerHUD.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 
 AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectInitializer)
 {
@@ -42,9 +45,9 @@ void AMainLevelCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 绑定基础运动。
 	if (AMainLevelPlayerController* OwningController = this->GetController<AMainLevelPlayerController>())
 	{
+		// 绑定基础运动。
 		if (UPlayerInputSubsystem* PlayerInputSubsystem = ULocalPlayer::GetSubsystem<UPlayerInputSubsystem>(OwningController->GetLocalPlayer()))
 		{
 			// 移动。
@@ -68,20 +71,34 @@ void AMainLevelCharacter::BeginPlay()
 			// 基础运动的IMC。
 			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_Movement");
 		}
+
+		this->OnPlayerCameraManagerUpdatedHandle = OwningController->OnPlayerCameraManagerUpdateDelegate.AddUObject(this, &AMainLevelCharacter::OnPlayerCameraManagerUpdated);
 	}
 
 	// 初始化状态机。
 	this->InitializeGeneralStateMachine();
+
+	// 添加HUD。
+	UUISubsystem* UISubsystem = ULocalPlayer::GetSubsystem<UUISubsystem>(this->GetController<AMainLevelPlayerController>()->GetLocalPlayer());
+	this->PlayerHUD = CastChecked<UPlayerHUD>(UISubsystem->PushUI("PlayerHUD"));
 }
 
-void AMainLevelCharacter::EndPlay(const EEndPlayReason::Type InEndPlayReason)
+void AMainLevelCharacter::Destroyed()
 {
-	Super::EndPlay(InEndPlayReason);
-
 	// 清理可交互对象。
 	if (IInteractableObjectInterface* OldActor = Cast<IInteractableObjectInterface>(this->InteractableActor.Get()))
 	{
 		OldActor->Execute_LeaveInteractableState(this->InteractableActor.Get());
+	}
+
+	// 移除HUD。
+	UUISubsystem* UISubsystem = ULocalPlayer::GetSubsystem<UUISubsystem>(this->GetController<AMainLevelPlayerController>()->GetLocalPlayer());
+	UISubsystem->PopUI(this->PlayerHUD);
+
+	if (AMainLevelPlayerController* PC = this->GetController<AMainLevelPlayerController>())
+	{
+		PC->OnPlayerCameraManagerUpdateDelegate.Remove(this->OnPlayerCameraManagerUpdatedHandle);
+		this->OnPlayerCameraManagerUpdatedHandle.Reset();
 	}
 }
 
@@ -111,62 +128,7 @@ void AMainLevelCharacter::LookAround(const FInputActionInstance& InValue)
 
 void AMainLevelCharacter::Tick(float InDeltaTime)
 {
-	TArray<FHitResult> HitResults;
-	FVector CameraLocationInWorld = this->PlayerCamera->GetComponentLocation();
-	// 球形射线初始位置。位于摄像机中点。
-	FVector StartLocation = CameraLocationInWorld;
-	// 球形射线终止位置。位于摄像机正前方CapsuleTraceDistance距离。
-	FVector EndLocation = CameraLocationInWorld + this->PlayerCamera->GetForwardVector() * this->SphereTraceDistance;
-	// 球形射线检测可交互Actor。
-	UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::None, HitResults, true);
-
-	bool bGetInteractableActor = false;
-	if (HitResults.Num() > 0)
-	{
-		for (const FHitResult& HitResult : HitResults)
-		{
-			AActor* HitActor = HitResult.GetActor();
-			if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractableObjectInterface::StaticClass()))
-			{
-				// 即使实现了接口，如果不可交互的话需要跳过该Actor。
-				if (!IInteractableObjectInterface::Execute_IsInteractable(HitResult.Actor.Get()))
-				{
-					continue;
-				}
-
-				// 判断当前可交互对象是否和上次检测到的对象一致。
-				if (HitResult.Actor == this->InteractableActor)
-				{
-					bGetInteractableActor = true;
-					break;
-				}
-				else
-				{
-					if (AActor* OldActor = this->InteractableActor.Get())
-					{
-						IInteractableObjectInterface::Execute_LeaveInteractableState(this->InteractableActor.Get());
-					}
-
-					this->InteractableActor = HitActor;
-					IInteractableObjectInterface::Execute_EnterInteractableState(HitActor);
-
-					bGetInteractableActor = true;
-					break;
-				}
-			}
-		}
-	}
-
-	// 如果在上面的逻辑中没有找到可交互物，或者射线检测没有检测到任何物体，则需要将之前检测到的可交互物脱离交互状态。
-	if (!bGetInteractableActor)
-	{
-		// 如果射线检测不再能够检测到
-		if (AActor* OldActor = this->InteractableActor.Get())
-		{
-			IInteractableObjectInterface::Execute_LeaveInteractableState(OldActor);
-			this->InteractableActor.Reset();
-		}
-	}
+	Super::Tick(InDeltaTime);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////状态机相关Begin
@@ -379,3 +341,69 @@ void AMainLevelCharacter::Landed(const FHitResult& Hit)
 	this->MovementStateMachineComponent->ChangeStateTo("JumpLanded");
 }
 
+void AMainLevelCharacter::OnPlayerCameraManagerUpdated()
+{
+	AMainLevelPlayerController* PC = this->GetController<AMainLevelPlayerController>();
+
+	TArray<FHitResult> HitResults;
+	FVector CameraLocationInWorld = this->PlayerCamera->GetComponentLocation();
+	// 球形射线初始位置。位于摄像机中点。
+	FVector StartLocation = CameraLocationInWorld;
+	// 球形射线终止位置。位于摄像机正前方CapsuleTraceDistance距离。
+	FVector EndLocation = CameraLocationInWorld + this->PlayerCamera->GetForwardVector() * this->SphereTraceDistance;
+	// 球形射线检测可交互Actor。
+	UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, HitResults, true);
+
+	bool bGetInteractableActor = false;
+	if (HitResults.Num() > 0)
+	{
+		for (const FHitResult& HitResult : HitResults)
+		{
+			AActor* HitActor = HitResult.GetActor();
+			if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractableObjectInterface::StaticClass()))
+			{
+				// 即使实现了接口，如果不可交互的话需要跳过该Actor。
+				if (!IInteractableObjectInterface::Execute_IsInteractable(HitResult.Actor.Get()))
+				{
+					continue;
+				}
+
+				// 判断当前可交互对象是否和上次检测到的对象一致。
+				if (HitResult.Actor == this->InteractableActor)
+				{
+					bGetInteractableActor = true;
+					break;
+				}
+				else
+				{
+					if (AActor* OldActor = this->InteractableActor.Get())
+					{
+						IInteractableObjectInterface::Execute_LeaveInteractableState(this->InteractableActor.Get());
+					}
+
+					this->InteractableActor = HitActor;
+					IInteractableObjectInterface::Execute_EnterInteractableState(HitActor);
+
+					bGetInteractableActor = true;
+					break;
+				}
+			}
+		}
+	}
+
+	// 如果在上面的逻辑中没有找到可交互物，或者射线检测没有检测到任何物体，则需要将之前检测到的可交互物脱离交互状态。
+	if (!bGetInteractableActor)
+	{
+		// 如果射线检测不再能够检测到
+		if (AActor* OldActor = this->InteractableActor.Get())
+		{
+			IInteractableObjectInterface::Execute_LeaveInteractableState(OldActor);
+			this->InteractableActor.Reset();
+		}
+	}
+
+	// 设置准星位置。
+	FVector2D CrosshairPosition;
+	UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, EndLocation, CrosshairPosition, true);
+	this->PlayerHUD->SetCrosshairPositionInScreen(CrosshairPosition);
+}

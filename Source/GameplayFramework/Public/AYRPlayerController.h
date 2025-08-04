@@ -18,6 +18,8 @@ UCLASS()
 class GAMEPLAYFRAMEWORK_API AAYRPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+	DECLARE_MULTICAST_DELEGATE(FOnPlayerCameraManagerUpdatedDelegate);
 	
 private:
 	// 控制器需要用到的结构体。
@@ -27,6 +29,9 @@ public:
 	// 玩家控制器唯一ID。
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FName ID;
+
+	// 当PlayerCameraManager更新时调用。
+	FOnPlayerCameraManagerUpdatedDelegate OnPlayerCameraManagerUpdateDelegate;
 
 public:
 	AAYRPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
@@ -45,4 +50,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AYRCamera")
 	AAYRPlayerCameraManager* GetPlayerCameraManager() const;
+
+	virtual void UpdateCameraManager(float InDeltaTime) override;
 };

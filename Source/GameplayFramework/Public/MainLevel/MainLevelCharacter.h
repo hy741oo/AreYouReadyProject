@@ -12,6 +12,7 @@ class UAYRCameraComponent;
 class IInteractableObjectInterface;
 class UGeneralStateMachineComponent;
 struct FGeneralStateMachineNode;
+class UPlayerHUD;
 
 /**
  * 
@@ -20,6 +21,17 @@ UCLASS()
 class GAMEPLAYFRAMEWORK_API AMainLevelCharacter : public AAYRPlayerCharacter
 {
 	GENERATED_BODY()
+
+private:
+	// HUD
+	UPlayerHUD* PlayerHUD = nullptr;
+	
+	// Camera更新回调句柄。
+	FDelegateHandle OnPlayerCameraManagerUpdatedHandle;
+
+private:
+	// 当PlayerCameraManager更新时调用。用于处理依赖于Camera的业务逻辑，防止因为业务逻辑更新在Camera更新之前造成的不匹配问题。
+	void OnPlayerCameraManagerUpdated();
 
 protected:
 	// 玩家摄像机。
@@ -65,8 +77,8 @@ public:
 	// 执行绑定运动等操作。
 	virtual void BeginPlay() override;
 
-	// 结束时的清理操作。
-	virtual void EndPlay(const EEndPlayReason::Type InEndPlayReason) override;
+	// 销毁时的清理操作。
+	virtual void Destroyed() override;
 
 	// Tick函数。包含交互物检测等逻辑。
 	virtual void Tick(float InDeltaTime) override;
