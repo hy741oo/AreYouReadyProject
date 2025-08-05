@@ -118,12 +118,15 @@ void UInputIcon::OnWidgetRebuilt()
 #endif
 }
 
-void UInputIcon::ReleaseSlateResources(bool bReleaseChildren)
+void UInputIcon::ReleaseSlateResources(bool bInReleaseChildren)
 {
+	Super::ReleaseSlateResources(bInReleaseChildren);
+
 	this->InputIconHorizontalBox.Reset();
 	this->InputIconSizeBox.Reset();
 	this->InputIconImage.Reset();
 	this->InputIconHintText.Reset();
+	this->RootBorder.Reset();
 
 	// 注销输入设备切换事件。
 	UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance());

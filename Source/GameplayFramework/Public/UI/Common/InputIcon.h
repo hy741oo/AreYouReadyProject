@@ -69,5 +69,5 @@ public:
 	void UpdateInputIcon();
 
 	// 释放Slate资产。
-	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
+	virtual void ReleaseSlateResources(bool bInReleaseChildren) override;
 };
