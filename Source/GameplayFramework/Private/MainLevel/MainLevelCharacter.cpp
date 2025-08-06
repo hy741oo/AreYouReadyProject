@@ -345,47 +345,42 @@ void AMainLevelCharacter::OnPlayerCameraManagerUpdated()
 {
 	AMainLevelPlayerController* PC = this->GetController<AMainLevelPlayerController>();
 
-	TArray<FHitResult> HitResults;
+	FHitResult HitResult;
 	FVector CameraLocationInWorld = this->PlayerCamera->GetComponentLocation();
 	// 球形射线初始位置。位于摄像机中点。
 	FVector StartLocation = CameraLocationInWorld;
 	// 球形射线终止位置。位于摄像机正前方CapsuleTraceDistance距离。
 	FVector EndLocation = CameraLocationInWorld + this->PlayerCamera->GetForwardVector() * this->SphereTraceDistance;
 	// 球形射线检测可交互Actor。
-	UKismetSystemLibrary::SphereTraceMulti(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, HitResults, true);
+
 
 	bool bGetInteractableActor = false;
-	if (HitResults.Num() > 0)
+	if (UKismetSystemLibrary::SphereTraceSingle(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, HitResult, true))
 	{
-		for (const FHitResult& HitResult : HitResults)
+		AActor* HitActor = HitResult.GetActor();
+		if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractableObjectInterface::StaticClass()))
 		{
-			AActor* HitActor = HitResult.GetActor();
-			if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractableObjectInterface::StaticClass()))
+			// 即使实现了接口，如果不可交互的话需要跳过该Actor。
+			if (IInteractableObjectInterface::Execute_IsInteractable(HitResult.Actor.Get()))
 			{
-				// 即使实现了接口，如果不可交互的话需要跳过该Actor。
-				if (!IInteractableObjectInterface::Execute_IsInteractable(HitResult.Actor.Get()))
-				{
-					continue;
-				}
 
 				// 判断当前可交互对象是否和上次检测到的对象一致。
 				if (HitResult.Actor == this->InteractableActor)
 				{
 					bGetInteractableActor = true;
-					break;
 				}
 				else
 				{
 					if (AActor* OldActor = this->InteractableActor.Get())
 					{
-						IInteractableObjectInterface::Execute_LeaveInteractableState(this->InteractableActor.Get());
+						IInteractableObjectInterface::Execute_LeaveInteractableState(OldActor);
 					}
 
 					this->InteractableActor = HitActor;
 					IInteractableObjectInterface::Execute_EnterInteractableState(HitActor);
+					this->PlayerHUD->OnEnterInteractableState();
 
 					bGetInteractableActor = true;
-					break;
 				}
 			}
 		}
@@ -398,6 +393,7 @@ void AMainLevelCharacter::OnPlayerCameraManagerUpdated()
 		if (AActor* OldActor = this->InteractableActor.Get())
 		{
 			IInteractableObjectInterface::Execute_LeaveInteractableState(OldActor);
+			this->PlayerHUD->OnLeaveInteractableState();
 			this->InteractableActor.Reset();
 		}
 	}

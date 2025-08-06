@@ -39,7 +39,7 @@ protected:
 	UAYRCameraComponent* PlayerCamera = nullptr;
 
 	// 球形射线追踪距离。
-	float SphereTraceDistance = 150.f;
+	float SphereTraceDistance = 200.f;
 
 	// 球形射线半径。
 	float SphereTraceRadius = 10.f;

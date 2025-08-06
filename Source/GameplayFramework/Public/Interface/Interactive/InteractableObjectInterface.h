@@ -23,7 +23,7 @@ class GAMEPLAYFRAMEWORK_API IInteractableObjectInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 protected:
 	// 是否可交互。可由子类进行更改，用来动态开关一个物体是否可交互。
-	bool bIsInteractable = false;
+	bool bIsInteractable = true;
 
 public:
 	// 检测是否可交互。

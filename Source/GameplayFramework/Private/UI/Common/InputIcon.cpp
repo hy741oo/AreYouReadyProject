@@ -42,6 +42,7 @@ void UInputIcon::UpdateInputIcon()
 			this->InputIconHintText->SetVisibility(EVisibility::HitTestInvisible);
 			this->InputIconHintText->SetText(InputIconTableRow->IconText);
 			this->InputIconHintText->SetFont(InputIconTableRow->IconTextFontInfo);
+			this->InputIconHintText->SetColorAndOpacity(InputIconTableRow->ColorAndOpacity);
 		}
 		else
 		{
@@ -71,7 +72,9 @@ TSharedRef<SWidget> UInputIcon::RebuildWidget()
 		[
 			SAssignNew(this->InputIconHorizontalBox, SHorizontalBox)
 			+ SHorizontalBox::Slot()
+			.AutoWidth()
 			.VAlign(EVerticalAlignment::VAlign_Center)
+			.HAlign(EHorizontalAlignment::HAlign_Center)
 			[
 				SAssignNew(this->InputIconSizeBox, SBox)
 				.WidthOverride(64.f)
@@ -81,6 +84,7 @@ TSharedRef<SWidget> UInputIcon::RebuildWidget()
 				]
 			]
 			+ SHorizontalBox::Slot()
+			.AutoWidth()
 			.HAlign(EHorizontalAlignment::HAlign_Center)
 			.VAlign(EVerticalAlignment::VAlign_Center)
 			[
@@ -98,7 +102,6 @@ void UInputIcon::OnWidgetRebuilt()
 	if (this->IsDesignTime())
 	{
 		// 在UMG编辑界面里预览使用。
-		this->SetVisibility(ESlateVisibility::HitTestInvisible);
 		UTexture2D* IconImage = LoadObject<UTexture2D>(this, TEXT("Texture2D'/Game/AYR/Textures/InputDeviceIcon/Keyboard___Mouse/Dark/E_Key_Dark.E_Key_Dark'"));
 		this->TempSlateBrush = FDeferredCleanupSlateBrush::CreateBrush(IconImage);
 		this->InputIconImage->SetImage(this->TempSlateBrush->GetSlateBrush());

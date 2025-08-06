@@ -113,7 +113,17 @@ struct FInputIconDataTableRow : public FAYRTableRowBase
 	FText IconText;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Text", Meta = (EditCondition = "bUseIconHintText == true"))
+	FSlateColor ColorAndOpacity = FLinearColor::White;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Text", Meta = (EditCondition = "bUseIconHintText == true"))
 	FSlateFontInfo IconTextFontInfo;
+
+	FInputIconDataTableRow()
+	{
+		UObject* FontObject = LoadObject<UObject>(nullptr, TEXT("Font'/Engine/EngineFonts/Roboto.Roboto'"));
+		IconTextFontInfo = FSlateFontInfo(FontObject, 20);
+	}
+		
 };
 
 // 按键图标信息。
