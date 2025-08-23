@@ -27,7 +27,7 @@ void UGeneralStateMachineComponent::TickComponent(float InDeltaTime, ELevelTick 
 	}
 }
 
-FGeneralStateMachineNode& UGeneralStateMachineComponent::CreateStateMachineNode(const FName& InNodeName)
+FGeneralStateMachineNode& UGeneralStateMachineComponent::CreateStateMachineNode(const FName InNodeName)
 {
 	// 如果传进的NodeName已经被生成了，则返回之前已经生成的节点。
 	FGeneralStateMachineNode& Node = this->CreatedStates.FindOrAdd(InNodeName);
@@ -36,11 +36,17 @@ FGeneralStateMachineNode& UGeneralStateMachineComponent::CreateStateMachineNode(
 	return Node;
 }
 
-void UGeneralStateMachineComponent::InitGeneralStateMachine(const FName& InInitState)
+void UGeneralStateMachineComponent::InitGeneralStateMachine(const FName InInitState)
 {
-	this->CurrentState = InInitState;
+	// 如果状态已初始化（即CurrentState不为NAME_None，则不执行任何操作。
+	if (!this->CurrentState.IsNone())
+	{
+		return;
+	}
+
 	if (FGeneralStateMachineNode* Node = this->CreatedStates.Find(InInitState))
 	{
+		this->CurrentState = InInitState;
 		Node->OnEnterState.ExecuteIfBound();
 	}
 	else
@@ -49,7 +55,7 @@ void UGeneralStateMachineComponent::InitGeneralStateMachine(const FName& InInitS
 	}
 }
 
-bool UGeneralStateMachineComponent::ChangeStateTo(const FName& InStateChangeTo)
+bool UGeneralStateMachineComponent::ChangeStateTo(const FName InStateChangeTo)
 {
 	UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("\"%s\" Changing State...current state:\"%s\", next state:\"%s\"."), *this->GetFName().ToString(), *this->CurrentState.ToString(), *InStateChangeTo.ToString());
 
@@ -58,6 +64,15 @@ bool UGeneralStateMachineComponent::ChangeStateTo(const FName& InStateChangeTo)
 	if (bSuccessful)
 	{
 		FGeneralStateMachineNode& OldNode = this->CreatedStates[this->CurrentState];
+
+		// 转换成功代表着ConditionCheck通过，需要执行一次Action。
+		const FGeneralStateMachineCondition& NextStateCondition = OldNode.NextStates.FindRef(InStateChangeTo);
+		if (NextStateCondition.Action.IsBound())
+		{
+			NextStateCondition.Action.Execute();
+		}
+
+		// 如果状态变更为自更新状态，则执行Update委托，否则进入常规流程。
 		if (this->CurrentState == InStateChangeTo)
 		{
 			OldNode.OnUpdateState.ExecuteIfBound();
@@ -71,21 +86,22 @@ bool UGeneralStateMachineComponent::ChangeStateTo(const FName& InStateChangeTo)
 			OldNode.OnLeaveState.ExecuteIfBound();
 			NewNode.OnEnterState.ExecuteIfBound();
 		}
+
 	}
 
 	return bSuccessful;
 }
 
-bool UGeneralStateMachineComponent::IsSameState(const FName& InState) const
+bool UGeneralStateMachineComponent::IsSameState(const FName InState) const
 {
 	return this->CurrentState == InState;
 }
 
-bool UGeneralStateMachineComponent::CanChangeToState(const FName& InNewState) const
+bool UGeneralStateMachineComponent::CanChangeToState(const FName InNewState) const
 {
 	bool bSuccessful = false;
 
-	// 检测新状态是否已经生成。
+	// 检测新状态是否已经创建。
 	if (const FGeneralStateMachineNode* NewStateNode = this->CreatedStates.Find(InNewState))
 	{
 		// 检测现态可以转换的次态是否包含新状态。
@@ -99,6 +115,7 @@ bool UGeneralStateMachineComponent::CanChangeToState(const FName& InNewState) co
 				}
 				else
 				{
+					// 如果Condition委托没有被绑定，默认此状态切换无条件成功。
 					bSuccessful = true;
 				}
 
@@ -113,7 +130,7 @@ bool UGeneralStateMachineComponent::CanChangeToState(const FName& InNewState) co
 			}
 			else
 			{
-				UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("\"%s\" Changing state failed, current state:%s has no next state:\"%s\"."), *this->GetFName().ToString(), *this->CurrentState.ToString(), *InNewState.ToString());
+				UE_LOG(LogGeneralStateMachineComponent, Verbose, TEXT("\"%s\" Changing state failed, current state:\"%s\" has no next state:\"%s\"."), *this->GetFName().ToString(), *this->CurrentState.ToString(), *InNewState.ToString());
 			}
 		}
 	}
@@ -123,5 +140,97 @@ bool UGeneralStateMachineComponent::CanChangeToState(const FName& InNewState) co
 	}
 
 	return bSuccessful;
+}
+
+void UGeneralStateMachineComponent::CreateStateMachineNodeBP(const FName InNodeName)
+{
+	this->CreateStateMachineNode(InNodeName);
+}
+
+void UGeneralStateMachineComponent::SetStateMachineNodeOnEnterStateDelegate(const FName InNodeName, FSimpleDynamicDelegate InOnEnterStateDelegate)
+{
+	if (FGeneralStateMachineNode* Node = this->CreatedStates.Find(InNodeName))
+	{
+		Node->OnEnterState.BindUFunction(InOnEnterStateDelegate.GetUObject(), InOnEnterStateDelegate.GetFunctionName());
+	}
+	else
+	{
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName is invalid on set delegate, abort setting."));
+	}
+}
+
+void UGeneralStateMachineComponent::SetStateMachineNodeOnLeaveStateDelegate(const FName InNodeName, FSimpleDynamicDelegate InOnLeaveStateDelegate)
+{
+	if (FGeneralStateMachineNode* Node = this->CreatedStates.Find(InNodeName))
+	{
+		Node->OnLeaveState.BindUFunction(InOnLeaveStateDelegate.GetUObject(), InOnLeaveStateDelegate.GetFunctionName());
+	}
+	else
+	{
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName is invalid on set delegate, abort setting."));
+	}
+}
+
+void UGeneralStateMachineComponent::SetStateMachineNodeOnUpdateStateDelegate(const FName InNodeName, FSimpleDynamicDelegate InOnUpdateStateDelegate)
+{
+	if (FGeneralStateMachineNode* Node = this->CreatedStates.Find(InNodeName))
+	{
+		Node->OnUpdateState.BindUFunction(InOnUpdateStateDelegate.GetUObject(), InOnUpdateStateDelegate.GetFunctionName());
+	}
+	else
+	{
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName is invalid on set delegate, abort setting."));
+	}
+}
+
+void UGeneralStateMachineComponent::SetStateMachineNodeOnTickStateDelegate(const FName InNodeName, FOnStateTickedBP InOnTickStateDelegate)
+{
+	if (FGeneralStateMachineNode* Node = this->CreatedStates.Find(InNodeName))
+	{
+		Node->OnTickState.BindUFunction(InOnTickStateDelegate.GetUObject(), InOnTickStateDelegate.GetFunctionName());
+	}
+	else
+	{
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName is invalid on set delegate, abort setting."));
+	}
+}
+
+void UGeneralStateMachineComponent::SetStateMachineConditionWithCheckAndAction(const FName InCurrentStateName, const FName InNextStateName, FGeneralStateMachineConditionCheckBP InConditionCheck, FSimpleDynamicDelegate InAction)
+{
+	if (FGeneralStateMachineNode* Node = this->CreatedStates.Find(InCurrentStateName))
+	{
+		FGeneralStateMachineCondition Condition;
+		Condition.NextStateName = InNextStateName;
+		if (InConditionCheck.IsBound())
+		{
+			Condition.Condition.BindUFunction(InConditionCheck.GetUObject(), InConditionCheck.GetFunctionName());
+		}
+		if (InAction.IsBound())
+		{
+			Condition.Action.BindUFunction(InAction.GetUObject(), InAction.GetFunctionName());
+		}
+
+		FGeneralStateMachineCondition& CurrentCondition = Node->NextStates.FindOrAdd(InNextStateName);
+		CurrentCondition = Condition;
+	}
+	else
+	{
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InCurrentStateName is invalid on set condition, abort setting."));
+	}
+}
+
+void UGeneralStateMachineComponent::SetStateMachineConditionWithCheck(const FName InCurrentStateName, const FName InNextStateName, FGeneralStateMachineConditionCheckBP InConditionCheck)
+{
+	this->SetStateMachineConditionWithCheckAndAction(InCurrentStateName, InNextStateName, InConditionCheck, FSimpleDynamicDelegate());
+}
+
+void UGeneralStateMachineComponent::SetStateMachineConditionWithAction(const FName InCurrentStateName, const FName InNextStateName, FSimpleDynamicDelegate InAction)
+{
+	this->SetStateMachineConditionWithCheckAndAction(InCurrentStateName, InNextStateName, FGeneralStateMachineConditionCheckBP(), InAction);
+}
+
+void UGeneralStateMachineComponent::SetStateMachineCondition(const FName InCurrentStateName, const FName InNextStateName)
+{
+	this->SetStateMachineConditionWithCheckAndAction(InCurrentStateName, InNextStateName, FGeneralStateMachineConditionCheckBP(), FSimpleDynamicDelegate());
 }
 

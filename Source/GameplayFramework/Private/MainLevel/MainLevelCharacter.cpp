@@ -30,8 +30,8 @@ AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectIniti
 	// 设置胶囊体尺寸。
 	if (UCapsuleComponent* PlayerCapsule = this->GetCapsuleComponent())
 	{
-		PlayerCapsule->SetCapsuleRadius(42);
-		PlayerCapsule->SetCapsuleHalfHeight(96);
+		PlayerCapsule->SetCapsuleRadius(40);
+		PlayerCapsule->SetCapsuleHalfHeight(92);
 	}
 
 	// 生成运动状态机组件。
@@ -70,6 +70,12 @@ void AMainLevelCharacter::BeginPlay()
 
 			// 基础运动的IMC。
 			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_Movement");
+
+			// 交互。
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Interact", this, &AMainLevelCharacter::Interact);
+
+			// 基础动作（如交互）的IMC。
+			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_BaseAction");
 		}
 
 		this->OnPlayerCameraManagerUpdatedHandle = OwningController->OnPlayerCameraManagerUpdateDelegate.AddUObject(this, &AMainLevelCharacter::OnPlayerCameraManagerUpdated);
@@ -389,7 +395,6 @@ void AMainLevelCharacter::OnPlayerCameraManagerUpdated()
 	// 如果在上面的逻辑中没有找到可交互物，或者射线检测没有检测到任何物体，则需要将之前检测到的可交互物脱离交互状态。
 	if (!bGetInteractableActor)
 	{
-		// 如果射线检测不再能够检测到
 		if (AActor* OldActor = this->InteractableActor.Get())
 		{
 			IInteractableObjectInterface::Execute_LeaveInteractableState(OldActor);
@@ -403,3 +408,13 @@ void AMainLevelCharacter::OnPlayerCameraManagerUpdated()
 	UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, EndLocation, CrosshairPosition, true);
 	this->PlayerHUD->SetCrosshairPositionInScreen(CrosshairPosition);
 }
+
+void AMainLevelCharacter::Interact(const FInputActionInstance& InValue)
+{
+	if (this->InteractableActor.IsValid())
+	{
+		IInteractableObjectInterface::Execute_Interact(this->InteractableActor.Get());
+	}
+}
+
+

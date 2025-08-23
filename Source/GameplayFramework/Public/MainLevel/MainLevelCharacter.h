@@ -108,4 +108,7 @@ public:
 
 	// 玩家落地。
 	virtual void Landed(const FHitResult& Hit) override;
+
+	// 交互逻辑。
+	virtual void Interact(const FInputActionInstance& InValue);
 };
