@@ -106,11 +106,14 @@ void FAYRInputProcessor::OnPlayerInputDeviceChanged(const EInputDeviceType::Type
 	FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
 	if (Tag.IsValid())
 	{
-		UGMSInputDeviceType* Message = NewObject<UGMSInputDeviceType>();
-		Message->CurrentType = InInputDeviceType;
+		if (!this->InputDeviceTypeMessage)
+		{
+			this->InputDeviceTypeMessage = TStrongObjectPtr<UGMSInputDeviceType>(NewObject<UGMSInputDeviceType>());
+		}
+		this->InputDeviceTypeMessage->CurrentType = InInputDeviceType;
 
 		UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GameInstance);
-		GMS->Broadcast(Tag, Message);
+		GMS->Broadcast(Tag, this->InputDeviceTypeMessage.Get());
 	}
 }
 
@@ -149,11 +152,14 @@ void FAYRInputProcessor::OnHandleAnyPressableKey(const FKey& InHandledKey)
 	FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.HandleKey"));
 	if (Tag.IsValid())
 	{
-		UGMSHandledKey* Message = NewObject<UGMSHandledKey>();
-		Message->HandledKey = InHandledKey;
+		if (!this->InputKeyMessage)
+		{
+			this->InputKeyMessage = TStrongObjectPtr<UGMSHandledKey>(NewObject<UGMSHandledKey>());
+		}
+		this->InputKeyMessage->HandledKey = InHandledKey;
 
 		UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GameInstance);
-		GMS->Broadcast(Tag, Message);
+		GMS->Broadcast(Tag, this->InputKeyMessage.Get());
 	}
 }
  

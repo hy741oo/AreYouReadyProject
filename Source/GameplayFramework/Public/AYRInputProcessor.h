@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Framework/Application/IInputProcessor.h"
 #include "GameplayMessageSubsystem.h"
+#include "UObject/StrongObjectPtr.h"
 
 #include "AYRInputProcessor.generated.h"
 
@@ -56,6 +57,12 @@ private:
 
 	// GameInstance，用于后续处理Gameplay相关的逻辑。
 	UGameInstance* GameInstance = nullptr;
+
+	// 输入设备切换事件的Message，定义成成员变量是为了防止频繁生成造成的性能低下。UPROPERTY是为了防止被GC掉。
+	TStrongObjectPtr<UGMSInputDeviceType> InputDeviceTypeMessage = nullptr;
+
+	// 由于按键输入是一个频繁的事件，所以为了节省性能，在这里定义一个GMS会用到的Message，这样后续就不需要反复生成。UPROPERTY防止被GC掉。
+	TStrongObjectPtr<UGMSHandledKey> InputKeyMessage = nullptr;
 
 private:
 	// 当玩家的输入设备类型改变时调用。
