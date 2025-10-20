@@ -155,7 +155,7 @@ void UGeneralStateMachineComponent::SetStateMachineNodeOnEnterStateDelegate(cons
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName is invalid on set delegate, abort setting."));
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName \"%s\" is invalid on set delegate, abort setting."), *InNodeName.ToString());
 	}
 }
 
@@ -167,7 +167,7 @@ void UGeneralStateMachineComponent::SetStateMachineNodeOnLeaveStateDelegate(cons
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName is invalid on set delegate, abort setting."));
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName \"%s\" is invalid on set delegate, abort setting."), *InNodeName.ToString());
 	}
 }
 
@@ -179,7 +179,7 @@ void UGeneralStateMachineComponent::SetStateMachineNodeOnUpdateStateDelegate(con
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName is invalid on set delegate, abort setting."));
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName \"%s\" is invalid on set delegate, abort setting."), *InNodeName.ToString());
 	}
 }
 
@@ -191,7 +191,7 @@ void UGeneralStateMachineComponent::SetStateMachineNodeOnTickStateDelegate(const
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName is invalid on set delegate, abort setting."));
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InNodeName \"%s\" is invalid on set delegate, abort setting."), *InNodeName.ToString());
 	}
 }
 
@@ -215,7 +215,7 @@ void UGeneralStateMachineComponent::SetStateMachineConditionWithCheckAndAction(c
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InCurrentStateName is invalid on set condition, abort setting."));
+		UE_LOG(LogGeneralStateMachineComponent, Warning, TEXT("InCurrentStateName \"%s\" is invalid on set condition, abort setting."), *InCurrentStateName.ToString());
 	}
 }
 
