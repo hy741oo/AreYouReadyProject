@@ -29,6 +29,15 @@ private:
 	// Camera更新回调句柄。
 	FDelegateHandle OnPlayerCameraManagerUpdatedHandle;
 
+	// 是否获取蓝色身份卡。
+	bool BlueIDCard = false;
+
+	// 是否获取绿色身份卡。
+	bool GreenIDCard = false;
+
+	// 是否获取红色身份卡。
+	bool RedIDCard = false;
+
 private:
 	// 当PlayerCameraManager更新时调用。用于处理依赖于Camera的业务逻辑，防止因为业务逻辑更新在Camera更新之前造成的不匹配问题。
 	void OnPlayerCameraManagerUpdated();
@@ -111,4 +120,28 @@ public:
 
 	// 交互逻辑。
 	virtual void Interact(const FInputActionInstance& InValue);
+
+	// 获取蓝色身份卡。
+	UFUNCTION(BlueprintCallable)
+	void SetGettingBlueIDCard();
+
+	// 检测是否获取蓝色身份卡。
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool HaveGotBlueIDCard() const;
+
+	// 获取绿色身份卡。
+	UFUNCTION(BlueprintCallable)
+	void SetGettingGreenIDCard();
+
+	// 检测是否获取绿色身份卡。
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool HaveGotGreenIDCard() const;
+
+	// 获取红色身份卡。
+	UFUNCTION(BlueprintCallable)
+	void SetGettingRedIDCard();
+
+	// 检测是否获取红色身份卡。
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool HaveGotRedIDCard() const;
 };

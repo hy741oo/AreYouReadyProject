@@ -424,4 +424,34 @@ void AMainLevelCharacter::Interact(const FInputActionInstance& InValue)
 	}
 }
 
+void AMainLevelCharacter::SetGettingBlueIDCard()
+{
+	this->BlueIDCard = true;
+}
+
+bool AMainLevelCharacter::HaveGotBlueIDCard() const
+{
+	return this->BlueIDCard;
+}
+
+void AMainLevelCharacter::SetGettingGreenIDCard()
+{
+	this->GreenIDCard = true;
+}
+
+bool AMainLevelCharacter::HaveGotGreenIDCard() const
+{
+	return this->GreenIDCard;
+}
+
+void AMainLevelCharacter::SetGettingRedIDCard()
+{
+	this->RedIDCard = true;
+}
+
+bool AMainLevelCharacter::HaveGotRedIDCard() const
+{
+	return this->RedIDCard;
+}
+
 
