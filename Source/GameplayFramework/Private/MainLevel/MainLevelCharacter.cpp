@@ -401,6 +401,13 @@ void AMainLevelCharacter::OnPlayerCameraManagerUpdated()
 			this->PlayerHUD->OnLeaveInteractableState();
 			this->InteractableActor.Reset();
 		}
+		// 如果物体已经失效了（如某些原因自我销毁），则需要重置。
+		else if (this->InteractableActor.IsStale())
+		{
+			this->PlayerHUD->OnLeaveInteractableState();
+			this->InteractableActor.Reset();
+		}
+
 	}
 
 	// 设置准星位置。
