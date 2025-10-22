@@ -361,7 +361,7 @@ void AMainLevelCharacter::OnPlayerCameraManagerUpdated()
 
 
 	bool bGetInteractableActor = false;
-	if (UKismetSystemLibrary::SphereTraceSingle(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame, HitResult, true))
+	if (UKismetSystemLibrary::SphereTraceSingle(this, StartLocation, EndLocation, this->SphereTraceRadius, ETraceTypeQuery::TraceTypeQuery1, false, TArray<AActor*>(), EDrawDebugTrace::None, HitResult, true))
 	{
 		AActor* HitActor = HitResult.GetActor();
 		if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractableObjectInterface::StaticClass()))
