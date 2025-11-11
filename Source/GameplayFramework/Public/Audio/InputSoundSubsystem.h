@@ -35,8 +35,6 @@ struct FInputSoundDataHandle
 {
 	GENERATED_BODY()
 
-	int32 StackIndex = -1;
-
 	int32 CurrentID = -1;
 };
 

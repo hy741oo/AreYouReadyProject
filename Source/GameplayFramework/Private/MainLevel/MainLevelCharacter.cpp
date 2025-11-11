@@ -68,14 +68,11 @@ void AMainLevelCharacter::BeginPlay()
 			// 停止跳跃。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_OnJumpStopped", this, &AMainLevelCharacter::OnCharacterJumpStopped);
 
-			// 基础运动的IMC。
-			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_Movement");
-
 			// 交互。
 			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_Interact", this, &AMainLevelCharacter::Interact);
 
-			// 基础动作（如交互）的IMC。
-			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_BaseAction");
+			// 打开暂停菜单。
+			PlayerInputSubsystem->BindPlayerInputAction("MainLevel_OpenPauseMenu", this, &AMainLevelCharacter::OpenPauseMenu);
 		}
 
 		this->OnPlayerCameraManagerUpdatedHandle = OwningController->OnPlayerCameraManagerUpdateDelegate.AddUObject(this, &AMainLevelCharacter::OnPlayerCameraManagerUpdated);
@@ -87,6 +84,9 @@ void AMainLevelCharacter::BeginPlay()
 	// 添加HUD。
 	UUISubsystem* UISubsystem = ULocalPlayer::GetSubsystem<UUISubsystem>(this->GetController<AMainLevelPlayerController>()->GetLocalPlayer());
 	this->PlayerHUD = CastChecked<UPlayerHUD>(UISubsystem->PushUI("PlayerHUD"));
+
+	// 添加基础的IMC。
+	this->AddCharacterInputMappingContext();
 }
 
 void AMainLevelCharacter::Destroyed()
@@ -105,6 +105,15 @@ void AMainLevelCharacter::Destroyed()
 	{
 		PC->OnPlayerCameraManagerUpdateDelegate.Remove(this->OnPlayerCameraManagerUpdatedHandle);
 		this->OnPlayerCameraManagerUpdatedHandle.Reset();
+	}
+
+	// 移除基础的IMC。
+	this->RemoveCharacterInputMappingContext();
+
+	// 清楚关闭暂停菜单GMS句柄。
+	if (UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance()))
+	{
+		GMS->Unregister(this->OnClosePauseMenuHandle);
 	}
 }
 
@@ -454,4 +463,68 @@ bool AMainLevelCharacter::HaveGotRedIDCard() const
 	return this->RedIDCard;
 }
 
+void AMainLevelCharacter::OpenPauseMenu(const FInputActionInstance& InValue)
+{
+	// 暂停游戏。
+	UGameplayStatics::SetGamePaused(this, true);
+
+	// 移除玩家角色的IMC。
+	this->RemoveCharacterInputMappingContext();
+
+	// 绑定关闭暂停菜单事件。
+	if (UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance()))
+	{
+		FGameplayTag Tag = FGameplayTag::RequestGameplayTag("GMSMessage.Gameplay.OnClosePauseMenu");
+		FOnMessageReceived OnMessageReceived;
+		OnMessageReceived.BindWeakLambda(this,
+			[this, GMS](const UGMSMessageBase* InMessage) {
+				this->AddCharacterInputMappingContext();
+				UGameplayStatics::SetGamePaused(this, false);
+				if (GMS)
+				{
+					GMS->Unregister(this->OnClosePauseMenuHandle);
+				}
+			}
+			);
+		this->OnClosePauseMenuHandle = GMS->Register(Tag, OnMessageReceived);
+	}
+
+	// 打开菜单。
+	if (UUISubsystem* UISubsystem = ULocalPlayer::GetSubsystem<UUISubsystem>(this->GetController<AMainLevelPlayerController>()->GetLocalPlayer()))
+	{
+		UISubsystem->PushUI(TEXT("MainLevel_PauseMenu"));
+	}
+}
+
+void AMainLevelCharacter::AddCharacterInputMappingContext()
+{
+	if (AMainLevelPlayerController* OwningController = this->GetController<AMainLevelPlayerController>())
+	{
+		// 绑定基础运动。
+		if (UPlayerInputSubsystem* PlayerInputSubsystem = ULocalPlayer::GetSubsystem<UPlayerInputSubsystem>(OwningController->GetLocalPlayer()))
+		{
+			// 基础动作（如交互）的IMC。
+			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_BaseAction");
+
+			// 基础运动IMC。
+			PlayerInputSubsystem->AddPlayerInputMappingContext("MainLevel_Movement");
+		}
+	}
+}
+
+void AMainLevelCharacter::RemoveCharacterInputMappingContext()
+{
+	// 移除已经绑定了的全部IMC。
+	if (AMainLevelPlayerController* OwningController = this->GetController<AMainLevelPlayerController>())
+	{
+		if (UPlayerInputSubsystem* PlayerInputSubsystem = ULocalPlayer::GetSubsystem<UPlayerInputSubsystem>(OwningController->GetLocalPlayer()))
+		{
+			// 基础动作（如交互）的IMC。
+			PlayerInputSubsystem->RemovePlayerInputMappingContext("MainLevel_BaseAction");
+
+			// 基础运动IMC。
+			PlayerInputSubsystem->RemovePlayerInputMappingContext("MainLevel_Movement");
+		}
+	}
+}
 

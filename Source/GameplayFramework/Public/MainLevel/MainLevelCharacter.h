@@ -38,6 +38,9 @@ private:
 	// 是否获取红色身份卡。
 	bool RedIDCard = false;
 
+	// 关闭菜单GMS事件句柄。
+	FGMSListenerHandle OnClosePauseMenuHandle;
+
 private:
 	// 当PlayerCameraManager更新时调用。用于处理依赖于Camera的业务逻辑，防止因为业务逻辑更新在Camera更新之前造成的不匹配问题。
 	void OnPlayerCameraManagerUpdated();
@@ -144,4 +147,13 @@ public:
 	// 检测是否获取红色身份卡。
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool HaveGotRedIDCard() const;
+
+	// 打开暂停菜单。
+	void OpenPauseMenu(const FInputActionInstance& InValue);
+
+	// 添加Input Mapping Context。
+	void AddCharacterInputMappingContext();
+
+	// 移除Input Mapping Context，用于在打开菜单后防止玩家角色响应按键。
+	void RemoveCharacterInputMappingContext();
 };

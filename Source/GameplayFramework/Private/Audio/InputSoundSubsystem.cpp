@@ -85,7 +85,7 @@ bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundD
 		// 如果当前按键音效栈为空的话，则直接插入数据。
 		if (this->InputSoundStack.Num() == 0)
 		{
-			Handle.StackIndex = this->InputSoundStack.Add(StackData);
+			this->InputSoundStack.Add(StackData);
 		}
 		else
 		{
@@ -96,14 +96,14 @@ bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundD
 				FInputSoundStackData& ElementData = this->InputSoundStack[CurrentIndex];
 				if (TableRow->Priority >= ElementData.DataTableRow->Priority)
 				{
-					Handle.StackIndex = this->InputSoundStack.Insert(StackData, CurrentIndex);
+					this->InputSoundStack.Insert(StackData, CurrentIndex);
 					bIsFound = true;
 					break;
 				}
 			}
 			if (bIsFound == false)
 			{
-				Handle.StackIndex = this->InputSoundStack.Add(StackData);
+				this->InputSoundStack.Add(StackData);
 			}
 		}
 		Handle.CurrentID = CurrentUniqueID;
@@ -122,9 +122,15 @@ bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundD
 void UInputSoundSubsystem::PopInputSoundData(FInputSoundDataHandle& Handle)
 {
 	// 删除Handle指定Index的按键音效数据。
-	if (this->InputSoundStack.IsValidIndex(Handle.StackIndex))
+	int StackNum = this->InputSoundStack.Num();
+	for (int32 i = 0; i < StackNum; ++i)
 	{
-		this->InputSoundStack.RemoveAt(Handle.StackIndex);
+		if (this->InputSoundStack[i].UniqueID == Handle.CurrentID)
+		{
+			this->InputSoundStack.RemoveAt(i);
+			Handle.CurrentID = -1;
+			return;
+		}
 	}
 }
 
