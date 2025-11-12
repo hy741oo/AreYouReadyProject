@@ -43,6 +43,8 @@ struct FInputSoundStackData
 	FInputSoundTableRow* DataTableRow = nullptr;
 
 	int32 UniqueID = -1;
+
+	bool bMute = false;
 };
 
 /**
@@ -68,18 +70,26 @@ private:
 	int32 UniqueID = -1;
 private:
 	// 接受到GMS发送过来的处理输入按键的回调。
-	virtual void OnHandledInputKey(UGMSMessageBase* Message);
+	virtual void OnHandledInputKey(UGMSMessageBase* InMessage);
 	
 public:
 	// 初始化，注册回调函数。
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Initialize(FSubsystemCollectionBase& InCollection) override;
 
 	virtual void Deinitialize() override;
 
 	// 入栈输入按键音效数据。
 	UFUNCTION(BlueprintCallable, Category = "Input Sound Subsystem")
-	bool PushInputSoundData(FName InputSdoundID, FInputSoundDataHandle& Handle);
+	bool PushInputSoundData(FName InInputSdoundID, FInputSoundDataHandle& InHandle, bool bInMute = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Input Sound Subsystem")
-	void PopInputSoundData(UPARAM(Ref)FInputSoundDataHandle& Handle);
+	void PopInputSoundData(UPARAM(Ref)FInputSoundDataHandle& InHandle);
+
+	// 静音InHandle指定的输入音效。
+	UFUNCTION(BlueprintCallable, Category = "Input SoundSubsystem")
+	void MuteInputSound(const FInputSoundDataHandle& InHandle);
+
+	// 取消静音InHandle指定的输入音效。
+	UFUNCTION(BlueprintCallable, Category = "Input SoundSubsystem")
+	void UnMuteInputSound(const FInputSoundDataHandle& InHandle);
 };

@@ -42,6 +42,11 @@ void UInputSoundSubsystem::OnHandledInputKey(UGMSMessageBase* InMessage)
 		for (int32 Index = 0; Index < this->InputSoundStack.Num(); ++Index)
 		{
 			FInputSoundStackData& InputSoundStackData = this->InputSoundStack[Index];
+			// 如果该层Input Sound被静音了则说明不需要播放输入音效，直接退出。
+			if (InputSoundStackData.bMute)
+			{
+				return;
+			}
 			FInputSoundTableRow* InputSoundTableRow = InputSoundStackData.DataTableRow;
 			if (InputSoundTableRow->KeySoundMap.Contains(Msg->HandledKey))
 			{
@@ -67,7 +72,7 @@ void UInputSoundSubsystem::OnHandledInputKey(UGMSMessageBase* InMessage)
 	}
 }
 
-bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundDataHandle& OutHandle)
+bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundDataHandle& OutHandle, bool bInMute)
 {
 	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 	FInputSoundTableRow* TableRow = nullptr;
@@ -80,6 +85,7 @@ bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundD
 		FInputSoundStackData StackData;
 		StackData.DataTableRow = TableRow;
 		StackData.UniqueID = CurrentUniqueID;
+		StackData.bMute = bInMute;
 
 		FInputSoundDataHandle Handle;
 		// 如果当前按键音效栈为空的话，则直接插入数据。
@@ -119,18 +125,46 @@ bool UInputSoundSubsystem::PushInputSoundData(FName InInputSoundID, FInputSoundD
 	return bSuccessful;
 }
 
-void UInputSoundSubsystem::PopInputSoundData(FInputSoundDataHandle& Handle)
+void UInputSoundSubsystem::PopInputSoundData(FInputSoundDataHandle& InHandle)
 {
 	// 删除Handle指定Index的按键音效数据。
-	int StackNum = this->InputSoundStack.Num();
-	for (int32 i = 0; i < StackNum; ++i)
-	{
-		if (this->InputSoundStack[i].UniqueID == Handle.CurrentID)
-		{
-			this->InputSoundStack.RemoveAt(i);
-			Handle.CurrentID = -1;
-			return;
+	const int32 Index = this->InputSoundStack.IndexOfByPredicate(
+		[&InHandle](const FInputSoundStackData& InElement) {
+			return InHandle.CurrentID == InElement.UniqueID;
 		}
+	);
+
+	if (Index != INDEX_NONE)
+	{
+		this->InputSoundStack.RemoveAt(Index);
+	}
+}
+
+void UInputSoundSubsystem::MuteInputSound(const FInputSoundDataHandle& InHandle)
+{
+	FInputSoundStackData* StackData = this->InputSoundStack.FindByPredicate(
+		[&InHandle](const FInputSoundStackData& InElement) {
+			return InHandle.CurrentID == InElement.UniqueID;
+		}
+	);
+
+	if (StackData)
+	{
+		StackData->bMute = true;
+	}
+}
+
+void UInputSoundSubsystem::UnMuteInputSound(const FInputSoundDataHandle& InHandle)
+{
+	FInputSoundStackData* StackData = this->InputSoundStack.FindByPredicate(
+		[&InHandle](const FInputSoundStackData& InElement) {
+			return InHandle.CurrentID == InElement.UniqueID;
+		}
+	);
+
+	if (StackData)
+	{
+		StackData->bMute = false;
 	}
 }
 
