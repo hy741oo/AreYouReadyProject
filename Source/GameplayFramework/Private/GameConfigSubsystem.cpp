@@ -17,11 +17,13 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	FARFilter Filter;
 	Filter.ClassNames.Add(UDataTable::StaticClass()->GetFName());
 	TArray<FName> DataTablePaths;
+	TArray<FString> ForceScanPaths;
 	Algo::Transform(
 		GetDefault<UAYRSettings>()->DataTableDirectory,
 		DataTablePaths,
-		[](const FDirectoryPath& Path) -> FName
+		[&ForceScanPaths](const FDirectoryPath& Path) -> FName
 		{
+			ForceScanPaths.Add(Path.Path);
 			return FName(*Path.Path);
 		}
 	);
@@ -30,17 +32,8 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	Filter.bRecursivePaths = true;
 	TArray<FAssetData> SearchedAssets;
 
-	// 某些**未知原因**项目在Standalone模式或Launch时会搜索不到Configs文件夹下的数据表，因此需要强制重新搜索一次。
-	TArray<FString> RescanPaths;
-	Algo::Transform(
-		DataTablePaths,
-		RescanPaths,
-		[](const FName& InName) -> FString
-		{
-			return InName.ToString();
-		}
-	);
-	AR.ScanPathsSynchronous(RescanPaths, true);
+	// 由于子系统初始化时AR模块可能还没有初始化完毕，所以在这里我们需要强制优先加载数据表目录。
+	AR.ScanPathsSynchronous(ForceScanPaths, true);
 
 	if (AR.GetAssets(Filter, SearchedAssets))
 	{
@@ -84,11 +77,15 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	else
 	{
 		UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Asset Registry get assets failed."));
-		for (const FString& Path : RescanPaths)
+		for (const FString& Path : ForceScanPaths)
 		{
 			UE_LOG(LogGameConfigSubsystem, Warning, TEXT("%s"), *Path);
 		}
 	}
+
+	// 存储输入按钮图标数据资产。
+	this->InputIconDataAsset = GetDefault<UAYRSettings>()->InputIconData.LoadSynchronous();
+
 }
 
 bool UGameConfigSubsystem::GetCurrentInputIconData(const FName& InRowName, const FInputIconDataTableRow*& OutInputIconDataTableRow, const FSlateBrush*& OutIconBrush) const
@@ -110,9 +107,9 @@ bool UGameConfigSubsystem::GetInputIconData(const FName& InRowName, EInputDevice
 		// 获取输入按键对应的图标信息。
 		if (const FKey* Key = OutInputIconDataTableRow->InputKeys.Find(InInputDeviceType))
 		{
-			if (UInputIconDataAsset* DataAsset = GetDefault<UAYRSettings>()->InputIconData.LoadSynchronous())
+			if (this->InputIconDataAsset)
 			{
-				if (FSlateBrush* Brush = DataAsset->InputIconData.Find(*Key))
+				if (FSlateBrush* Brush = this->InputIconDataAsset->InputIconData.Find(*Key))
 				{
 					OutIconBrush = Brush;
 					bIconIsFind = true;

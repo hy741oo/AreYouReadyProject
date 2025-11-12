@@ -5,10 +5,11 @@
 
 #include "Framework/Application/SlateApplication.h"
 #include "GameSetting/GameSettingSubsystem.h"
+#include "GameConfigSubsystem.h"
 
-void UAYRGameInstance::OnStart()
+void UAYRGameInstance::Init()
 {
-	Super::OnStart();
+	Super::Init();
 
 	// 添加InputProcess。
 	FSlateApplication& App = FSlateApplication::Get();

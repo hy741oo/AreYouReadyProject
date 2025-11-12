@@ -194,9 +194,13 @@ class GAMEPLAYFRAMEWORK_API UGameConfigSubsystem : public UGameInstanceSubsystem
 	friend class UAYRFunctionLibrary;
 	
 private:
-	// 存储项目中的数据表。
+	// 存储项目中的数据表。需要管理GC。
 	UPROPERTY()
 	TMap<FName, UDataTable*> LoadedDataTables;
+
+	// 存储案件图标表格。需要管理GC。
+	UPROPERTY()
+	UInputIconDataAsset* InputIconDataAsset = nullptr;
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -279,8 +283,6 @@ public:
 
 	// 获取当前输入设备按键图标信息。
 	bool GetCurrentInputIconData(const FName& InRowName, const FInputIconDataTableRow*& OutInputIconDataTableRow, const FSlateBrush*& OutIconBrush) const;
-
-
 };
 
 

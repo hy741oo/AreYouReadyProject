@@ -20,7 +20,7 @@ private:
 	TSharedPtr<class FAYRInputProcessor> InputProcessor;
 
 protected:
-	virtual void OnStart() override;
+	virtual void Init() override;
 
 	virtual void Shutdown() override;
 
