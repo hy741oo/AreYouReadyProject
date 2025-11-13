@@ -131,3 +131,8 @@ void UGameplayMessageSubsystem::UnregisterInternal(FGameplayTag InGameplayTag, i
 	}
 }
 
+bool UGameplayMessageSubsystem::IsHandleValid(UPARAM(Ref)const FGMSListenerHandle& InHandle)
+{
+	return InHandle.CurrentID != -1 && InHandle.Tag.IsValid();
+}
+

@@ -96,5 +96,9 @@ public:
 	// 注销已经注册的订阅。
 	UFUNCTION(BlueprintCallable, Category = "Gameplay Message System")
 	void Unregister(UPARAM(Ref)FGMSListenerHandle& InHandle);
+
+	// 检测GMS句柄是否合法。
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay Message System")
+	static bool IsHandleValid(UPARAM(Ref)const FGMSListenerHandle& InHandle);
 };
 

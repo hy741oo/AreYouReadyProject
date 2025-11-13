@@ -110,10 +110,13 @@ void AMainLevelCharacter::Destroyed()
 	// 移除基础的IMC。
 	this->RemoveCharacterInputMappingContext();
 
-	// 清楚关闭暂停菜单GMS句柄。
+	// 清除关闭暂停菜单GMS句柄。
 	if (UGameplayMessageSubsystem* GMS = UGameInstance::GetSubsystem<UGameplayMessageSubsystem>(this->GetGameInstance()))
 	{
-		GMS->Unregister(this->OnClosePauseMenuHandle);
+		if (UGameplayMessageSubsystem::IsHandleValid(this->OnClosePauseMenuHandle))
+		{
+			GMS->Unregister(this->OnClosePauseMenuHandle);
+		}
 	}
 }
 
