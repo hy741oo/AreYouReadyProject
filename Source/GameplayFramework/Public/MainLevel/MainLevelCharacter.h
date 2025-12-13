@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/AYRPlayerCharacter.h"
+#include "GameplayMessageSubsystem.h"
 
 #include "MainLevelCharacter.generated.h"
 
@@ -156,4 +157,7 @@ public:
 
 	// 移除Input Mapping Context，用于在打开菜单后防止玩家角色响应按键。
 	void RemoveCharacterInputMappingContext();
+
+	// 隐藏ID卡提示图标。
+	void HideIDCardIcons();
 };

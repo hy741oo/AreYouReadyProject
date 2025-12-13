@@ -37,4 +37,12 @@ public:
 
 	// 清理资产。
 	virtual void NativeDestruct() override;
+
+	// 设置交互Widget使用的图标文本字段。
+	UFUNCTION(BlueprintCallable)
+	void SetInputIconName(const FName InInputName);
+
+	// 关闭ID卡提示图标，用于在最终关卡关闭显示。
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideIDCardIcons();
 };

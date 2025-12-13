@@ -14,3 +14,13 @@ void IInteractableObjectInterface::SetIsInteractable_Implementation(bool bInIsIn
 {
 	this->bIsInteractable = bInIsInteractable;
 }
+
+void IInteractableObjectInterface::SetInputIconName_Implementation(const FName InInputIconName)
+{
+	this->InputIconName = InInputIconName;
+}
+
+FName IInteractableObjectInterface::GetInputIconName_Implementation() const
+{
+	return this->InputIconName;
+}

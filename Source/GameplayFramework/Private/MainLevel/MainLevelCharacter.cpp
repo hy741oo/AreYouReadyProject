@@ -398,6 +398,9 @@ void AMainLevelCharacter::OnPlayerCameraManagerUpdated()
 					IInteractableObjectInterface::Execute_EnterInteractableState(HitActor);
 					this->PlayerHUD->OnEnterInteractableState();
 
+					// 设置交互需要显示的字段。
+					this->PlayerHUD->SetInputIconName(IInteractableObjectInterface::Execute_GetInputIconName(HitResult.Actor.Get()));
+
 					bGetInteractableActor = true;
 				}
 			}
@@ -528,6 +531,14 @@ void AMainLevelCharacter::RemoveCharacterInputMappingContext()
 			// 基础运动IMC。
 			PlayerInputSubsystem->RemovePlayerInputMappingContext("MainLevel_Movement");
 		}
+	}
+}
+
+void AMainLevelCharacter::HideIDCardIcons()
+{
+	if (this->PlayerHUD)
+	{
+		this->PlayerHUD->HideIDCardIcons();
 	}
 }
 

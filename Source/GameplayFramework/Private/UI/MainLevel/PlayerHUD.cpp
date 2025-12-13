@@ -33,4 +33,12 @@ void UPlayerHUD::NativeDestruct()
 	Super::NativeDestruct();
 }
 
+void UPlayerHUD::SetInputIconName(const FName InInputName)
+{
+	if (this->InteractionInputIcon)
+	{
+		this->InteractionInputIcon->SetInputIconName(InInputName);
+	}
+}
+
 

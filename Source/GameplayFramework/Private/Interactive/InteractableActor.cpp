@@ -16,6 +16,8 @@ void AInteractableActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// 设置要显示的输入案件图标Name。
+	IInteractableObjectInterface::Execute_SetInputIconName(this, this->InputIconName);
 }
 
 // Called every frame

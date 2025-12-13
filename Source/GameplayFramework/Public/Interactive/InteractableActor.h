@@ -21,6 +21,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+public:
+	// 要在PlayerHUD上面的交互Widget显示的输入按键Name。
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Input Icon")
+	FName InputIconName = "Interaction";
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
