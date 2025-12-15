@@ -6,6 +6,11 @@
 #include "Framework/Application/SlateApplication.h"
 #include "GameSetting/GameSettingSubsystem.h"
 #include "GameConfigSubsystem.h"
+#include "OnlineSubsystem.h"
+#include "Interfaces/OnlineAchievementsInterface.h"
+#include "Interfaces/OnlineIdentityInterface.h"
+
+DEFINE_LOG_CATEGORY(LogAYRGameInstance);
 
 void UAYRGameInstance::Init()
 {
@@ -31,6 +36,35 @@ void UAYRGameInstance::Init()
 			return true;
 			};
 		Viewport->OnNavigationOverride().BindLambda(Functor);
+	}
+
+	// 获取玩家Steam成就信息。
+	if (IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get(STEAM_SUBSYSTEM))
+	{
+		if (IOnlineAchievementsPtr Achievements = OnlineSubsystem->GetAchievementsInterface())
+		{
+			if (IOnlineIdentityPtr Identity = OnlineSubsystem->GetIdentityInterface())
+			{
+				if (FUniqueNetIdPtr UniqueNetId = Identity->GetUniquePlayerId(0))
+				{
+
+					Achievements->QueryAchievements(*UniqueNetId,
+						FOnQueryAchievementsCompleteDelegate::CreateWeakLambda(this,
+							[](const FUniqueNetId& InUniqueNetId, const bool bSuccess)
+							{
+								if (bSuccess)
+								{
+									UE_LOG(LogAYRGameInstance, Log, TEXT("Query achievements successfully."));
+								}
+								else
+								{
+									UE_LOG(LogAYRGameInstance, Error, TEXT("Failed to query achievements."))
+								}
+							})
+						);
+				}
+			}
+		}
 	}
 }
 

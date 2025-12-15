@@ -8,6 +8,8 @@
 
 #include "AYRGameInstance.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogAYRGameInstance, Log, All);
+
 /**
  * 
  */

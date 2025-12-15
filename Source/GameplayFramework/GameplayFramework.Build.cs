@@ -18,7 +18,8 @@ public class GameplayFramework : ModuleRules
 				"Slate",
 				"SlateCore",
 				"GameplayTags",
-				"DeveloperSettings"
+				"DeveloperSettings",
+				"OnlineSubsystem"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
