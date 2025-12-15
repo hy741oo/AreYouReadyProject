@@ -27,6 +27,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Audio", Config)
 	float SFXVolume = 1.f;
 
+	// 语言。
+	UPROPERTY(BlueprintReadWrite, Category = "CurrentGameCulture", Config)
+	FString CurrentGameCulture;
+
 public:
 	// 初始化。
 	void Initialize(FSubsystemCollectionBase& InCollection);
