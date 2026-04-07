@@ -26,6 +26,6 @@ void AMainLevelPlayerController::BeginPlay()
 			this->EnableInput(this);
 		}
 		);
-	WorldManager->StartFadeWithEvent(Delegate, true, .6f, true);
+	WorldManager->StartFadeWithEvent(Delegate, true, .6f);
 }
 

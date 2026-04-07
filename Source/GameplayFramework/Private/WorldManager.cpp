@@ -14,7 +14,25 @@ void UWorldManager::Initialize(FSubsystemCollectionBase& Collection)
 	
 }
 
-void UWorldManager::StartFade(const bool InbFadeIn,const float InDurationTime, const bool InbEnableFadeAudio)
+void UWorldManager::StartFade(const bool InbFadeIn,const float InDurationTime)
+{
+	this->StartScreenFade(InbFadeIn, InDurationTime);
+	this->StartAudioFade(InbFadeIn, InDurationTime);
+}
+
+void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime)
+{
+	this->StartScreenFadeWithEvent(InOnFadeEndBP, InbFadeIn, InDurationTime);
+	this->StartAudioFade(InbFadeIn, InDurationTime);
+}
+
+void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime)
+{
+	this->StartScreenFadeWithEvent(InOnFadeEnd, InbFadeIn, InDurationTime);
+	this->StartScreenFade(InbFadeIn, InDurationTime);
+}
+
+void UWorldManager::StartScreenFade(const bool InbFadeIn,const float InDurationTime)
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -29,21 +47,16 @@ void UWorldManager::StartFade(const bool InbFadeIn,const float InDurationTime, c
 			Viewport->StartFade(InbFadeIn, InDurationTime);
 		}
 	}
-
-	if (InbEnableFadeAudio)
-	{
-		this->StartFadeAudio(InbFadeIn, InDurationTime);
-	}
 }
 
-void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime, const bool InbEnableFadeAudio)
+void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime)
 {
 	FOnFadeEndDelegate Delegate;
 	Delegate.BindUFunction(InOnFadeEndBP.GetUObject(), InOnFadeEndBP.GetFunctionName());
-	this->StartFadeWithEvent(Delegate, InbFadeIn, InDurationTime, InbEnableFadeAudio);
+	this->StartFadeWithEvent(Delegate, InbFadeIn, InDurationTime);
 }
 
-void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime, const bool InbEnableFadeAudio)
+void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime)
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -57,11 +70,6 @@ void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const boo
 			}
 			Viewport->StartFadeWithEvent(InOnFadeEnd, InbFadeIn, InDurationTime);
 		}
-	}
-
-	if (InbEnableFadeAudio)
-	{
-		this->StartFadeAudio(InbFadeIn, InDurationTime);
 	}
 }
 
@@ -78,7 +86,7 @@ void UWorldManager::StopFade()
 
 	if (this->bEnableFadeAudio)
 	{
-		this->StopFadeAudio();
+		this->StopAudioFade();
 	}
 }
 
@@ -95,7 +103,7 @@ void UWorldManager::AbortFade()
 
 	if (this->bEnableFadeAudio)
 	{
-		this->StopFadeAudio();
+		this->StopAudioFade();
 	}
 }
 
@@ -117,7 +125,7 @@ void UWorldManager::OpenNewLevel(const FName InNewLevelID) const
 	UE_LOG(LogWorldManager, Warning, TEXT("InNewLevelID is invalid!: \"%s\""), *InNewLevelID.ToString());
 }
 
-void UWorldManager::StartFadeAudio(const bool InbFadeIn, const float InDurationTime)
+void UWorldManager::StartAudioFade(const bool InbFadeIn, const float InDurationTime)
 {
 	this->bEnableFadeAudio = true;
 	this->ElapsedFadeTime = .0f;
@@ -143,12 +151,12 @@ void UWorldManager::Tick(float InDeltaTime)
 		}
 		else
 		{
-			this->StopFadeAudio();
+			this->StopAudioFade();
 		}
 	}
 }
 
-void UWorldManager::StopFadeAudio()
+void UWorldManager::StopAudioFade()
 {
 	// 停止渐变音频时需要将总音频音量调为原来的值。
 	if (UWorld* World = this->GetWorld())

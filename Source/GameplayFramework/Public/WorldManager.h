@@ -41,17 +41,29 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/*
-	 *  全局渐变。
+	 * 全局渐变。包括屏幕和音频的渐变。
+	 */
+	// 执行渐变。屏幕渐变和音频渐变同时执行。
+	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
+	void StartFade(const bool bFadeIn = false,const float DurationTime = .3f);
+	// 蓝图委托版本。
+	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
+	void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = .3f);
+	// 普通委托版本。供C++代码使用。
+	void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = .3f);
+
+	/*
+	 *  全局屏幕渐变。
 	 */
 
-	// 执行黑屏渐入渐出。
+	// 执行屏幕渐入渐出。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartFade(const bool bFadeIn = false,const float DurationTime = .3f, const bool bEnableFadeAudio = false);
+	void StartScreenFade(const bool bFadeIn = false,const float DurationTime = .3f);
 	// 带蓝图委托版本。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = .3f, const bool bEnableFadeAudio = false);
+	void StartScreenFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = .3f);
 	// 普通委托版本。供C++代码使用。
-	void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = .3f, const bool bEnableFadeAudio = false);
+	void StartScreenFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = .3f);
 
 	// 终止渐入渐出。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
@@ -75,9 +87,9 @@ public:
 
 	// 启用音频渐变。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade|Audio")
-	void StartFadeAudio(const bool bFadeIn = false, const float DurationTime = .3f);
+	void StartAudioFade(const bool bFadeIn = false, const float DurationTime = .3f);
 
 	// 停止音频渐变。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade|Audio")
-	void StopFadeAudio();
+	void StopAudioFade();
 };
