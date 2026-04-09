@@ -6,6 +6,7 @@
 #include "GameConfigSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "AudioDevice.h"
+#include "GameConfigSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogWorldManager)
 
@@ -14,61 +15,73 @@ void UWorldManager::Initialize(FSubsystemCollectionBase& Collection)
 	
 }
 
-void UWorldManager::StartFade(const bool InbFadeIn,const float InDurationTime)
+void UWorldManager::StartFade(const FName InCurveNameID)
 {
-	this->StartScreenFade(InbFadeIn, InDurationTime);
-	this->StartAudioFade(InbFadeIn, InDurationTime);
+	this->StartScreenFade(InCurveNameID);
+	this->StartAudioFade(InCurveNameID);
 }
 
-void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime)
+void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP,  const FName InCurveNameID)
 {
-	this->StartScreenFadeWithEvent(InOnFadeEndBP, InbFadeIn, InDurationTime);
-	this->StartAudioFade(InbFadeIn, InDurationTime);
+	this->StartScreenFadeWithEvent(InOnFadeEndBP, InCurveNameID);
+	this->StartAudioFade(InCurveNameID);
 }
 
-void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime)
+void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd,  const FName InCurveNameID)
 {
-	this->StartScreenFadeWithEvent(InOnFadeEnd, InbFadeIn, InDurationTime);
-	this->StartScreenFade(InbFadeIn, InDurationTime);
+	this->StartScreenFadeWithEvent(InOnFadeEnd, InCurveNameID);
+	this->StartAudioFade(InCurveNameID);
 }
 
-void UWorldManager::StartScreenFade(const bool InbFadeIn,const float InDurationTime)
+void UWorldManager::StartScreenFade(const FName InCurveNameID)
 {
-	UWorld* World = GetWorld();
-	if (World)
+	// 通过曲线获取渐变过程。
+	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+	const UCurveFloat* CurveFloat = nullptr;
+	if (Config->GetCurveFloatFromID(InCurveNameID, CurveFloat))
 	{
-		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+		UWorld* World = GetWorld();
+		if (World)
 		{
-			// 如果正处于Fade状态，则先中断之前的Fade。
-			if (Viewport->IsFading())
+			if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
 			{
-				Viewport->AbortFade();
+				// 如果正处于Fade状态，则先中断之前的Fade。
+				if (Viewport->IsFading())
+				{
+					Viewport->AbortFade();
+				}
+				Viewport->StartFade(CurveFloat->FloatCurve);
 			}
-			Viewport->StartFade(InbFadeIn, InDurationTime);
 		}
 	}
 }
 
-void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP, const bool InbFadeIn, const float InDurationTime)
+void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP,  const FName InCurveNameID)
 {
 	FOnFadeEndDelegate Delegate;
 	Delegate.BindUFunction(InOnFadeEndBP.GetUObject(), InOnFadeEndBP.GetFunctionName());
-	this->StartFadeWithEvent(Delegate, InbFadeIn, InDurationTime);
+	this->StartFadeWithEvent(Delegate, InCurveNameID);
 }
 
-void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const bool InbFadeIn, const float InDurationTime)
+void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd,  const FName InCurveNameID)
 {
-	UWorld* World = GetWorld();
-	if (World)
+	// 通过曲线获取渐变过程。
+	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+	const UCurveFloat* CurveFloat = nullptr;
+	if (Config->GetCurveFloatFromID(InCurveNameID, CurveFloat))
 	{
-		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+		UWorld* World = GetWorld();
+		if (World)
 		{
-			// 如果正处于Fade状态，则先中断之前的Fade。
-			if (Viewport->IsFading())
+			if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
 			{
-				Viewport->AbortFade();
+				// 如果正处于Fade状态，则先中断之前的Fade。
+				if (Viewport->IsFading())
+				{
+					Viewport->AbortFade();
+				}
+				Viewport->StartFadeWithEvent(InOnFadeEnd, CurveFloat->FloatCurve);
 			}
-			Viewport->StartFadeWithEvent(InOnFadeEnd, InbFadeIn, InDurationTime);
 		}
 	}
 }
@@ -125,12 +138,18 @@ void UWorldManager::OpenNewLevel(const FName InNewLevelID) const
 	UE_LOG(LogWorldManager, Warning, TEXT("InNewLevelID is invalid!: \"%s\""), *InNewLevelID.ToString());
 }
 
-void UWorldManager::StartAudioFade(const bool InbFadeIn, const float InDurationTime)
+void UWorldManager::StartAudioFade( const FName InCurveNameID)
 {
-	this->bEnableFadeAudio = true;
-	this->ElapsedFadeTime = .0f;
-	this->bIsFadeIn = InbFadeIn;
-	this->TargetFadeTime = InDurationTime;
+	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
+	const UCurveFloat* CurveFloat = nullptr;
+	if (Config->GetCurveFloatFromID(InCurveNameID, CurveFloat))
+	{
+		FRichCurveKey CurveKey = CurveFloat->FloatCurve.GetLastKey();
+
+		this->bEnableFadeAudio = true;
+		this->ElapsedFadeTime = .0f;
+		this->Curve = CurveFloat->FloatCurve;
+	}
 }
 
 void UWorldManager::Tick(float InDeltaTime)
@@ -138,14 +157,14 @@ void UWorldManager::Tick(float InDeltaTime)
 	if (this->bEnableFadeAudio)
 	{
 		this->ElapsedFadeTime += InDeltaTime;
-		if (this->ElapsedFadeTime < this->TargetFadeTime)
+		if (this->ElapsedFadeTime < this->Curve.GetLastKey().Time)
 		{
-			float CurrentFadeTime = this->ElapsedFadeTime / this->TargetFadeTime;
+			float CurrentFadeTime = this->Curve.Eval(this->ElapsedFadeTime);
 			if (UWorld* World = this->GetWorld())
 			{
 				if (FAudioDevice* AudioDevice = World->GetAudioDeviceRaw())
 				{
-					AudioDevice->SetTransientMasterVolume(this->bIsFadeIn ? CurrentFadeTime : 1.f - CurrentFadeTime);
+					AudioDevice->SetTransientMasterVolume(this->Curve.Eval(this->ElapsedFadeTime));
 				}
 			}
 		}
@@ -168,7 +187,7 @@ void UWorldManager::StopAudioFade()
 	}
 	this->bEnableFadeAudio = false;
 	this->ElapsedFadeTime = .0f;
-	this->TargetFadeTime = .0f;
+	this->Curve = FRichCurve();
 }
 
 

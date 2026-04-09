@@ -26,14 +26,11 @@ private:
 	// 经过的时间。
 	float ElapsedFadeTime = .0f;
 
-	// 目标时间。
-	float TargetFadeTime = .0f;
+	// 渐变曲线。
+	FRichCurve Curve;
 
 	// 是否启用音频渐变。
 	bool bEnableFadeAudio = false;
-
-	// 是否为渐入？
-	bool bIsFadeIn = false;
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -45,12 +42,12 @@ public:
 	 */
 	// 执行渐变。屏幕渐变和音频渐变同时执行。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartFade(const bool bFadeIn = false,const float DurationTime = .3f);
+	void StartFade(const FName InCurveNameID = "DefaultFadeOut");
 	// 蓝图委托版本。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = .3f);
+	void StartFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const FName InCurveNameID = "DefaultFadeOut");
 	// 普通委托版本。供C++代码使用。
-	void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = .3f);
+	void StartFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const FName InCurveNameID = "DefaultFadeOut");
 
 	/*
 	 *  全局屏幕渐变。
@@ -58,12 +55,12 @@ public:
 
 	// 执行屏幕渐入渐出。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartScreenFade(const bool bFadeIn = false,const float DurationTime = .3f);
+	void StartScreenFade(const FName InCurveNameID = "DefaultFadeOut");
 	// 带蓝图委托版本。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
-	void StartScreenFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const bool bFadeIn = false, const float DurationTime = .3f);
+	void StartScreenFadeWithEvent(FOnFadeEndBPDelegate OnFadeEndBP, const FName InCurveNameID = "DefaultFadeOut");
 	// 普通委托版本。供C++代码使用。
-	void StartScreenFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const bool bFadeIn = false, const float DurationTime = .3f);
+	void StartScreenFadeWithEvent(FOnFadeEndDelegate OnFadeEnd, const FName InCurveNameID = "DefaultFadeOut");
 
 	// 终止渐入渐出。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade")
@@ -87,7 +84,7 @@ public:
 
 	// 启用音频渐变。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade|Audio")
-	void StartAudioFade(const bool bFadeIn = false, const float DurationTime = .3f);
+	void StartAudioFade(const FName InCurveNameID = "DefaultFadeOut");
 
 	// 停止音频渐变。
 	UFUNCTION(BlueprintCallable, Category = "World Manager|Fade|Audio")

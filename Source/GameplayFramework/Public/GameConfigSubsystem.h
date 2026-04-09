@@ -49,6 +49,15 @@ public:
 #endif
 };
 
+USTRUCT()
+struct FCurveInfoTableRow : public FAYRTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Curve Data")
+	UCurveBase* Curve = nullptr;
+};
+
 // 玩家控制器信息。
 USTRUCT(BlueprintType)
 struct FPlayerControllerInfoTableRow : public FAYRTableRowBase
@@ -283,6 +292,9 @@ public:
 
 	// 获取当前输入设备按键图标信息。
 	bool GetCurrentInputIconData(const FName& InRowName, const FInputIconDataTableRow*& OutInputIconDataTableRow, const FSlateBrush*& OutIconBrush) const;
+
+	// 获取浮点数曲线。
+	bool GetCurveFloatFromID(const FName& InRowName, const UCurveFloat*& OutCurve);
 };
 
 

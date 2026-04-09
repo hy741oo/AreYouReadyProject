@@ -121,4 +121,38 @@ bool UGameConfigSubsystem::GetInputIconData(const FName& InRowName, EInputDevice
 	return bTableRowIsFind && bIconIsFind;
 }
 
+bool UGameConfigSubsystem::GetCurveFloatFromID(const FName& InRowName, const UCurveFloat*& OutCurve)
+{
+	OutCurve = nullptr;
+
+	FCurveInfoTableRow* TableRow = nullptr;
+	if (this->GetDataTableRowFromID<FCurveInfoTableRow>(InRowName, TableRow))
+	{
+		if (TableRow->Curve)
+		{
+			if (UCurveFloat* Curve = Cast<UCurveFloat>(TableRow->Curve))
+			{
+				if (Curve->FloatCurve.GetNumKeys() > 0)
+				{
+					OutCurve = Curve;
+					return true;
+				}
+				else
+				{
+					UE_LOG(LogGameConfigSubsystem, Warning, TEXT("There is no any key in the UCurveFloat, row name:%s"), *InRowName.ToString());
+				}
+			}
+			else
+			{
+				UE_LOG(LogGameConfigSubsystem, Warning, TEXT("Curve type is not UCurveFloat, row name:%s"), *InRowName.ToString());
+			}
+		}
+		else
+		{
+			UE_LOG(LogGameConfigSubsystem, Warning, TEXT("There is no curve in table row, row name:%s"), *InRowName.ToString());
+		}
+	}
+
+	return false;
+}
 

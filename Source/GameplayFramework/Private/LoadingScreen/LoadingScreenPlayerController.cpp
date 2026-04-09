@@ -80,6 +80,6 @@ void ALoadingScreenPlayerController::OpenLoadedNewLevel()
 			UGameplayStatics::OpenLevel(this, *this->NewLevel.GetLongPackageName());
 		}
 	);
-	WorldManager->StartFadeWithEvent(OnFadeEnd);
+	WorldManager->StartFadeWithEvent(OnFadeEnd, "LoadingScreenFadeOut");
 }
 
