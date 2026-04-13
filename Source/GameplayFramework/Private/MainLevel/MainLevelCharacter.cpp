@@ -187,21 +187,34 @@ void AMainLevelCharacter::OnEnterJumpState()
 
 void AMainLevelCharacter::InitializeGeneralStateMachine()
 {
-	// 创建状态节点。
-	FGeneralStateMachineNode& IdleState = this->MovementStateMachineComponent->CreateStateMachineNode("Idle");
-	IdleState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterIdleState);
-	IdleState.OnTickState.BindLambda(
+	/*
+	创建状态机节点。
+	*/
+
+	FSimpleDelegate StateDelegate;
+
+	// 待机状态。
+	this->MovementStateMachineComponent->CreateStateMachineNode("Idle");
+	StateDelegate.BindUObject(this, &AMainLevelCharacter::OnEnterIdleState);
+	this->MovementStateMachineComponent->SetStateMachineNodeOnEnterStateDelegate("Idle", StateDelegate);
+	StateDelegate.Unbind();
+	FOnStateTickedDelegate IdleStateTickDelegate;
+	IdleStateTickDelegate.BindLambda(
 		[this](const float& InDeltaTime, const float& InTickingElapsedTime) {
 			this->StartCameraShake("IdleCameraShake");
 		}
 	);
-	IdleState.OnLeaveState.BindLambda(
+	StateDelegate.BindLambda(
 		[this]() {
 			this->StopCameraShake("IdleCameraShake");
 		}
 	);
-	FGeneralStateMachineNode& WalkState = this->MovementStateMachineComponent->CreateStateMachineNode("Walk");
-	WalkState.OnEnterState.BindLambda(
+	this->MovementStateMachineComponent->SetStateMachineNodeOnLeaveStateDelegate("Idle", StateDelegate);
+	StateDelegate.Unbind();
+
+	// 走路状态。
+	this->MovementStateMachineComponent->CreateStateMachineNode("Walk");
+	StateDelegate.BindLambda(
 		[this]()
 		{
 			if (this->MovementDataStateMachineComponent->IsSameState("HighSpeed"))
@@ -210,7 +223,9 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 			}
 		}
 	);
-	WalkState.OnUpdateState.BindLambda(
+	this->MovementStateMachineComponent->SetStateMachineNodeOnEnterStateDelegate("Walk", StateDelegate);
+	StateDelegate.Unbind();
+	StateDelegate.BindLambda(
 		[this]() {
 			if (this->MovementDataStateMachineComponent->IsSameState("HighSpeed"))
 			{
@@ -222,97 +237,94 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 			}
 		}
 	);
-	WalkState.OnLeaveState.BindLambda(
+	this->MovementStateMachineComponent->SetStateMachineNodeOnUpdateStateDelegate("Walk", StateDelegate);
+	StateDelegate.Unbind();
+	StateDelegate.BindLambda(
 		[this]() {
 			this->StopCameraShake("WalkingCameraShake");
 			this->StopCameraShake("RunningCameraShake");
 		}
 	);
-	FGeneralStateMachineNode& JumpState = this->MovementStateMachineComponent->CreateStateMachineNode("Jump");
-	JumpState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterJumpState);
-	FGeneralStateMachineNode& JumpLandedState = this->MovementStateMachineComponent->CreateStateMachineNode("JumpLanded");
-	JumpLandedState.OnEnterState.BindLambda(
+	this->MovementStateMachineComponent->SetStateMachineNodeOnLeaveStateDelegate("Walk", StateDelegate);
+	StateDelegate.Unbind();
+
+	// 跳跃状态。
+	this->MovementStateMachineComponent->CreateStateMachineNode("Jump");
+	StateDelegate.BindUObject(this, &AMainLevelCharacter::OnEnterJumpState);
+	this->MovementStateMachineComponent->SetStateMachineNodeOnEnterStateDelegate("Jump", StateDelegate);
+	StateDelegate.Unbind();
+
+	// 跳跃落地状态。
+	this->MovementStateMachineComponent->CreateStateMachineNode("JumpLanded");
+	StateDelegate.BindLambda(
 		[this]() {
 			this->MovementStateMachineComponent->ChangeStateTo("Idle");
 			this->MovementDataStateMachineComponent->ChangeStateTo("NormalSpeed");
 		}
 	);
+	this->MovementStateMachineComponent->SetStateMachineNodeOnEnterStateDelegate("JumpLanded", StateDelegate);
+	StateDelegate.Unbind();
 
 	// Idle状态可以切换到Idle、Walk和Jump状态且不需要任何判断。
-	FGeneralStateMachineCondition IdleToIdle;
-	IdleToIdle.NextStateName = "Idle";
-	IdleState.NextStates.Add("Idle", IdleToIdle);
-	FGeneralStateMachineCondition IdleToWalk;
-	IdleToWalk.NextStateName = "Walk";
-	IdleState.NextStates.Add("Walk", IdleToWalk);
-	FGeneralStateMachineCondition IdleToJump;
-	IdleToJump.NextStateName = "Jump";
-	IdleState.NextStates.Add("Jump", IdleToJump);
-
+	this->MovementStateMachineComponent->SetStateMachineCondition("Idle", "Idle");
+	this->MovementStateMachineComponent->SetStateMachineCondition("Idle", "Walk");
+	this->MovementStateMachineComponent->SetStateMachineCondition("Idle", "Jump");
 	// Walk状态可以切换到Walk、Idle和Jump状态。
-	FGeneralStateMachineCondition WalkToWalk;
-	WalkToWalk.NextStateName = "Walk";
-	WalkState.NextStates.Add("Walk", WalkToWalk);
-	FGeneralStateMachineCondition WalkToIdle;
-	WalkToIdle.NextStateName = "Idle";
-	WalkToIdle.Condition.BindLambda(
-		[this]() {
-			return !this->MovementStateMachineComponent->IsSameState("Jump");
-		}
-	);
-	WalkState.NextStates.Add("Idle", WalkToIdle);
-	FGeneralStateMachineCondition WalkToJump;
-	WalkToJump.NextStateName = "Jump";
-	WalkState.NextStates.Add("Jump", WalkToJump);
+	this->MovementStateMachineComponent->SetStateMachineCondition("Walk", "Walk");
+	{
+		FGeneralStateMachineConditionCheckDelegate Condition;
+		Condition.BindLambda(
+			[this]() {
+				return !this->MovementStateMachineComponent->IsSameState("Jump");
+			}
+		);
+		this->MovementStateMachineComponent->SetStateMachineCondition("Walk", "Idle", Condition);
+	}
+	this->MovementStateMachineComponent->SetStateMachineCondition("Walk", "Jump");
 
 	// Jump状态唯一可以切换的状态是JumpLanded，即落地的一瞬间。
-	FGeneralStateMachineCondition JumpToJumpLanded;
-	JumpToJumpLanded.NextStateName = "JumpLanded";
-	JumpState.NextStates.Add("JumpLanded", JumpToJumpLanded);
+	this->MovementStateMachineComponent->SetStateMachineCondition("Jump", "JumpLanded");
 
 	// JumpLanded可以转换到Idle和Walk状态。
-	FGeneralStateMachineCondition JumpLandedToIdle;
-	JumpLandedToIdle.NextStateName = "Idle";
-	JumpLandedState.NextStates.Add("Idle", JumpLandedToIdle);
-	FGeneralStateMachineCondition JumpLandedToWalk;
-	JumpLandedToWalk.NextStateName = "Walk";
-	JumpLandedState.NextStates.Add("Walk", JumpLandedToWalk);
+	this->MovementStateMachineComponent->SetStateMachineCondition("JumpLanded", "Idle");
+	this->MovementStateMachineComponent->SetStateMachineCondition("JumpLanded", "Walk");
 
 	// 初始化状态机，选择一个状态机节点作为最初始的状态。
 	this->MovementStateMachineComponent->InitGeneralStateMachine("Idle");
 
 	// 创建移动数据状态节点并绑定。
-	FGeneralStateMachineNode& NormalSpeedState = this->MovementDataStateMachineComponent->CreateStateMachineNode("NormalSpeed");
-	NormalSpeedState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterNormalSpeedState);
-	FGeneralStateMachineNode& HighSpeedState = this->MovementDataStateMachineComponent->CreateStateMachineNode("HighSpeed");
-	HighSpeedState.OnEnterState.BindUObject(this, &AMainLevelCharacter::OnEnterHighSpeedState);
+	this->MovementDataStateMachineComponent->CreateStateMachineNode("NormalSpeed");
+	StateDelegate.BindUObject(this, &AMainLevelCharacter::OnEnterNormalSpeedState);
+	this->MovementDataStateMachineComponent->SetStateMachineNodeOnEnterStateDelegate("NormalSpeed", StateDelegate);
+	StateDelegate.Unbind();
+	this->MovementDataStateMachineComponent->CreateStateMachineNode("HighSpeed");
+	StateDelegate.BindUObject(this, &AMainLevelCharacter::OnEnterHighSpeedState);
+	this->MovementDataStateMachineComponent->SetStateMachineNodeOnEnterStateDelegate("HighSpeed", StateDelegate);
+	StateDelegate.Unbind();
 
-	FGeneralStateMachineCondition NormalSpeedToHighSpeed;
-	NormalSpeedToHighSpeed.NextStateName = "HighSpeed";
-	NormalSpeedToHighSpeed.Condition.BindWeakLambda(this, 
+	FGeneralStateMachineConditionCheckDelegate NormalSpeedToHighSpeed;
+	NormalSpeedToHighSpeed.BindWeakLambda(this, 
 		[this]() {
 			return this->MovementStateMachineComponent->IsSameState("Walk");
 		}
 		);
-	NormalSpeedState.NextStates.Add("HighSpeed", NormalSpeedToHighSpeed);
+	this->MovementDataStateMachineComponent->SetStateMachineCondition("NormalSpeed", "HighSpeed", NormalSpeedToHighSpeed);
 
-	FGeneralStateMachineCondition HighSpeedToNormalSpeed;
-	HighSpeedToNormalSpeed.NextStateName = "NormalSpeed";
-	HighSpeedToNormalSpeed.Condition.BindLambda(
+	FGeneralStateMachineConditionCheckDelegate HighSpeedToNormalSpeed;
+	HighSpeedToNormalSpeed.BindLambda(
 		[this]() {
 			return !this->MovementStateMachineComponent->IsSameState("Jump");
 		}
 	);
-	HighSpeedState.NextStates.Add("NormalSpeed", HighSpeedToNormalSpeed);
+	this->MovementDataStateMachineComponent->SetStateMachineCondition("HighSpeed", "NormalSpeed", HighSpeedToNormalSpeed);
 
-	FGeneralStateMachineCondition HighSpeedToHighSpeed;
-	HighSpeedToHighSpeed.NextStateName = "HighSpeed";
-	HighSpeedToHighSpeed.Condition.BindLambda(
+	FGeneralStateMachineConditionCheckDelegate HighSpeedToHighSpeed;
+	HighSpeedToHighSpeed.BindLambda(
 		[this]() {
 			return this->MovementStateMachineComponent->IsSameState("Walk");
 		}
 	);
-	HighSpeedState.NextStates.Add("HighSpeed", HighSpeedToHighSpeed);
+	this->MovementDataStateMachineComponent->SetStateMachineCondition("HighSpeed", "HighSpeed", HighSpeedToHighSpeed);
 
 	this->MovementDataStateMachineComponent->InitGeneralStateMachine("NormalSpeed");
 }

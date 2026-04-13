@@ -4,66 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GeneralStateMachine.h"
 #include "GeneralStateMachineComponent.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogGeneralStateMachineComponent, Log, All);
-
-DECLARE_DELEGATE_RetVal(bool, FGeneralStateMachineConditionCheck);
-
-DECLARE_DELEGATE_TwoParams(FOnStateTicked, const float& /* InDeltaTime */, const float& /* InTickingElapsedTime*/);
 
 DECLARE_DYNAMIC_DELEGATE(FSimpleDynamicDelegate);
-DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnStateTickedBP, const float, InDeltaTime, const float, InTickingElapsedTime);
-DECLARE_DYNAMIC_DELEGATE_RetVal(bool, FGeneralStateMachineConditionCheckBP);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnStateTickedDynamicDelegate, const float, InDeltaTime, const float, InTickingElapsedTime);
+DECLARE_DYNAMIC_DELEGATE_RetVal(bool, FGeneralStateMachineConditionCheckDynamicDelegate);
 
-struct FGeneralStateMachineNode;
-
-/**
- * 状态机条件节点。即现态转换到次态所需的条件（Condition）。
- */
-struct FGeneralStateMachineCondition
-{
-	// 记录着可以转换的次态。
-	FName NextStateName;
-
-	// 转换次态时需要判断的条件，条件满足即可转换状态，不满足的话状态机不会做任何变动。如果用户没有绑定对应的事件，则认为该此转换无条件通过。
-	FGeneralStateMachineConditionCheck Condition;
-
-	// 条件判断成功之后执行的动作，可为空。
-	FSimpleDelegate Action;
-};
 
 /**
- * 状态机节点。每一个节点代表了一种状态（例如行走、跳跃、射击等）。
- * 节点包含了现态可以转换的次态。
- */
-struct FGeneralStateMachineNode
-{
-	// 可以转换的次态。
-	TMap<FName, FGeneralStateMachineCondition> NextStates;
-
-	// 进入到该状态时执行的逻辑。
-	FSimpleDelegate OnEnterState;
-
-	// 离开该状态时执行的逻辑。
-	FSimpleDelegate OnLeaveState;
-
-	// 如果状态转换是在自发生时（即“奔跑状态”切换到“奔跑状态”），不执行OnEnterState逻辑，而是执行更新逻辑。
-	FSimpleDelegate OnUpdateState;
-
-	// 状态的Tick，只要进入过该状态，哪怕不是自发生状态也依然会每帧调用。
-	FOnStateTicked OnTickState;
-
-	// 节点名称。
-	FName NodeName;
-
-	FGeneralStateMachineNode() = default;
-
-	FGeneralStateMachineNode& operator=(const FGeneralStateMachineNode&) = delete;
-};
-
-/**
- * 状态机组件。用于实现一个通用状态机。 
+ * 状态机组件。封装了状态机的Actor组件。 
  */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAMEPLAYFRAMEWORK_API UGeneralStateMachineComponent : public UActorComponent
@@ -71,58 +22,10 @@ class GAMEPLAYFRAMEWORK_API UGeneralStateMachineComponent : public UActorCompone
 	GENERATED_BODY()
 
 private:
-	// 当前状态。即“现态”。
-	FName CurrentState;
-
-	// 已经生成的全部状态映射。
-	TMap<FName, FGeneralStateMachineNode> CreatedStates;
-
-	// 用于记录当前状态已经持续了多长时间。
-	float TickingElapsedTime = .0f;
-
-protected:
-	/**
-	 * 蓝图接口。由于蓝图不能使用结构体的函数，因此需要把CPP接口封装一套供蓝图使用，后续需要统一一下用法，因为蓝图上也会经常使用到通用状态机。
-	 */
-
-	// 创建状态机节点。
-	UFUNCTION(BlueprintCallable, Category = "General State Machine")
-	void CreateStateMachineNodeBP(const FName InNodeName);
-
-	// 绑定进入状态节点时的委托。
-	UFUNCTION(BlueprintCallable, Category = "General State Machine")
-	void SetStateMachineNodeOnEnterStateDelegate(const FName InNodeName, FSimpleDynamicDelegate InOnEnterStateDelegate);
-	// 绑定离开状态节点时的委托。
-	UFUNCTION(BlueprintCallable, Category = "General State Machine")
-	void SetStateMachineNodeOnLeaveStateDelegate(const FName InNodeName, FSimpleDynamicDelegate InOnLeaveStateDelegate);
-	// 绑定自更新状态节点时的委托。
-	UFUNCTION(BlueprintCallable, Category = "General State Machine")
-	void SetStateMachineNodeOnUpdateStateDelegate(const FName InNodeName, FSimpleDynamicDelegate InOnUpdateStateDelegate);
-	// 绑定Tick更新状态节点时的委托。
-	UFUNCTION(BlueprintCallable, Category = "General State Machine")
-	void SetStateMachineNodeOnTickStateDelegate(const FName InNodeName, FOnStateTickedBP InOnTickStateDelegate);
-
-	// 添加状态机条件节点，由于蓝图不能省略函数，因此这里分成三种类型的接口。
-	UFUNCTION(BlueprintCallable, Category = "General State Machine")
-	void SetStateMachineConditionWithCheckAndAction(const FName InCurrentStateName, const FName InNextStateName, FGeneralStateMachineConditionCheckBP InConditionCheck, FSimpleDynamicDelegate InAction);
-	UFUNCTION(BlueprintCallable, Category = "General State Machine")
-	void SetStateMachineConditionWithCheck(const FName InCurrentStateName, const FName InNextStateName, FGeneralStateMachineConditionCheckBP InConditionCheck);
-	UFUNCTION(BlueprintCallable, Category = "General State Machine")
-	void SetStateMachineConditionWithAction(const FName InCurrentStateName, const FName InNextStateName, FSimpleDynamicDelegate InAction);
-	UFUNCTION(BlueprintCallable, Category = "General State Machine")
-	void SetStateMachineCondition(const FName InCurrentStateName, const FName InNextStateName);
+	// 通用状态机。
+	OSGeneralStateMachine StateMachine;
 
 public:	
-	// Sets default values for this component's properties
-	UGeneralStateMachineComponent(const FObjectInitializer& InObjectInitializer = FObjectInitializer::Get());
-
-public:	
-	// Called every frame
-	virtual void TickComponent(float InDeltaTime, ELevelTick InTickType, FActorComponentTickFunction* InThisTickFunction) override;
-
-	// 创建状态机节点。
-	FGeneralStateMachineNode& CreateStateMachineNode(const FName InNodeName);
-
 	// 初始化状态机，状态机在启用之前必须指定一个状态用于“最初的状态”。
 	UFUNCTION(BlueprintCallable, Category = "General State Machine")
 	void InitGeneralStateMachine(const FName InInitState);
@@ -138,4 +41,53 @@ public:
 	// 检测是否可以切换状态。
 	UFUNCTION(BlueprintCallable, Category = "General State Machine")
 	bool CanChangeToState(const FName InNewState) const;
+
+	/**
+	 * 蓝图接口。由于蓝图不能使用结构体的函数，因此需要把CPP接口封装一套供蓝图使用。
+	 */
+
+	// 创建状态机节点。
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void CreateStateMachineNode(const FName InNodeName);
+
+protected:
+	// 绑定进入状态节点时的委托。
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void SetStateMachineNodeOnEnterStateDelegate(const FName InNodeName, FSimpleDynamicDelegate InOnEnterStateDelegate);
+	// 绑定离开状态节点时的委托。
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void SetStateMachineNodeOnLeaveStateDelegate(const FName InNodeName, FSimpleDynamicDelegate InOnLeaveStateDelegate);
+	// 绑定自更新状态节点时的委托。
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void SetStateMachineNodeOnUpdateStateDelegate(const FName InNodeName, FSimpleDynamicDelegate InOnUpdateStateDelegate);
+	// 绑定Tick更新状态节点时的委托。
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void SetStateMachineNodeOnTickStateDelegate(const FName InNodeName, FOnStateTickedDynamicDelegate InOnTickStateDelegate);
+
+	// 添加状态机条件节点，由于蓝图不能省略函数，因此这里分成多种类型的接口。
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void SetStateMachineConditionWithCheckAndPassOrNoPassAction(const FName InCurrentStateName, const FName InNextStateName, FGeneralStateMachineConditionCheckDynamicDelegate InConditionCheck, FSimpleDynamicDelegate InPassAction, FSimpleDynamicDelegate InNoPassAction);
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void SetStateMachineConditionWithCheckAndAction(const FName InCurrentStateName, const FName InNextStateName, FGeneralStateMachineConditionCheckDynamicDelegate InConditionCheck, FSimpleDynamicDelegate InAction);
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void SetStateMachineConditionWithCheck(const FName InCurrentStateName, const FName InNextStateName, FGeneralStateMachineConditionCheckDynamicDelegate InConditionCheck);
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void SetStateMachineConditionWithAction(const FName InCurrentStateName, const FName InNextStateName, FSimpleDynamicDelegate InAction);
+	UFUNCTION(BlueprintCallable, Category = "General State Machine", Meta = (DisplayName = "Set State Machine Condition"))
+	void SetStateMachineConditionDynamic(const FName InCurrentStateName, const FName InNextStateName);
+
+public:
+	/*
+	C++代码可访问的接口。作用是让用户在C++代码里直接访问该版本可提高一些性能。（应该把……）。
+	*/
+	void SetStateMachineCondition(const FName InCurrentStateName, const FName InNextStateName, FGeneralStateMachineConditionCheckDelegate InConditionCheck = FGeneralStateMachineConditionCheckDelegate(), FSimpleDelegate InPassAction = FSimpleDelegate(), FSimpleDelegate InNoPassAction = FSimpleDelegate());
+
+	// 绑定进入状态节点时的委托。
+	void SetStateMachineNodeOnEnterStateDelegate(const FName InNodeName, FSimpleDelegate InOnEnterStateDelegate);
+	// 绑定离开状态节点时的委托。
+	void SetStateMachineNodeOnLeaveStateDelegate(const FName InNodeName, FSimpleDelegate InOnLeaveStateDelegate);
+	// 绑定自更新状态节点时的委托。
+	void SetStateMachineNodeOnUpdateStateDelegate(const FName InNodeName, FSimpleDelegate InOnUpdateStateDelegate);
+	// 绑定Tick更新状态节点时的委托。
+	void SetStateMachineNodeOnTickStateDelegate(const FName InNodeName, FOnStateTickedDelegate InOnTickStateDelegate);
 };
