@@ -59,7 +59,7 @@ void OSGeneralStateMachine::InitGeneralStateMachine(const FName& InInitState)
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachine, Warning, TEXT("Init general state machine failed, InitState:is no valid."), *InInitState.ToString());
+		UE_LOG(LogGeneralStateMachine, Warning, TEXT("Init general state machine failed, InitState:\"%s\" is no valid."), *InInitState.ToString());
 	}
 }
 
@@ -133,7 +133,7 @@ bool OSGeneralStateMachine::CanChangeToState(const FName& InNewState) const
 				}
 				else
 				{
-					UE_LOG(LogGeneralStateMachine, Verbose, TEXT("Changing failed, the condition of state to did not pass."), *this->CurrentState.ToString(), *InNewState.ToString());
+					UE_LOG(LogGeneralStateMachine, Verbose, TEXT("Changing failed, the condition of state \"%s\" to \"%s\" did not pass."), *this->CurrentState.ToString(), *InNewState.ToString());
 				}
 			}
 			else
@@ -144,7 +144,7 @@ bool OSGeneralStateMachine::CanChangeToState(const FName& InNewState) const
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachine, Verbose, TEXT("Changing state failed, new state:has not exist."), *InNewState.ToString());
+		UE_LOG(LogGeneralStateMachine, Verbose, TEXT("Changing state failed, new state:\"%s\" does not exist."), *InNewState.ToString());
 	}
 
 	return bSuccessful;
@@ -221,7 +221,7 @@ void OSGeneralStateMachine::SetStateMachineCondition(const FName& InCurrentState
 	}
 	else
 	{
-		UE_LOG(LogGeneralStateMachine, Warning, TEXT("InCurrentStateName is invalid on set condition, abort setting."), *InCurrentStateName.ToString());
+		UE_LOG(LogGeneralStateMachine, Warning, TEXT("InCurrentStateName:\"%s\" is invalid on set condition, abort setting."), *InCurrentStateName.ToString());
 	}
 }
 
