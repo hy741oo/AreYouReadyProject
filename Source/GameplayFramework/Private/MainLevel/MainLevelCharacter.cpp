@@ -204,6 +204,7 @@ void AMainLevelCharacter::InitializeGeneralStateMachine()
 			this->StartCameraShake("IdleCameraShake");
 		}
 	);
+	this->MovementStateMachineComponent->SetStateMachineNodeOnTickStateDelegate("Idle", IdleStateTickDelegate);
 	StateDelegate.BindLambda(
 		[this]() {
 			this->StopCameraShake("IdleCameraShake");
