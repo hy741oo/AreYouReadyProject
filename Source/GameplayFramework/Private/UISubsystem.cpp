@@ -3,12 +3,16 @@
 
 #include "UISubsystem.h"
 
-#include "Blueprint/UserWidget.h"
 #include "UI/AYRUserWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Widgets/SViewport.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
+#include "Components/Button.h"
+#include "GameFramework/GameModeBase.h"
 
 DEFINE_LOG_CATEGORY(LogUISubsystem);
 
@@ -18,7 +22,6 @@ void UUISubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	{
 		FCoreUObjectDelegates::PreLoadMap.Remove(this->CleanDelegateHandle);
 	}
-
 	this->CleanDelegateHandle = FCoreUObjectDelegates::PreLoadMap.AddWeakLambda(this,
 		[this](const FString& InMapPath)
 		{
@@ -26,12 +29,31 @@ void UUISubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 			this->ClearUIStack();
 		}
 	);
+
+	if (this->OnPlayerControllerInitializedDelegateHandle.IsValid())
+	{
+		FGameModeEvents::GameModePostLoginEvent.Remove(this->OnPlayerControllerInitializedDelegateHandle);
+	}
+	FGameModeEvents::GameModePostLoginEvent.AddUObject(this, &UUISubsystem::OnPlayerControllerInitialized);
+}
+
+void UUISubsystem::OnPlayerControllerInitialized(AGameModeBase* InGameMode, APlayerController* InNewPlayerController)
+{
+	// 根据现有的UI层级来生成每一层的根UI。
+	for (const EUILayer::Type& Layer : TEnumRange<EUILayer::Type>())
+	{
+		ULayerWidget* Widget = CreateWidget<ULayerWidget>(this->GetLocalPlayer()->GetPlayerController(this->GetWorld()));
+		Widget->AddToPlayerScreen();
+		this->UILayers.Add(Layer, Widget);
+	}
 }
 
 void UUISubsystem::Deinitialize()
 {
 	FCoreUObjectDelegates::PreLoadMap.Remove(this->CleanDelegateHandle);
 	this->CleanDelegateHandle.Reset();
+	FGameModeEvents::GameModePostLoginEvent.Remove(this->OnPlayerControllerInitializedDelegateHandle);
+	this->OnPlayerControllerInitializedDelegateHandle.Reset();
 }
 
 UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
@@ -49,7 +71,8 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 		if (ensureAlways(CreatedWidget))
 		{
 			FUIStackInfo UIStackInfo;
-			CreatedWidget->AddToPlayerScreen(UIInfoTableRow->UIStateInfo.ZOrder);
+			ULayerWidget* Layer = this->UILayers.FindRef(UIInfoTableRow->Layer);
+			Layer->AddUserWidget(CreatedWidget, UIInfoTableRow->ZOrder);
 			UIStackInfo.UserWidget = CreatedWidget;
 			UIStackInfo.UIStateInfo = UIInfoTableRow->UIStateInfo;
 
@@ -197,5 +220,24 @@ void FAYRInputModeData::ApplyInputMode(FReply& SlateOperations, UGameViewportCli
 		GameViewportClient.SetMouseCaptureMode(this->UIStateInfo.MouseCaptureMode);
 		GameViewportClient.SetHideCursorDuringCapture(this->UIStateInfo.bHideCursorDuringCapture);
 	}
+}
+
+void ULayerWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	// 构建根控件。
+	this->RootCanvasPanel = this->WidgetTree->ConstructWidget<UCanvasPanel>();
+	this->WidgetTree->RootWidget = this->RootCanvasPanel;
+	verify(this->RootCanvasPanel);
+}
+
+void ULayerWidget::AddUserWidget(UUserWidget* InWidget,int32 InZOrder)
+{
+	// 添加子控件并设置ZOrder。
+	UCanvasPanelSlot* ChildSlot = this->RootCanvasPanel->AddChildToCanvas(InWidget);
+	ChildSlot->SetAnchors(FAnchors(.0f, .0f, 1.f, 1.f));
+	ChildSlot->SetOffsets(FMargin(.0f));
+	ChildSlot->SetZOrder(InZOrder);
 }
 
