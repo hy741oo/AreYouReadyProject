@@ -3,7 +3,7 @@
 
 #include "GameplayMessageSubsystem.h"
 
-void UGameplayMessageSubsystem::Broadcast(FGameplayTag InGameplayTag, UGMSMessageBase* InMessage)
+void UGameplayMessageSubsystem::Broadcast(FGameplayTag InGameplayTag, UGMSMessageBase* InMessage, bool InNeedCache)
 {
 	if (!InGameplayTag.IsValid())
 	{
@@ -23,9 +23,20 @@ void UGameplayMessageSubsystem::Broadcast(FGameplayTag InGameplayTag, UGMSMessag
 			}
 			else
 			{
+				// 如果绑定的委托无效（可能是订阅者忘记了主动解绑），则进行解绑操作。
 				this->UnregisterInternal(InGameplayTag, ListenerData.Value.ID);
 			}
 		}
+	}
+
+	// 判断是否需要执行缓存操作，如果需要缓存则更新InGameplayTag的键值，如果不需要缓存操作的话则清除之前已经缓存的消息（如果有），之所以考虑删除之前缓存的消息而不是忽略，是因为忽略了的话，之前缓存的消息就是过期消息，会对后续逻辑产生不良的影响。
+	if (InNeedCache)
+	{
+		this->CachedMessages.FindOrAdd(InGameplayTag) = InMessage;
+	}
+	else
+	{
+		this->CachedMessages.Remove(InGameplayTag);
 	}
 }
 
@@ -134,5 +145,29 @@ void UGameplayMessageSubsystem::UnregisterInternal(FGameplayTag InGameplayTag, i
 bool UGameplayMessageSubsystem::IsHandleValid(UPARAM(Ref)const FGMSListenerHandle& InHandle)
 {
 	return InHandle.CurrentID != -1 && InHandle.Tag.IsValid();
+}
+
+UGMSMessageBase* UGameplayMessageSubsystem::GetCachedMessage(const FGameplayTag InGameplayTag)
+{
+	if (!InGameplayTag.IsValid())
+	{
+		UE_LOG(LogGameplayMessageSubsystem, Log, TEXT("Get cached message failed, InGameplayTag:\"%s\" is invalid."), *InGameplayTag.ToString());
+		return nullptr;
+	}
+
+	if (this->CachedMessages.Contains(InGameplayTag))
+	{
+		return this->CachedMessages[InGameplayTag];
+	}
+	else
+	{
+		UE_LOG(LogGameplayMessageSubsystem, Log, TEXT("Get cached message failed, InGameplayTag:\"%s\" has no cached message."), *InGameplayTag.ToString());
+		return nullptr;
+	}
+}
+
+void UGameplayMessageSubsystem::RemoveCachedMessage(const FGameplayTag InGameplayTag)
+{
+	this->CachedMessages.Remove(InGameplayTag);
 }
 

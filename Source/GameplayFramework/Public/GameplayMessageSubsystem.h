@@ -74,6 +74,11 @@ private:
 	// 保存已订阅的消息。
 	TMap<FGameplayTag, FMessageListenerList> MessageListeners;
 
+	// 已缓存的消息组。用户在Broadcast消息时可以通过选择“InNeedCache”让发送的消息缓存到消息组里，这样后续如果有需要某个Tag的消息时可以通过API直接获取缓存的消息。
+	// 这个机制是为了防止例如玩家的血量已经变更，血量变更消息已经发送出去，这个时候需要生成一个显示玩家血量的UI，但是因为血量变更的消息已经发送了，这个UI再注册消息也不会收到当前血量的信息，所以用这个缓存消息组缓存发送过的消息的话，这个显示UI就可以通过API获取到最后一次发送的消息并获取正确的数值。
+	UPROPERTY()
+	TMap<FGameplayTag, UGMSMessageBase*> CachedMessages;
+
 protected:
 	// 蓝图订阅消息接口。
 	UFUNCTION(BlueprintCallable, Category = "GameplayMessageSubsystem", Meta = (DisplayName = "Register"))
@@ -91,7 +96,7 @@ public:
 
 	// 发布消息。
 	UFUNCTION(BlueprintCallable, Category = "Gameplay Message System")
-	void Broadcast(FGameplayTag InGameplayTag, UGMSMessageBase* InMessage);
+	void Broadcast(FGameplayTag InGameplayTag, UGMSMessageBase* InMessage = nullptr, bool InNeedCache = false);
 
 	// 注销已经注册的订阅。
 	UFUNCTION(BlueprintCallable, Category = "Gameplay Message System")
@@ -100,5 +105,13 @@ public:
 	// 检测GMS句柄是否合法。
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay Message System")
 	static bool IsHandleValid(UPARAM(Ref)const FGMSListenerHandle& InHandle);
+
+	// 获取缓存的消息。如果Tag没有缓存过消息，则返回空。
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Gameplay Message System")
+	UGMSMessageBase* GetCachedMessage(const FGameplayTag InGameplayTag);
+
+	// 移除缓存的消息。删除指定Tag缓存的消息。
+	UFUNCTION(BlueprintCallable, Category = "Gameplay Message System")
+	void RemoveCachedMessage(const FGameplayTag InGameplayTag);
 };
 
