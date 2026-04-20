@@ -65,6 +65,9 @@ private:
 	// 当前状态。即“现态”。
 	FName CurrentState;
 
+	// 上一次的状态。每一次成功进入次态时，会将现态缓存起来，实现“下推状态机”的下推功能，即返回到上一个状态。
+	FName LastState;
+
 	// 已经生成的全部状态映射。P
 	TMap<FName, FGeneralStateMachineNode> CreatedStates;
 
@@ -131,4 +134,7 @@ public:
 
 	// 检测是否可以切换状态。
 	bool CanChangeToState(const FName& InNewState) const;
+
+	// 执行下推功能，返回到上一个状态。在尝试返回上一个状态时依然会走正常的状态切换流程，只是说状态机本身会维护一个值用来记录上一个状态是什么。
+	void PushDownState();
 };

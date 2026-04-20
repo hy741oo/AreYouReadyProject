@@ -87,6 +87,9 @@ bool OSGeneralStateMachine::ChangeStateTo(const FName& InStateChangeTo)
 		}
 		else
 		{
+			// 缓存现态，让新的状态知道自己上一个状态是什么。
+			this->LastState = this->CurrentState;
+
 			FGeneralStateMachineNode& NewNode = this->CreatedStates[InStateChangeTo];
 			this->CurrentState = InStateChangeTo;
 			this->TickingElapsedTime = .0f;
@@ -228,5 +231,13 @@ void OSGeneralStateMachine::SetStateMachineCondition(const FName& InCurrentState
 void OSGeneralStateMachine::SetStateMachineCondition(const FName& InCurrentStateName, const FName& InNextStateName, FSimpleDelegate InPassAction)
 {
 	this->SetStateMachineCondition(InCurrentStateName, InNextStateName, FGeneralStateMachineConditionCheckDelegate(), InPassAction);
+}
+
+void OSGeneralStateMachine::PushDownState()
+{
+	if (this->LastState.IsValid())
+	{
+		this->ChangeStateTo(FName(this->LastState));
+	}
 }
 

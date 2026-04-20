@@ -120,3 +120,8 @@ void UGeneralStateMachineComponent::SetStateMachineCondition(const FName InCurre
 	this->StateMachine.SetStateMachineCondition(InCurrentStateName, InNextStateName, InConditionCheck, InPassAction, InNoPassAction);
 }
 
+void UGeneralStateMachineComponent::PushDownState()
+{
+	this->StateMachine.PushDownState();
+}
+

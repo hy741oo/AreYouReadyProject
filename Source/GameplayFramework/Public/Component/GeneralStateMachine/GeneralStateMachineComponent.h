@@ -76,6 +76,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "General State Machine", Meta = (DisplayName = "Set State Machine Condition"))
 	void SetStateMachineConditionDynamic(const FName InCurrentStateName, const FName InNextStateName);
 
+	// 执行下推逻辑。
+	UFUNCTION(BlueprintCallable, Category = "General State Machine")
+	void PushDownState();
+
 public:
 	/*
 	C++代码可访问的接口。作用是让用户在C++代码里直接访问该版本可提高一些性能。（应该把……）。
