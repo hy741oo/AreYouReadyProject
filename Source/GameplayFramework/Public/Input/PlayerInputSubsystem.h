@@ -7,7 +7,6 @@
 #include "InputAction.h"
 #include "EnhancedInputComponent.h"
 #include "GameConfigSubsystem.h"
-
 #include "Kismet/GameplayStatics.h"
 
 #include "PlayerInputSubsystem.generated.h"
@@ -45,6 +44,10 @@ struct FPlayerInputMappingContextTableRow : public FAYRTableRowBase
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	int32 Priority = 0;
 
+	// 等级。不同等级的Input Mapping Context被添加时，小于该等级值的所有Input Mapping Context都会被移除，只有当该等级的IMC全部被移除后，才会重新启用被移除的IMC。
+	// 例如项目已经添加了两个等级2的IMC，然后又添加了一个等级3的IMC，这个时候等级2的两个IMC都会被移除掉，等后续等级3的IMC被移除后，两个等级2的IMC又会被重新添加进来。
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Meta = (ClampMin = "0"))
+	int32 Level = 0;
 };
 
 // 绑定Input Action后的句柄。
@@ -64,6 +67,13 @@ class GAMEPLAYFRAMEWORK_API UPlayerInputSubsystem : public ULocalPlayerSubsystem
 {
 	GENERATED_BODY()
 	
+private:
+	// 当前已经添加的IMC，根据Level进行分组。
+	TMap<int32, TSet<FName>> AddedIMCIDs;
+
+	// 当前系统中IMC的最高等级。
+	int32 CurrentIMCLevel = -1;
+
 public:
 	// 绑定Enhanced Input Action。
 	template<typename UObjectType>
