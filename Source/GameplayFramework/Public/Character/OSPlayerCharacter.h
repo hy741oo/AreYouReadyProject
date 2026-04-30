@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "OSCharacter.h"
-#include "AYRPlayerCharacter.generated.h"
+#include "OSPlayerCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AAYRPlayerCharacter : public AOSCharacter
+class GAMEPLAYFRAMEWORK_API AOSPlayerCharacter : public AOSCharacter
 {
 	GENERATED_BODY()
 	

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/AYRPlayerCharacter.h"
+#include "Character/OSPlayerCharacter.h"
 #include "GameplayMessageSubsystem.h"
 
 #include "MainLevelCharacter.generated.h"
@@ -19,7 +19,7 @@ class UPlayerHUD;
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AMainLevelCharacter : public AAYRPlayerCharacter
+class GAMEPLAYFRAMEWORK_API AMainLevelCharacter : public AOSPlayerCharacter
 {
 	GENERATED_BODY()
 
