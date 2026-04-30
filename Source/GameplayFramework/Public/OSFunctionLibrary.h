@@ -6,15 +6,14 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AYRInputProcessor.h"
 
-#include "AYRFunctionLibrary.generated.h"
+#include "OSFunctionLibrary.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UAYRFunctionLibrary : public UBlueprintFunctionLibrary
+class GAMEPLAYFRAMEWORK_API UOSFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
-public:
 };

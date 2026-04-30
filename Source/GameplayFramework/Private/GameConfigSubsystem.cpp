@@ -6,7 +6,6 @@
 #include "AssetRegistry/IAssetRegistry.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Algo/Transform.h"
-#include "AYRFunctionLibrary.h"
 
 void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 {
