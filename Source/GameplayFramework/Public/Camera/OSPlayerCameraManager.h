@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Camera/PlayerCameraManager.h"
-#include "AYRPlayerCameraManager.generated.h"
+#include "OSPlayerCameraManager.generated.h"
 
 USTRUCT(BlueprintType)
 struct FCameraShakeInfoTableRow : public FAYRTableRowBase
@@ -28,22 +28,22 @@ struct FCameraShakeInfoTableRow : public FAYRTableRowBase
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AAYRPlayerCameraManager : public APlayerCameraManager
+class GAMEPLAYFRAMEWORK_API AOSPlayerCameraManager : public APlayerCameraManager
 {
 	GENERATED_BODY()
 	
 protected:
 	// 获取CameraShakeID指定的抖动Info蓝图版本。
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AYRPlayerCameraManager")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "OSPlayerCameraManager")
 	bool GetCameraShakeInfo(const FName& InCameraShakeID, FCameraShakeInfoTableRow& OutCameraShakeInfo);
 
 public:
 	// 启用摄像机抖动。
-	UFUNCTION(BlueprintCallable, Category = "AYRPlayerCameraManager")
+	UFUNCTION(BlueprintCallable, Category = "OSPlayerCameraManager")
 	void StartCameraShakeByID(const FName& InCameraShakeID, ECameraShakePlaySpace InCameraShakePlaySpace = ECameraShakePlaySpace::CameraLocal, FRotator InUserPlaySpaceRot = FRotator::ZeroRotator);
 
 	// 停止摄像机抖动。
-	UFUNCTION(BlueprintCallable, Category = "AYRPlayerCameraManager")
+	UFUNCTION(BlueprintCallable, Category = "OSPlayerCameraManager")
 	void StopCameraShakeByID(const FName& InCameraShakeID);
 
 	// 获取CameraShakeID指定的抖动Info。

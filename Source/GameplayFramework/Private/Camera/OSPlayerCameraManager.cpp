@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Camera/AYRPlayerCameraManager.h"
+#include "Camera/OSPlayerCameraManager.h"
 #include "GameConfigSubsystem.h"
 
-void AAYRPlayerCameraManager::StartCameraShakeByID(const FName& InCameraShakeID, ECameraShakePlaySpace InCameraShakePlaySpace, FRotator InUserPlaySpaceRot)
+void AOSPlayerCameraManager::StartCameraShakeByID(const FName& InCameraShakeID, ECameraShakePlaySpace InCameraShakePlaySpace, FRotator InUserPlaySpaceRot)
 {
 	FCameraShakeInfoTableRow* Info = nullptr;
 	if (this->GetCameraShakeInfo(InCameraShakeID, Info))
@@ -13,7 +13,7 @@ void AAYRPlayerCameraManager::StartCameraShakeByID(const FName& InCameraShakeID,
 	}
 }
 
-void AAYRPlayerCameraManager::StopCameraShakeByID(const FName& InCameraShakeID)
+void AOSPlayerCameraManager::StopCameraShakeByID(const FName& InCameraShakeID)
 {
 	FCameraShakeInfoTableRow* Info = nullptr;
 	if (this->GetCameraShakeInfo(InCameraShakeID, Info))
@@ -22,7 +22,7 @@ void AAYRPlayerCameraManager::StopCameraShakeByID(const FName& InCameraShakeID)
 	}
 }
 
-bool AAYRPlayerCameraManager::GetCameraShakeInfo(const FName& InCameraShakeID, FCameraShakeInfoTableRow*& OutCameraShakeInfo)
+bool AOSPlayerCameraManager::GetCameraShakeInfo(const FName& InCameraShakeID, FCameraShakeInfoTableRow*& OutCameraShakeInfo)
 {
 	UGameConfigSubsystem* GameConfig = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 
@@ -37,7 +37,7 @@ bool AAYRPlayerCameraManager::GetCameraShakeInfo(const FName& InCameraShakeID, F
 	return Ret;
 }
 
-bool AAYRPlayerCameraManager::GetCameraShakeInfo(const FName& InCameraShakeID, FCameraShakeInfoTableRow& OutCameraShakeInfo)
+bool AOSPlayerCameraManager::GetCameraShakeInfo(const FName& InCameraShakeID, FCameraShakeInfoTableRow& OutCameraShakeInfo)
 {
 	bool Ret = false;
 	FCameraShakeInfoTableRow* Info = nullptr;

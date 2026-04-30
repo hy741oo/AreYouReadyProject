@@ -49,7 +49,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "AYRCamera")
-	AAYRPlayerCameraManager* GetPlayerCameraManager() const;
+	AOSPlayerCameraManager* GetPlayerCameraManager() const;
 
 	virtual void UpdateCameraManager(float InDeltaTime) override;
 };

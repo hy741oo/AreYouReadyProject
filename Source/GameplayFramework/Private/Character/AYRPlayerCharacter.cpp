@@ -4,7 +4,7 @@
 #include "Character/AYRPlayerCharacter.h"
 
 #include "AYRPlayerController.h"
-#include "Camera/AYRPlayerCameraManager.h"
+#include "Camera/OSPlayerCameraManager.h"
 
 void AAYRPlayerCharacter::StartCameraShake(const FName& InCameraShakeID)
 {

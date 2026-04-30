@@ -11,7 +11,7 @@
 #include "Interface/Interactive/InteractableObjectInterface.h"
 #include "Component/GeneralStateMachine/GeneralStateMachineComponent.h"
 #include "Component/Camera/AYRCameraComponent.h"
-#include "Camera/AYRPlayerCameraManager.h"
+#include "Camera/OSPlayerCameraManager.h"
 #include "UISubsystem.h"
 #include "UI/MainLevel/PlayerHUD.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
