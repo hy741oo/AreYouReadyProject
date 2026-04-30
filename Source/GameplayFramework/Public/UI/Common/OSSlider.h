@@ -4,21 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "Components/Slider.h"
-#include "AYRSlider.generated.h"
+#include "OSSlider.generated.h"
 
 /**
  * 自定义的滑动条控件。
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UAYRSlider : public USlider
+class GAMEPLAYFRAMEWORK_API UOSSlider : public USlider
 {
 	GENERATED_BODY()
 	
 	// 让滑动条的值增加一个进步值。
-	UFUNCTION(BlueprintCallable, Category = "AYRSlider")
+	UFUNCTION(BlueprintCallable, Category = "OSSlider")
 	void AddValueByStep();
 
-	UFUNCTION(BlueprintCallable, Category = "AYRSlider")
+	UFUNCTION(BlueprintCallable, Category = "OSSlider")
 	// 让滑动条的值减少一个进步值。
 	void SubtractValueByStep();
 

@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Common/AYRSlider.h"
+#include "UI/Common/OSSlider.h"
 
-void UAYRSlider::AddValueByStep()
+void UOSSlider::AddValueByStep()
 {
 	float NewValue = FMath::Clamp<float>(this->GetValue() + StepSize, this->MinValue, this->MaxValue);
 
@@ -12,7 +12,7 @@ void UAYRSlider::AddValueByStep()
 	this->OnValueChanged.Broadcast(NewValue);
 }
 
-void UAYRSlider::SubtractValueByStep()
+void UOSSlider::SubtractValueByStep()
 {
 	float NewValue = FMath::Clamp<float>(this->GetValue() - StepSize, this->MinValue, this->MaxValue);
 
