@@ -12,9 +12,9 @@
 
 DEFINE_LOG_CATEGORY(LogAYRGameInstance);
 
-void UAYRGameInstance::Init()
+void UAYRGameInstance::OnStart()
 {
-	Super::Init();
+	Super::OnStart();
 
 	// 添加InputProcess。
 	FSlateApplication& App = FSlateApplication::Get();
