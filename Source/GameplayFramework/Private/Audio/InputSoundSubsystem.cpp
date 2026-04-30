@@ -4,7 +4,7 @@
 #include "Audio/InputSoundSubsystem.h"
 
 #include "GameplayMessageSubsystem.h"
-#include "Audio/AudioManagerSubsystem.h"
+#include "Audio/AudioSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogInputSoundSubsystem)
 
@@ -20,7 +20,7 @@ void UInputSoundSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 	// 保存音频子系统，后续不再需要频繁获取。
 	if (!this->AudioManager)
 	{
-		this->AudioManager = UGameInstance::GetSubsystem<UAudioManagerSubsystem>(this->GetGameInstance());
+		this->AudioManager = UGameInstance::GetSubsystem<UAudioSubsystem>(this->GetGameInstance());
 	}
 }
 

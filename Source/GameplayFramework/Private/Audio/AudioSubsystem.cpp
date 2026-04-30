@@ -1,18 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Audio/AudioManagerSubsystem.h"
+#include "Audio/AudioSubsystem.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
 
-void UAudioManagerSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
+void UAudioSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 {
 	this->GameConfig = InCollection.InitializeDependency<UGameConfigSubsystem>();
 	check(this->GameConfig);
 }
 
-void UAudioManagerSubsystem::PlaySound2D(FName InSoundID, float InStartTime, AActor* InOwningActor)
+void UAudioSubsystem::PlaySound2D(FName InSoundID, float InStartTime, AActor* InOwningActor)
 {
 	FAudioManagerDataTableRow* TableRow = nullptr;
 	if (this->GameConfig->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
@@ -21,7 +21,7 @@ void UAudioManagerSubsystem::PlaySound2D(FName InSoundID, float InStartTime, AAc
 	}
 }
 
-UAudioComponent* UAudioManagerSubsystem::SpawnSound2D(FName InSoundID, float InStartTime, bool bInPersistAcrossLevelTransition)
+UAudioComponent* UAudioSubsystem::SpawnSound2D(FName InSoundID, float InStartTime, bool bInPersistAcrossLevelTransition)
 {
 	FAudioManagerDataTableRow* TableRow = nullptr;
 	UAudioComponent* AudioComponent = nullptr;
@@ -41,7 +41,7 @@ UAudioComponent* UAudioManagerSubsystem::SpawnSound2D(FName InSoundID, float InS
 	return AudioComponent;
 }
 
-void UAudioManagerSubsystem::PlaySound3D(FName InSoundID, FVector InLocation, FRotator InRotation, float InStartTime, AActor* InOwningActor)
+void UAudioSubsystem::PlaySound3D(FName InSoundID, FVector InLocation, FRotator InRotation, float InStartTime, AActor* InOwningActor)
 {
 	FAudioManagerDataTableRow* TableRow = nullptr;
 	if (this->GameConfig->GetDataTableRowFromID<FAudioManagerDataTableRow>(InSoundID, TableRow))
@@ -50,7 +50,7 @@ void UAudioManagerSubsystem::PlaySound3D(FName InSoundID, FVector InLocation, FR
 	}
 }
 
-UAudioComponent* UAudioManagerSubsystem::SpawnSound3D(FName InSoundID, FVector InLocation, FRotator InRotation, float InStartTime, bool bInPersistAcrossLevelTransition)
+UAudioComponent* UAudioSubsystem::SpawnSound3D(FName InSoundID, FVector InLocation, FRotator InRotation, float InStartTime, bool bInPersistAcrossLevelTransition)
 {
 	FAudioManagerDataTableRow* TableRow = nullptr;
 	UAudioComponent* AudioComponent = nullptr;
@@ -70,7 +70,7 @@ UAudioComponent* UAudioManagerSubsystem::SpawnSound3D(FName InSoundID, FVector I
 	return AudioComponent;
 }
 
-void UAudioManagerSubsystem::SetSoundMixClassOverride(FName InSoundMixClassID, float InVolume, float InPitch, float InFadeInTime, bool InbApplyToChildren)
+void UAudioSubsystem::SetSoundMixClassOverride(FName InSoundMixClassID, float InVolume, float InPitch, float InFadeInTime, bool InbApplyToChildren)
 {
 	FSoundMixClassOverrideTableRow* TableRow = nullptr;
 	if (this->GameConfig->GetDataTableRowFromID<FSoundMixClassOverrideTableRow>(InSoundMixClassID, TableRow))
@@ -79,7 +79,7 @@ void UAudioManagerSubsystem::SetSoundMixClassOverride(FName InSoundMixClassID, f
 	}
 }
 
-void UAudioManagerSubsystem::ClearSoundMixClassOverride(FName InSoundMixClassID, float InFadeOutTime)
+void UAudioSubsystem::ClearSoundMixClassOverride(FName InSoundMixClassID, float InFadeOutTime)
 {
 	FSoundMixClassOverrideTableRow* TableRow = nullptr;
 	if (this->GameConfig->GetDataTableRowFromID<FSoundMixClassOverrideTableRow>(InSoundMixClassID, TableRow))
@@ -88,7 +88,7 @@ void UAudioManagerSubsystem::ClearSoundMixClassOverride(FName InSoundMixClassID,
 	}
 }
 
-void UAudioManagerSubsystem::PushSoundMix(FName InSoundMixID)
+void UAudioSubsystem::PushSoundMix(FName InSoundMixID)
 {
 	FSoundMixTableRow* TableRow = nullptr;
 	if (this->GameConfig->GetDataTableRowFromID<FSoundMixTableRow>(InSoundMixID, TableRow))
@@ -97,7 +97,7 @@ void UAudioManagerSubsystem::PushSoundMix(FName InSoundMixID)
 	}
 }
 
-void UAudioManagerSubsystem::PopSoundMix(FName InSoundMixID)
+void UAudioSubsystem::PopSoundMix(FName InSoundMixID)
 {
 	FSoundMixTableRow* TableRow = nullptr;
 	if (this->GameConfig->GetDataTableRowFromID<FSoundMixTableRow>(InSoundMixID, TableRow))

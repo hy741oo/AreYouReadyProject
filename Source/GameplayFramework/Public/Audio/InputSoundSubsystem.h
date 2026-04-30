@@ -10,7 +10,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogInputSoundSubsystem, Log, All);
 
-class UAudioManagerSubsystem;
+class UAudioSubsystem;
 
 USTRUCT(BlueprintType)
 struct FInputSoundTableRow : public FAYRTableRowBase
@@ -61,7 +61,7 @@ private:
 	TArray<FInputSoundStackData> InputSoundStack;
 
 	// 音频子系统。用于播放音效。
-	UAudioManagerSubsystem* AudioManager = nullptr;
+	UAudioSubsystem* AudioManager = nullptr;
 
 	// GMS回调事件的句柄。
 	FGMSListenerHandle GMSHandle;

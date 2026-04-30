@@ -6,7 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GameConfigSubsystem.h"
 
-#include "AudioManagerSubsystem.generated.h"
+#include "AudioSubsystem.generated.h"
 
 // 音频类混音类覆盖的数据表表行结构。
 USTRUCT()
@@ -75,7 +75,7 @@ struct FAudioManagerDataTableRow : public FAYRTableRowBase
  * 声音相关的子系统，用于播放音效、BGM等。
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UAudioManagerSubsystem : public UGameInstanceSubsystem
+class GAMEPLAYFRAMEWORK_API UAudioSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 

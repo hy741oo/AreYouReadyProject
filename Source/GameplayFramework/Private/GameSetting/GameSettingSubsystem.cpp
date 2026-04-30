@@ -4,7 +4,7 @@
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/Culture.h"
 
-#include "Audio/AudioManagerSubsystem.h"
+#include "Audio/AudioSubsystem.h"
 
 void UGameSettingSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 {
@@ -23,7 +23,7 @@ void UGameSettingSubsystem::LoadSetting()
 
 void UGameSettingSubsystem::ApplySetting()
 {
-	UAudioManagerSubsystem* AudioManager = UGameInstance::GetSubsystem<UAudioManagerSubsystem>(this->GetGameInstance());
+	UAudioSubsystem* AudioManager = UGameInstance::GetSubsystem<UAudioSubsystem>(this->GetGameInstance());
 
 	// 初始化全局音量。
 	AudioManager->SetSoundMixClassOverride("GlobalSound", this->GlobalVolume);

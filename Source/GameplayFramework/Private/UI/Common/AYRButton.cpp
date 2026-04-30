@@ -6,7 +6,7 @@
 #include "Components/Button.h"
 #include "Components/ButtonSlot.h"
 #include "Blueprint/WidgetTree.h"
-#include "Audio/AudioManagerSubsystem.h"
+#include "Audio/AudioSubsystem.h"
 
 TMap<int32, TWeakObjectPtr<UAYRButton>> UAYRButton::RegisteredGroups = TMap<int32, TWeakObjectPtr<UAYRButton>>();
 
