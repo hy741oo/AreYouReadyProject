@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Component/Camera/AYRCameraComponent.h"
+#include "Component/Camera/OSCameraComponent.h"
 #include "GameConfigSubsystem.h"
 
-DEFINE_LOG_CATEGORY(LogAYRCameraComponent);
+DEFINE_LOG_CATEGORY(LogOSCameraComponent);
 
 // Sets default values for this component's properties
-UAYRCameraComponent::UAYRCameraComponent(const FObjectInitializer& InObjectInitializer)
+UOSCameraComponent::UOSCameraComponent(const FObjectInitializer& InObjectInitializer)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -18,7 +18,7 @@ UAYRCameraComponent::UAYRCameraComponent(const FObjectInitializer& InObjectIniti
 
 
 // Called when the game starts
-void UAYRCameraComponent::BeginPlay()
+void UOSCameraComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -32,7 +32,7 @@ void UAYRCameraComponent::BeginPlay()
 
 
 // Called every frame
-void UAYRCameraComponent::TickComponent(float InDeltaTime, ELevelTick InTickType, FActorComponentTickFunction* InThisTickFunction)
+void UOSCameraComponent::TickComponent(float InDeltaTime, ELevelTick InTickType, FActorComponentTickFunction* InThisTickFunction)
 {
 	Super::TickComponent(InDeltaTime, InTickType, InThisTickFunction);
 
@@ -58,12 +58,12 @@ void UAYRCameraComponent::TickComponent(float InDeltaTime, ELevelTick InTickType
 		else
 		{
 			this->bIsBlending = false;
-			UE_LOG(LogAYRCameraComponent, Warning, TEXT("Camera is blending, but the TargetCameraInfo is null!"));
+			UE_LOG(LogOSCameraComponent, Warning, TEXT("Camera is blending, but the TargetCameraInfo is null!"));
 		}
 	}
 }
 
-void UAYRCameraComponent::InitCameraInfo(const FName& InCameraInfoID)
+void UOSCameraComponent::InitCameraInfo(const FName& InCameraInfoID)
 {
 	UWorld* World = this->GetWorld();
 	// 如果当前World为空，则无法通过World获取GameInstance类型的子系统，我们需要把初始化的ID记录下来，然后在BeginPlay里执行真正的初始化。
@@ -81,7 +81,7 @@ void UAYRCameraComponent::InitCameraInfo(const FName& InCameraInfoID)
 	}
 }
 
-FCameraInfoTableRow* UAYRCameraComponent::GetCameraInfoByID(const FName& InCameraInfoID)
+FCameraInfoTableRow* UOSCameraComponent::GetCameraInfoByID(const FName& InCameraInfoID)
 {
 	UGameConfigSubsystem* GameConfig = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetWorld()->GetGameInstance());
 	FCameraInfoTableRow* CameraInfo = nullptr;
@@ -89,7 +89,7 @@ FCameraInfoTableRow* UAYRCameraComponent::GetCameraInfoByID(const FName& InCamer
 	return CameraInfo;
 }
 
-void UAYRCameraComponent::SetCameraByCameraInfoID(const FName& InCameraInfoID)
+void UOSCameraComponent::SetCameraByCameraInfoID(const FName& InCameraInfoID)
 {
 	if (FCameraInfoTableRow* CameraInfo = this->GetCameraInfoByID(InCameraInfoID))
 	{
@@ -97,7 +97,7 @@ void UAYRCameraComponent::SetCameraByCameraInfoID(const FName& InCameraInfoID)
 	}
 }
 
-void UAYRCameraComponent::SetCameraByCameraInfo(const FCameraInfoTableRow& InCameraInfo)
+void UOSCameraComponent::SetCameraByCameraInfo(const FCameraInfoTableRow& InCameraInfo)
 {
 	this->ProjectionMode = InCameraInfo.ProjectionMode;
 	this->FieldOfView = InCameraInfo.FieldOfView;
@@ -113,7 +113,7 @@ void UAYRCameraComponent::SetCameraByCameraInfo(const FCameraInfoTableRow& InCam
 	this->PostProcessSettings = InCameraInfo.PostProcessSettings;
 }
 
-void UAYRCameraComponent::SetCameraByOriginalCameraInfo()
+void UOSCameraComponent::SetCameraByOriginalCameraInfo()
 {
 	if (this->OriginalCameraInfo)
 	{
@@ -121,7 +121,7 @@ void UAYRCameraComponent::SetCameraByOriginalCameraInfo()
 	}
 }
 
-void UAYRCameraComponent::SetCameraByTargetCameraInfo()
+void UOSCameraComponent::SetCameraByTargetCameraInfo()
 {
 	if (this->TargetCameraInfo)
 	{
@@ -129,11 +129,11 @@ void UAYRCameraComponent::SetCameraByTargetCameraInfo()
 	}
 	else
 	{
-		UE_LOG(LogAYRCameraComponent, Warning, TEXT("You want set camera by target camera info, but there's no any TargetCameraInfo."));
+		UE_LOG(LogOSCameraComponent, Warning, TEXT("You want set camera by target camera info, but there's no any TargetCameraInfo."));
 	}
 }
 
-void UAYRCameraComponent::ChangeCameraTo(const FName& InCameraInfoID, float InTargetBlendTime)
+void UOSCameraComponent::ChangeCameraTo(const FName& InCameraInfoID, float InTargetBlendTime)
 {
 	if (FCameraInfoTableRow* CameraInfo = this->GetCameraInfoByID(InCameraInfoID))
 	{
@@ -178,7 +178,7 @@ void UAYRCameraComponent::ChangeCameraTo(const FName& InCameraInfoID, float InTa
 	}
 }
 
-FCameraInfoTableRow UAYRCameraComponent::GetLerpedCameraInfo(const FCameraInfoTableRow& InStart, const FCameraInfoTableRow& InEnd, float InAlpha)
+FCameraInfoTableRow UOSCameraComponent::GetLerpedCameraInfo(const FCameraInfoTableRow& InStart, const FCameraInfoTableRow& InEnd, float InAlpha)
 {
 	FCameraInfoTableRow CameraInfo = InStart;
 
@@ -187,7 +187,7 @@ FCameraInfoTableRow UAYRCameraComponent::GetLerpedCameraInfo(const FCameraInfoTa
 	return CameraInfo;
 }
 
-FCameraInfoTableRow UAYRCameraComponent::GetCurrentCameraParams() const
+FCameraInfoTableRow UOSCameraComponent::GetCurrentCameraParams() const
 {
 	FCameraInfoTableRow CameraInfo;
 	CameraInfo.ProjectionMode = this->ProjectionMode;

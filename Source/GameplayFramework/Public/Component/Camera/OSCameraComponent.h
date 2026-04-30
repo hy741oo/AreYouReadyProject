@@ -7,11 +7,11 @@
 #include "GameConfigSubsystem.h"
 #include "Camera/CameraComponent.h"
 
-#include "AYRCameraComponent.generated.h"
+#include "OSCameraComponent.generated.h"
 
 class UCameraComponent;
 
-DECLARE_LOG_CATEGORY_EXTERN(LogAYRCameraComponent, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogOSCameraComponent, Log, All);
 
 USTRUCT(BlueprintType)
 struct FCameraInfoTableRow : public FAYRTableRowBase
@@ -81,13 +81,13 @@ struct FCameraInfoTableRow : public FAYRTableRowBase
  * 该组件通过配表的方式存储摄像机信息，并添加在摄像机信息之间插值实现诸如“FOV渐变”、“视角切换”等功能。
  */
 UCLASS( ClassGroup=(Custom), Meta=(BlueprintSpawnableComponent) )
-class GAMEPLAYFRAMEWORK_API UAYRCameraComponent : public UCameraComponent
+class GAMEPLAYFRAMEWORK_API UOSCameraComponent : public UCameraComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UAYRCameraComponent(const FObjectInitializer& InObjectInitializer = FObjectInitializer::Get());
+	UOSCameraComponent(const FObjectInitializer& InObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	// Called when the game starts

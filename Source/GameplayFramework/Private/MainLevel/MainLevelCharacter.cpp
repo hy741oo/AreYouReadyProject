@@ -10,7 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interface/Interactive/InteractableObjectInterface.h"
 #include "Component/GeneralStateMachine/GeneralStateMachineComponent.h"
-#include "Component/Camera/AYRCameraComponent.h"
+#include "Component/Camera/OSCameraComponent.h"
 #include "Camera/OSPlayerCameraManager.h"
 #include "UISubsystem.h"
 #include "UI/MainLevel/PlayerHUD.h"
@@ -19,7 +19,7 @@
 AMainLevelCharacter::AMainLevelCharacter(const FObjectInitializer& InObjectInitializer)
 {
 	// 生成摄像机。
-	this->PlayerCamera = CreateDefaultSubobject<UAYRCameraComponent>(TEXT("Character Camera"));
+	this->PlayerCamera = CreateDefaultSubobject<UOSCameraComponent>(TEXT("Character Camera"));
 	if (this->PlayerCamera)
 	{
 		this->PlayerCamera->InitCameraInfo("Default");

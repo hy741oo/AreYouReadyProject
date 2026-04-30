@@ -9,7 +9,7 @@
 #include "MainLevelCharacter.generated.h"
 
 struct FInputActionInstance;
-class UAYRCameraComponent;
+class UOSCameraComponent;
 class IInteractableObjectInterface;
 class UGeneralStateMachineComponent;
 struct FGeneralStateMachineNode;
@@ -49,7 +49,7 @@ private:
 protected:
 	// 玩家摄像机。
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	UAYRCameraComponent* PlayerCamera = nullptr;
+	UOSCameraComponent* PlayerCamera = nullptr;
 
 	// 球形射线追踪距离。
 	float SphereTraceDistance = 200.f;
