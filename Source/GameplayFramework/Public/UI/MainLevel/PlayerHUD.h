@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/AYRUserWidget.h"
+#include "UI/OSUserWidget.h"
 #include "PlayerHUD.generated.h"
 
 class UInputIcon;
@@ -12,7 +12,7 @@ class UInputIcon;
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UPlayerHUD : public UAYRUserWidget
+class GAMEPLAYFRAMEWORK_API UPlayerHUD : public UOSUserWidget
 {
 	GENERATED_BODY()
 	

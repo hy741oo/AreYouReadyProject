@@ -3,7 +3,7 @@
 
 #include "UISubsystem.h"
 
-#include "UI/AYRUserWidget.h"
+#include "UI/OSUserWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Subsystems/GameInstanceSubsystem.h"
@@ -56,9 +56,9 @@ void UUISubsystem::Deinitialize()
 	this->OnPlayerControllerInitializedDelegateHandle.Reset();
 }
 
-UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
+UOSUserWidget* UUISubsystem::PushUI(FName InUIID)
 {
-	UAYRUserWidget* CreatedWidget = nullptr;
+	UOSUserWidget* CreatedWidget = nullptr;
 
 	UGameConfigSubsystem* ConfigSubsystem = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetWorld()->GetGameInstance());
 	FUIInfoTableRow* UIInfoTableRow = nullptr;
@@ -67,7 +67,7 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 		APlayerController* PlayerController = this->GetLocalPlayerChecked()->GetPlayerController(this->GetWorld());
 
 		// 生成UI。
-		CreatedWidget = CreateWidget<UAYRUserWidget>(PlayerController, UIInfoTableRow->UIClass, UIInfoTableRow->UIName);
+		CreatedWidget = CreateWidget<UOSUserWidget>(PlayerController, UIInfoTableRow->UIClass, UIInfoTableRow->UIName);
 		if (ensureAlways(CreatedWidget))
 		{
 			FUIStackInfo UIStackInfo;
@@ -99,7 +99,7 @@ UAYRUserWidget* UUISubsystem::PushUI(FName InUIID)
 	return CreatedWidget;
 }
 
-void UUISubsystem::PopUI(const UAYRUserWidget* InSpecifiedUI)
+void UUISubsystem::PopUI(const UOSUserWidget* InSpecifiedUI)
 {
 	if (this->UIStack.Num() == 0) return;
 
@@ -154,7 +154,7 @@ void UUISubsystem::ApplyUIInfo(APlayerController* InPlayerController, const FUIS
 	if (!InPlayerController || !InUIStackInfo || !InUIStackInfo->UserWidget) return;
 
 	FUIStateInfoTableRow UIStateInfo = InUIStackInfo->UIStateInfo;
-	UAYRUserWidget* UI = InUIStackInfo->UserWidget;
+	UOSUserWidget* UI = InUIStackInfo->UserWidget;
 
 	// 设置输入模式。需要判断是否需要在SetInputMode时Focus我们生成的Widget，防止Widget的Construct函数里面设置好的Focus被这里的设置打乱了。
 	FAYRInputModeData InputMode;

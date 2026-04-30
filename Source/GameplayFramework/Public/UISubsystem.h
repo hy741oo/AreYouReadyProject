@@ -67,7 +67,7 @@ struct FUIStackInfo
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	UAYRUserWidget* UserWidget = nullptr;
+	UOSUserWidget* UserWidget = nullptr;
 
 	UPROPERTY(BlueprintReadOnly)
 	FUIStateInfoTableRow UIStateInfo;
@@ -80,7 +80,7 @@ struct FUIInfoTableRow : public FAYRTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSubclassOf<UAYRUserWidget> UIClass;
+	TSubclassOf<UOSUserWidget> UIClass;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FName UIName = NAME_None;
@@ -134,7 +134,7 @@ class GAMEPLAYFRAMEWORK_API UUISubsystem : public ULocalPlayerSubsystem
 {
 	GENERATED_BODY()
 
-	friend UAYRUserWidget;
+	friend UOSUserWidget;
 
 private:
 	// UI栈。生成的UI全部都会并入这个栈里进行管理。
@@ -166,11 +166,11 @@ public:
 public:
 	// 新建一个UI，并压入到UI栈里。
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
-	UAYRUserWidget* PushUI(FName UIID);
+	UOSUserWidget* PushUI(FName UIID);
 
 	// 弹出指定UI，如果bPopWith该操作会连同在指定UI之后压栈的UI按照顺序弹出。如果没有指定UI则弹出栈顶。
 	UFUNCTION(BlueprintCallable, BlueprintCosmetic)
-	void PopUI(const UAYRUserWidget* InSpecifiedUI = nullptr);
+	void PopUI(const UOSUserWidget* InSpecifiedUI = nullptr);
 
 	// 清理目前全部UI，并且将Viewport设置为初始状态。
 	void ClearUIStack() ;

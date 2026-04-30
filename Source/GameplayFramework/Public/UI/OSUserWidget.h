@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "UISubsystem.h"
 
-#include "AYRUserWidget.generated.h"
+#include "OSUserWidget.generated.h"
 
 // UI栈变动时的原因。
 UENUM(BlueprintType)
@@ -26,7 +26,7 @@ namespace EUIStateChangedReason
  * 
  */
 UCLASS(Abstract)
-class GAMEPLAYFRAMEWORK_API UAYRUserWidget : public UUserWidget
+class GAMEPLAYFRAMEWORK_API UOSUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
