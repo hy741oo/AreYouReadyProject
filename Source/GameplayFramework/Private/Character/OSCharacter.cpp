@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/AYRCharacter.h"
+#include "Character/OSCharacter.h"
 
 // Sets default values
-AAYRCharacter::AAYRCharacter()
+AOSCharacter::AOSCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -12,21 +12,21 @@ AAYRCharacter::AAYRCharacter()
 }
 
 // Called when the game starts or when spawned
-void AAYRCharacter::BeginPlay()
+void AOSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void AAYRCharacter::Tick(float DeltaTime)
+void AOSCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
 // Called to bind functionality to input
-void AAYRCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AOSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 

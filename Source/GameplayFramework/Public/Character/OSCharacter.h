@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "AYRCharacter.generated.h"
+#include "OSCharacter.generated.h"
 
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AAYRCharacter : public ACharacter
+class GAMEPLAYFRAMEWORK_API AOSCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	AAYRCharacter();
+	AOSCharacter();
 
 protected:
 	// Called when the game starts or when spawned

@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AYRCharacter.h"
+#include "OSCharacter.h"
 #include "AYRPlayerCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AAYRPlayerCharacter : public AAYRCharacter
+class GAMEPLAYFRAMEWORK_API AAYRPlayerCharacter : public AOSCharacter
 {
 	GENERATED_BODY()
 	
