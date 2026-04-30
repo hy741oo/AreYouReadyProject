@@ -1,16 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Common/AYRButton.h"
+#include "UI/Common/OSButton.h"
 
 #include "Components/Button.h"
 #include "Components/ButtonSlot.h"
 #include "Blueprint/WidgetTree.h"
 #include "Audio/AudioSubsystem.h"
 
-TMap<int32, TWeakObjectPtr<UAYRButton>> UAYRButton::RegisteredGroups = TMap<int32, TWeakObjectPtr<UAYRButton>>();
+TMap<int32, TWeakObjectPtr<UOSButton>> UOSButton::RegisteredGroups = TMap<int32, TWeakObjectPtr<UOSButton>>();
 
-FReply SAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
+FReply SOSButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
 {
 	FReply ReturnReply = SBorder::OnFocusReceived(InMyGeometry, InFocusEvent);
 
@@ -22,24 +22,24 @@ FReply SAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEv
 	return ReturnReply;
 }
 
-void SAYRButton::OnFocusLost(const FFocusEvent& InFocusEvent)
+void SOSButton::OnFocusLost(const FFocusEvent& InFocusEvent)
 {
 	SBorder::OnFocusLost(InFocusEvent);
 
 	this->OnButtonFocusLost.ExecuteIfBound(InFocusEvent);
 }
 
-void SAYRButton::SetOnButtonFocusReceivedDelegate(FOnButtonFocusReceived InDelegate)
+void SOSButton::SetOnButtonFocusReceivedDelegate(FOnButtonFocusReceived InDelegate)
 {
 	this->OnButtonFocusReceived = InDelegate;
 }
 
-void SAYRButton::SetOnButtonFocusLostDelegate(FOnButtonFocusLost InDelegate)
+void SOSButton::SetOnButtonFocusLostDelegate(FOnButtonFocusLost InDelegate)
 {
 	this->OnButtonFocusLost = InDelegate;
 }
 
-FReply SAYRButton::OnKeyDown( const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent )
+FReply SOSButton::OnKeyDown( const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent )
 {
 	// 仅仅只做表现，不再让键盘/手柄响应“OnClicked”事件。
 
@@ -51,7 +51,7 @@ FReply SAYRButton::OnKeyDown( const FGeometry& MyGeometry, const FKeyEvent& InKe
 	return FReply::Unhandled();
 }
 
-FReply SAYRButton::OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+FReply SOSButton::OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
 	// 仅仅只做表现，不再让键盘/手柄响应“OnClicked”事件。
 
@@ -64,31 +64,31 @@ FReply SAYRButton::OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEv
 	return FReply::Unhandled();
 }
 
-UAYRButton::UAYRButton(const FObjectInitializer& InObjectInitializer)
+UOSButton::UOSButton(const FObjectInitializer& InObjectInitializer)
 	:Super(InObjectInitializer)
 {
 
 }
 
-void UAYRButton::SynchronizeProperties()
+void UOSButton::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
 
 	if (this->bIsSelected)
 	{
-		this->SetAYRButtonStyle(this->SelectedWidgetStyle);
+		this->SetOSButtonStyle(this->SelectedWidgetStyle);
 	}
 	else
 	{
-		this->SetAYRButtonStyle(this->NormalWidgetStyle);
+		this->SetOSButtonStyle(this->NormalWidgetStyle);
 	}
 
 
 }
 
-TSharedRef<SWidget> UAYRButton::RebuildWidget()
+TSharedRef<SWidget> UOSButton::RebuildWidget()
 {
-	TSharedPtr<SAYRButton> AYRButton = SNew(SAYRButton)
+	TSharedPtr<SOSButton> OSButton = SNew(SOSButton)
 		.OnClicked(BIND_UOBJECT_DELEGATE(FOnClicked, AYRSlateHandleClicked))
 		.OnPressed(BIND_UOBJECT_DELEGATE(FSimpleDelegate, AYRSlateHandlePressed))
 		.OnReleased(BIND_UOBJECT_DELEGATE(FSimpleDelegate, AYRSlateHandleReleased))
@@ -103,35 +103,35 @@ TSharedRef<SWidget> UAYRButton::RebuildWidget()
 
 	if ( GetChildrenCount() > 0 )
 	{
-		Cast<UButtonSlot>(GetContentSlot())->BuildSlot(AYRButton.ToSharedRef());
+		Cast<UButtonSlot>(GetContentSlot())->BuildSlot(OSButton.ToSharedRef());
 	}
 
 	FOnButtonFocusReceived TempOnButtonFocusReceived;
-	TempOnButtonFocusReceived.BindUObject(this, &UAYRButton::OnFocusReceived);
-	AYRButton->SetOnButtonFocusReceivedDelegate(TempOnButtonFocusReceived);
+	TempOnButtonFocusReceived.BindUObject(this, &UOSButton::OnFocusReceived);
+	OSButton->SetOnButtonFocusReceivedDelegate(TempOnButtonFocusReceived);
 
 	FOnButtonFocusLost TempOnButtonFocusLost;
-	TempOnButtonFocusLost.BindUObject(this, &UAYRButton::OnFocusLost);
-	AYRButton->SetOnButtonFocusLostDelegate(TempOnButtonFocusLost);
+	TempOnButtonFocusLost.BindUObject(this, &UOSButton::OnFocusLost);
+	OSButton->SetOnButtonFocusLostDelegate(TempOnButtonFocusLost);
 
-	this->MyButton = AYRButton;
+	this->MyButton = OSButton;
 	
 	return MyButton.ToSharedRef();
 }
 
-FReply UAYRButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
+FReply UOSButton::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
 {
 	this->OnButtonFocusReceived.Broadcast(this);
 
 	return FReply::Handled();
 }
 
-void UAYRButton::OnFocusLost(const FFocusEvent& InFocusEvent)
+void UOSButton::OnFocusLost(const FFocusEvent& InFocusEvent)
 {
 	this->OnButtonFocusLost.Broadcast();
 }
 
-void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
+void UOSButton::SetOSButtonStyle(FOSButtonStyle InStyle)
 {
 	this->SetStyle(InStyle);
 
@@ -161,18 +161,18 @@ void UAYRButton::SetAYRButtonStyle(FAYRButtonStyle InStyle)
 	}
 }
 
-void UAYRButton::Select()
+void UOSButton::Select()
 {
 	if (!this->bIsSelected)
 	{
 		this->bIsSelected = true;
 
-		this->SetAYRButtonStyle(this->SelectedWidgetStyle);
+		this->SetOSButtonStyle(this->SelectedWidgetStyle);
 
 		// 处理组ID。
 		if (this->ButtonGroupID != -1)
 		{
-			if (TWeakObjectPtr<UAYRButton>* Button = this->RegisteredGroups.Find(this->ButtonGroupID))
+			if (TWeakObjectPtr<UOSButton>* Button = this->RegisteredGroups.Find(this->ButtonGroupID))
 			{
 				if (Button->IsValid())
 				{
@@ -187,16 +187,16 @@ void UAYRButton::Select()
 	}
 }
 
-void UAYRButton::Unselect()
+void UOSButton::Unselect()
 {
 	if (this->bIsSelected)
 	{
 		this->bIsSelected = false;
 
-		this->SetAYRButtonStyle(this->NormalWidgetStyle);
+		this->SetOSButtonStyle(this->NormalWidgetStyle);
 
 		// 处理组ID。
-		TWeakObjectPtr<UAYRButton> RegisteredButton = this->GetCurrentRegisteredButton(this->ButtonGroupID);
+		TWeakObjectPtr<UOSButton> RegisteredButton = this->GetCurrentRegisteredButton(this->ButtonGroupID);
 		if (RegisteredButton.IsValid())
 		{
 			if (RegisteredButton == this)
@@ -209,13 +209,13 @@ void UAYRButton::Unselect()
 	}
 }
 
-void UAYRButton::SetButtonGroupID(const int32 InButtonGroupID)
+void UOSButton::SetButtonGroupID(const int32 InButtonGroupID)
 {
 	if (InButtonGroupID == this->ButtonGroupID) return;
 
 	if (this->bIsSelected == true && InButtonGroupID != -1)
 	{
-		TWeakObjectPtr<UAYRButton> CurrentRegisteredButton = this->GetCurrentRegisteredButton(InButtonGroupID);
+		TWeakObjectPtr<UOSButton> CurrentRegisteredButton = this->GetCurrentRegisteredButton(InButtonGroupID);
 		if (CurrentRegisteredButton.IsValid())
 		{
 			CurrentRegisteredButton->Unselect();
@@ -225,13 +225,13 @@ void UAYRButton::SetButtonGroupID(const int32 InButtonGroupID)
 	this->ButtonGroupID = InButtonGroupID;
 }
 
-TWeakObjectPtr<UAYRButton> UAYRButton::GetCurrentRegisteredButton(const int32 InGroupID) const
+TWeakObjectPtr<UOSButton> UOSButton::GetCurrentRegisteredButton(const int32 InGroupID) const
 {
-	TWeakObjectPtr<UAYRButton> Button = nullptr;
+	TWeakObjectPtr<UOSButton> Button = nullptr;
 
 	if (InGroupID != -1)
 	{
-		if (TWeakObjectPtr<UAYRButton>* FoundButton = this->RegisteredGroups.Find(this->ButtonGroupID))
+		if (TWeakObjectPtr<UOSButton>* FoundButton = this->RegisteredGroups.Find(this->ButtonGroupID))
 		{
 			return *FoundButton;
 		}
@@ -240,9 +240,9 @@ TWeakObjectPtr<UAYRButton> UAYRButton::GetCurrentRegisteredButton(const int32 In
 	return Button;
 }
 
-void UAYRButton::ReleaseSlateResources(bool bInReleaseChildren)
+void UOSButton::ReleaseSlateResources(bool bInReleaseChildren)
 {
-	TWeakObjectPtr<UAYRButton> Button = this->GetCurrentRegisteredButton(this->ButtonGroupID);
+	TWeakObjectPtr<UOSButton> Button = this->GetCurrentRegisteredButton(this->ButtonGroupID);
 	if (Button.IsValid())
 	{
 		if (Button == this)
@@ -256,12 +256,12 @@ void UAYRButton::ReleaseSlateResources(bool bInReleaseChildren)
 	Super::ReleaseSlateResources(bInReleaseChildren);
 }
 
-FReply UAYRButton::AYRSlateHandleClicked()
+FReply UOSButton::AYRSlateHandleClicked()
 {
 	return this->SlateHandleClicked();
 }
 
-void UAYRButton::AYRSlateHandlePressed()
+void UOSButton::AYRSlateHandlePressed()
 {
 	if (!this->bIsSelectWhenHovered)
 	{
@@ -271,12 +271,12 @@ void UAYRButton::AYRSlateHandlePressed()
 	this->SlateHandlePressed();
 }
 
-void UAYRButton::AYRSlateHandleReleased()
+void UOSButton::AYRSlateHandleReleased()
 {
 	this->SlateHandleReleased();
 }
 
-void UAYRButton::AYRSlateHandleHovered()
+void UOSButton::AYRSlateHandleHovered()
 {
 	if (this->bIsSelectWhenHovered)
 	{
@@ -286,16 +286,16 @@ void UAYRButton::AYRSlateHandleHovered()
 	this->SlateHandleHovered();
 }
 
-void UAYRButton::AYRSlateHandleUnhovered()
+void UOSButton::AYRSlateHandleUnhovered()
 {
 	this->SlateHandleUnhovered();
 }
 
-void UAYRButton::ClearRegisteredButtons()
+void UOSButton::ClearRegisteredButtons()
 {
-	TMap<int32, TWeakObjectPtr<UAYRButton>> Groups = RegisteredGroups;
+	TMap<int32, TWeakObjectPtr<UOSButton>> Groups = RegisteredGroups;
 
-	for (TPair<int32, TWeakObjectPtr<UAYRButton>> Element : Groups)
+	for (TPair<int32, TWeakObjectPtr<UOSButton>> Element : Groups)
 	{
 		if (Element.Value.IsValid())
 		{

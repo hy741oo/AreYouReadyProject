@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
-#include "AYRButton.generated.h"
+#include "OSButton.generated.h"
 
 DECLARE_DELEGATE_RetVal_TwoParams(FReply, FOnButtonFocusReceived, const FGeometry&, const FFocusEvent&);
 DECLARE_DELEGATE_OneParam(FOnButtonFocusLost, const FFocusEvent&);
 
 
-class GAMEPLAYFRAMEWORK_API SAYRButton : public SButton
+class GAMEPLAYFRAMEWORK_API SOSButton : public SButton
 {
 public:
 	FOnButtonFocusReceived OnButtonFocusReceived;
@@ -34,30 +34,30 @@ public:
 };
 
 USTRUCT()
-struct FAYRButtonStyle : public FButtonStyle
+struct FOSButtonStyle : public FButtonStyle
 {
 	GENERATED_BODY()
 
 	// 点击音效的ID。
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AYRButton Appearance")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSButton Appearance")
 	FName PressedSoundID;
 
 	// 悬停音效的ID。
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AYRButton Appearance")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSButton Appearance")
 	FName HoveredSoundID;
 
 };
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonFocusReceivedBP, UAYRButton*, FocusedButton);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnButtonFocusReceivedBP, UOSButton*, FocusedButton);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonFocusLostBP);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSimpleAYRButtonDelegate, UAYRButton*, TheButton);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSimpleOSButtonDelegate, UOSButton*, TheButton);
 
 /**
  * 该UserWidget包装了一个按钮，在基础按钮上增加了“聚焦”效果，例如玩家聚焦该按钮时该按钮需要呈现效果。
  */
 UCLASS(Blueprintable, BlueprintType)
-class GAMEPLAYFRAMEWORK_API UAYRButton : public UButton
+class GAMEPLAYFRAMEWORK_API UOSButton : public UButton
 {
 
 	GENERATED_BODY()
@@ -72,11 +72,11 @@ private:
 	int32 ButtonGroupID = -1;
 
 	// 已经注册了的ID和Widget映射。Key为组ID，Value为当前组ID中被选中的Widget。
-	static TMap<int32, TWeakObjectPtr<UAYRButton>> RegisteredGroups;
+	static TMap<int32, TWeakObjectPtr<UOSButton>> RegisteredGroups;
 
 private:
 	// 获取指定已经注册了的指定ID对应的Button。
-	TWeakObjectPtr<UAYRButton> GetCurrentRegisteredButton(const int32 InGroupID) const;
+	TWeakObjectPtr<UOSButton> GetCurrentRegisteredButton(const int32 InGroupID) const;
 
 protected:
 	// 替代原本绑定到SButton的版本，利于扩展。
@@ -88,12 +88,12 @@ protected:
 
 public:
 	// 按钮通常状态下的Style。
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AYRButton Appearance")
-	FAYRButtonStyle NormalWidgetStyle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="OSButton Appearance")
+	FOSButtonStyle NormalWidgetStyle;
 
 	// 按钮被选中后的Style。
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AYRButton Appearance")
-	FAYRButtonStyle SelectedWidgetStyle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="OSButton Appearance")
+	FOSButtonStyle SelectedWidgetStyle;
 
 	// 按钮Focus Received时调用。
 	UPROPERTY(BlueprintAssignable, Category="Button|Event")
@@ -105,18 +105,18 @@ public:
 
 	// 按钮选中时调用。
 	UPROPERTY(BlueprintAssignable, Category="Button|Event")
-	FSimpleAYRButtonDelegate OnButtonSelected;
+	FSimpleOSButtonDelegate OnButtonSelected;
 
 	// 按钮取消选中时调用。
 	UPROPERTY(BlueprintAssignable, Category="Button|Event")
-	FSimpleAYRButtonDelegate OnButtonUnselected;
+	FSimpleOSButtonDelegate OnButtonUnselected;
 
 	// 是否让Button被Hover时就执行Select操作，或者只有在被点击时才执行Select操作。
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AYRButton Appearance")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="OSButton Appearance")
 	bool bIsSelectWhenHovered = false;
 
 public:
-	UAYRButton(const FObjectInitializer& InObjectInitializer);
+	UOSButton(const FObjectInitializer& InObjectInitializer);
 
 	// 更改属性后更新。
 	virtual void SynchronizeProperties() override;
@@ -130,7 +130,7 @@ public:
 
 	// 设置按钮样式，同时设置按钮音效。
 	UFUNCTION(BlueprintCallable)
-	virtual void SetAYRButtonStyle(FAYRButtonStyle Style);
+	virtual void SetOSButtonStyle(FOSButtonStyle Style);
 
 	// 选中当前按钮。
 	UFUNCTION(BlueprintCallable, Category = "Interactive")
