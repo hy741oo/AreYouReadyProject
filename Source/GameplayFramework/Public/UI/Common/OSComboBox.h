@@ -6,13 +6,13 @@
 #include "Components/ComboBoxString.h"
 #include "Widgets/SViewport.h"
 
-#include "AYRComboBox.generated.h"
+#include "OSComboBox.generated.h"
 
 /**
  * 自定义的SComboBox。
  */
 template< typename OptionType >
-class GAMEPLAYFRAMEWORK_API SAYRComboBox : public SComboBox<OptionType>
+class GAMEPLAYFRAMEWORK_API SOSComboBox : public SComboBox<OptionType>
 {
 
 public:
@@ -30,16 +30,16 @@ public:
  * 自定义的ComboBox控件。
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UAYRComboBox : public UComboBoxString
+class GAMEPLAYFRAMEWORK_API UOSComboBox : public UComboBoxString
 {
 	GENERATED_BODY()
 
 private:
 	// 保存构建后的新ComboBox。
-	TSharedPtr<SAYRComboBox<TSharedPtr<FString>>> MyAYRComboBox;
+	TSharedPtr<SOSComboBox<TSharedPtr<FString>>> MyOSComboBox;
 	
 public:
-	// 构建我们的SAYRComboBox。
+	// 构建我们的SOSComboBox。
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 
 	// 清理新建的ComboBox。

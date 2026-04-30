@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Common/AYRComboBox.h"
+#include "UI/Common/OSComboBox.h"
 
 template<typename OptionType>
-FReply SAYRComboBox<OptionType>::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
+FReply SOSComboBox<OptionType>::OnFocusReceived(const FGeometry& InMyGeometry, const FFocusEvent& InFocusEvent)
 {
 	if (SMenuAnchor::ShouldOpenDueToClick())
 	{
@@ -22,13 +22,13 @@ FReply SAYRComboBox<OptionType>::OnFocusReceived(const FGeometry& InMyGeometry, 
 }
 
 template<typename OptionType>
-void SAYRComboBox<OptionType>::BindOnMenuOpenStateChangedDelegate()
+void SOSComboBox<OptionType>::BindOnMenuOpenStateChangedDelegate()
 {
-	SMenuAnchor::OnMenuOpenChanged.BindRaw(this, &SAYRComboBox::OnMenuOpenStateChanged);
+	SMenuAnchor::OnMenuOpenChanged.BindRaw(this, &SOSComboBox::OnMenuOpenStateChanged);
 }
 
 template<typename OptionType>
-void SAYRComboBox<OptionType>::OnMenuOpenStateChanged(bool bInIsOpened)
+void SOSComboBox<OptionType>::OnMenuOpenStateChanged(bool bInIsOpened)
 {
 	// 当下拉菜单关闭时让Focus切换到GameViewport上，让Enhanced Input能够继续保持输入处理。
 	if (!bInIsOpened)
@@ -37,7 +37,7 @@ void SAYRComboBox<OptionType>::OnMenuOpenStateChanged(bool bInIsOpened)
 	}
 }
 
-TSharedRef<SWidget> UAYRComboBox::RebuildWidget()
+TSharedRef<SWidget> UOSComboBox::RebuildWidget()
 {
 	int32 InitialIndex = FindOptionIndex(this->GetSelectedOption());
 	if ( InitialIndex != -1 )
@@ -45,7 +45,7 @@ TSharedRef<SWidget> UAYRComboBox::RebuildWidget()
 		CurrentOptionPtr = Options[InitialIndex];
 	}
 
-	this->MyAYRComboBox = SNew(SAYRComboBox< TSharedPtr<FString> >)
+	this->MyOSComboBox = SNew(SOSComboBox< TSharedPtr<FString> >)
 		.ComboBoxStyle(&WidgetStyle)
 		.ItemStyle(&ItemStyle)
 		.ForegroundColor(ForegroundColor)
@@ -69,16 +69,16 @@ TSharedRef<SWidget> UAYRComboBox::RebuildWidget()
 		UpdateOrGenerateWidget(CurrentOptionPtr);
 	}
 
-	this->MyAYRComboBox->BindOnMenuOpenStateChangedDelegate();
+	this->MyOSComboBox->BindOnMenuOpenStateChangedDelegate();
 
-	this->MyComboBox = this->MyAYRComboBox;
+	this->MyComboBox = this->MyOSComboBox;
 
 	return MyComboBox.ToSharedRef();
 }
 
-void UAYRComboBox::ReleaseSlateResources(bool bInReleaseChildren)
+void UOSComboBox::ReleaseSlateResources(bool bInReleaseChildren)
 {
-	this->MyAYRComboBox.Reset();
+	this->MyOSComboBox.Reset();
 
 	Super::ReleaseSlateResources(bInReleaseChildren);
 }
