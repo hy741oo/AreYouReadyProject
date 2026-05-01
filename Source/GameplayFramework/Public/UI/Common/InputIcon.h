@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "GameplayMessageSubsystem.h"
+#include "Subsystem/GameplayMessageSubsystem.h"
 
 #include "InputIcon.generated.h"
 

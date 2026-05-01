@@ -3,7 +3,7 @@
 
 #include "Audio/InputSoundSubsystem.h"
 
-#include "GameplayMessageSubsystem.h"
+#include "Subsystem/GameplayMessageSubsystem.h"
 #include "Audio/AudioSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogInputSoundSubsystem)

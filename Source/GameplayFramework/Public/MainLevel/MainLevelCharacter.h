@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/OSPlayerCharacter.h"
-#include "GameplayMessageSubsystem.h"
+#include "Subsystem/GameplayMessageSubsystem.h"
 
 #include "MainLevelCharacter.generated.h"
 
