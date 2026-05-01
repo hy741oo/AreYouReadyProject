@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "AYRPlayerController.h"
+#include "Gameplay/OSPlayerController.h"
 
 #include "MainMenuPlayerController.generated.h"
 
@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AMainMenuPlayerController : public AAYRPlayerController
+class GAMEPLAYFRAMEWORK_API AMainMenuPlayerController : public AOSPlayerController
 {
 	GENERATED_BODY()
 	

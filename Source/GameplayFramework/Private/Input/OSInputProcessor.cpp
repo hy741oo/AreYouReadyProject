@@ -4,7 +4,7 @@
 #include "Input/OSInputProcessor.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "AYRPlayerController.h"
+#include "Gameplay/OSPlayerController.h"
 #include "Widgets/SViewport.h"
 
 DEFINE_LOG_CATEGORY(LogOSInputProcessor);

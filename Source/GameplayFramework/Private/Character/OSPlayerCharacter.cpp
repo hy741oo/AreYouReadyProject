@@ -3,16 +3,16 @@
 
 #include "Character/OSPlayerCharacter.h"
 
-#include "AYRPlayerController.h"
+#include "Gameplay/OSPlayerController.h"
 #include "Camera/OSPlayerCameraManager.h"
 
 void AOSPlayerCharacter::StartCameraShake(const FName& InCameraShakeID)
 {
-	this->GetController<AAYRPlayerController>()->GetPlayerCameraManager()->StartCameraShakeByID(InCameraShakeID);
+	this->GetController<AOSPlayerController>()->GetPlayerCameraManager()->StartCameraShakeByID(InCameraShakeID);
 }
 
 void AOSPlayerCharacter::StopCameraShake(const FName& InCameraShakeID)
 {
-	this->GetController<AAYRPlayerController>()->GetPlayerCameraManager()->StopCameraShakeByID(InCameraShakeID);
+	this->GetController<AOSPlayerController>()->GetPlayerCameraManager()->StopCameraShakeByID(InCameraShakeID);
 }
 

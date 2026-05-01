@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AYRPlayerController.h"
+#include "Gameplay/OSPlayerController.h"
 
 #include "EnhancedInputComponent.h"
 #include "GameFramework/InputSettings.h"
@@ -10,16 +10,16 @@
 #include "UISubsystem.h"
 #include "Camera/OSPlayerCameraManager.h"
 
-DEFINE_LOG_CATEGORY(LogAYRPlayerController);
+DEFINE_LOG_CATEGORY(LogOSPlayerController);
 
-AAYRPlayerController::AAYRPlayerController(const FObjectInitializer& ObjectInitializer)
+AOSPlayerController::AOSPlayerController(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	// 设置PlayerCameraManager为我们自己的类。
 	this->PlayerCameraManagerClass = AOSPlayerCameraManager::StaticClass();
 }
 
-void AAYRPlayerController::BeginPlay()
+void AOSPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -34,7 +34,7 @@ void AAYRPlayerController::BeginPlay()
 	FPlayerControllerInfoTableRow* PlayerControllerInfo = nullptr;
 	if (!GameConfigSubsystem->GetDataTableRowFromID(this->ID, PlayerControllerInfo))
 	{
-		UE_LOG(LogAYRPlayerController, Warning, TEXT("Can't find ID: \"%s\""), *this->ID.ToString());
+		UE_LOG(LogOSPlayerController, Warning, TEXT("Can't find ID: \"%s\""), *this->ID.ToString());
 		return;
 	}
 
@@ -55,7 +55,7 @@ void AAYRPlayerController::BeginPlay()
 	this->InputRollScale = this->PlayerControllerInfoTableRow->InputRollScale;
 }
 
-void AAYRPlayerController::CleanupGameViewport()
+void AOSPlayerController::CleanupGameViewport()
 {
 	// 清空该PlayerController创建的全部UI。
 	if (UUISubsystem* UISubsystem = ULocalPlayer::GetSubsystem<UUISubsystem>(this->GetLocalPlayer()))
@@ -66,12 +66,12 @@ void AAYRPlayerController::CleanupGameViewport()
 	Super::CleanupGameViewport();
 }
 
-AOSPlayerCameraManager* AAYRPlayerController::GetPlayerCameraManager() const
+AOSPlayerCameraManager* AOSPlayerController::GetPlayerCameraManager() const
 {
 	return Cast<AOSPlayerCameraManager>(this->PlayerCameraManager);
 }
 
-void AAYRPlayerController::UpdateCameraManager(float InDeltaTime)
+void AOSPlayerController::UpdateCameraManager(float InDeltaTime)
 {
 	Super::UpdateCameraManager(InDeltaTime);
 

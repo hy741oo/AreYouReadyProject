@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AYRPlayerController.h"
+#include "Gameplay/OSPlayerController.h"
 #include "MainLevelPlayerController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AMainLevelPlayerController : public AAYRPlayerController
+class GAMEPLAYFRAMEWORK_API AMainLevelPlayerController : public AOSPlayerController
 {
 	GENERATED_BODY()
 	

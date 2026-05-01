@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AYRPlayerController.h"
+#include "Gameplay/OSPlayerController.h"
 #include "Engine/AssetManager.h"
 
 #include "LoadingScreenPlayerController.generated.h"
@@ -14,7 +14,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogLoadingScreenPlayerController, Log, All);
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API ALoadingScreenPlayerController : public AAYRPlayerController
+class GAMEPLAYFRAMEWORK_API ALoadingScreenPlayerController : public AOSPlayerController
 {
 	GENERATED_BODY()
 	

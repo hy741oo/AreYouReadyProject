@@ -7,15 +7,15 @@
 #include "GameConfigSubsystem.h"
 #include "Input/OSInputProcessor.h"
 
-#include "AYRPlayerController.generated.h"
+#include "OSPlayerController.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogAYRPlayerController, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogOSPlayerController, Log, All);
 
 /**
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AAYRPlayerController : public APlayerController
+class GAMEPLAYFRAMEWORK_API AOSPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
@@ -34,7 +34,7 @@ public:
 	FOnPlayerCameraManagerUpdatedDelegate OnPlayerCameraManagerUpdateDelegate;
 
 public:
-	AAYRPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	AOSPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void BeginPlay() override;
 
