@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TickableGameInstanceSubsystem.h"
+#include "Subsystem/TickableGameInstanceSubsystem.h"
 #include "Gameplay/OSGameViewportClient.h"
 
 #include "WorldManager.generated.h"
