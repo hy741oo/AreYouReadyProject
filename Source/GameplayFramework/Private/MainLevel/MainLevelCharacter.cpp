@@ -12,7 +12,7 @@
 #include "Component/GeneralStateMachine/GeneralStateMachineComponent.h"
 #include "Component/Camera/OSCameraComponent.h"
 #include "Camera/OSPlayerCameraManager.h"
-#include "UISubsystem.h"
+#include "UI/UISubsystem.h"
 #include "UI/MainLevel/PlayerHUD.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 

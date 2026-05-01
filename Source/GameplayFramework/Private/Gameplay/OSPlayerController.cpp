@@ -7,7 +7,7 @@
 #include "GameFramework/InputSettings.h"
 #include "Subsystem/GameConfigSubsystem.h"
 #include "UI/Common/OSButton.h"
-#include "UISubsystem.h"
+#include "UI/UISubsystem.h"
 #include "Camera/OSPlayerCameraManager.h"
 
 DEFINE_LOG_CATEGORY(LogOSPlayerController);
