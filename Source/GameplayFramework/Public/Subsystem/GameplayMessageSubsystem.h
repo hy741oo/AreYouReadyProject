@@ -6,7 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GameplayTagContainer.h"
 #include "GameplayTagsManager.h"
-#include "GMSMessageType.h"
+#include "Subsystem/GMSMessageType.h"
 
 #include "GameplayMessageSubsystem.generated.h"
 
