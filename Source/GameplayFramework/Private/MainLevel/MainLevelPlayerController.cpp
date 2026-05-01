@@ -3,7 +3,7 @@
 
 #include "MainLevel/MainLevelPlayerController.h"
 
-#include "WorldManager.h"
+#include "Subsystem/GameWorldSubsystem.h"
 
 AMainLevelPlayerController::AMainLevelPlayerController(const FObjectInitializer& InObjectInitializer)
 	:Super(InObjectInitializer)
@@ -19,13 +19,13 @@ void AMainLevelPlayerController::BeginPlay()
 	this->DisableInput(this);
 
 	// 黑屏渐变。结束后恢复玩家输入。
-	UWorldManager* WorldManager = UGameInstance::GetSubsystem<UWorldManager>(this->GetGameInstance());
+	UGameWorldSubsystem* GameWorldSubsystem = UGameInstance::GetSubsystem<UGameWorldSubsystem>(this->GetGameInstance());
 	FOnFadeEndDelegate Delegate;
 	Delegate.BindWeakLambda(this,
 		[this]() {
 			this->EnableInput(this);
 		}
 		);
-	WorldManager->StartFadeWithEvent(Delegate, "EnterMainLevelFadeIn");
+	GameWorldSubsystem->StartFadeWithEvent(Delegate, "EnterMainLevelFadeIn");
 }
 

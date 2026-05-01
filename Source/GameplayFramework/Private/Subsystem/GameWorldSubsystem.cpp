@@ -1,38 +1,38 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "WorldManager.h"
+#include "Subsystem/GameWorldSubsystem.h"
 
 #include "Subsystem/GameConfigSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "AudioDevice.h"
 
-DEFINE_LOG_CATEGORY(LogWorldManager)
+DEFINE_LOG_CATEGORY(LogGameWorldSubsystem)
 
-void UWorldManager::Initialize(FSubsystemCollectionBase& Collection)
+void UGameWorldSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	
 }
 
-void UWorldManager::StartFade(const FName InCurveNameID)
+void UGameWorldSubsystem::StartFade(const FName InCurveNameID)
 {
 	this->StartScreenFade(InCurveNameID);
 	this->StartAudioFade(InCurveNameID);
 }
 
-void UWorldManager::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP,  const FName InCurveNameID)
+void UGameWorldSubsystem::StartFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP,  const FName InCurveNameID)
 {
 	this->StartScreenFadeWithEvent(InOnFadeEndBP, InCurveNameID);
 	this->StartAudioFade(InCurveNameID);
 }
 
-void UWorldManager::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd,  const FName InCurveNameID)
+void UGameWorldSubsystem::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd,  const FName InCurveNameID)
 {
 	this->StartScreenFadeWithEvent(InOnFadeEnd, InCurveNameID);
 	this->StartAudioFade(InCurveNameID);
 }
 
-void UWorldManager::StartScreenFade(const FName InCurveNameID)
+void UGameWorldSubsystem::StartScreenFade(const FName InCurveNameID)
 {
 	// 通过曲线获取渐变过程。
 	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
@@ -55,14 +55,14 @@ void UWorldManager::StartScreenFade(const FName InCurveNameID)
 	}
 }
 
-void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP,  const FName InCurveNameID)
+void UGameWorldSubsystem::StartScreenFadeWithEvent(FOnFadeEndBPDelegate InOnFadeEndBP,  const FName InCurveNameID)
 {
 	FOnFadeEndDelegate Delegate;
 	Delegate.BindUFunction(InOnFadeEndBP.GetUObject(), InOnFadeEndBP.GetFunctionName());
 	this->StartFadeWithEvent(Delegate, InCurveNameID);
 }
 
-void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd,  const FName InCurveNameID)
+void UGameWorldSubsystem::StartScreenFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd,  const FName InCurveNameID)
 {
 	// 通过曲线获取渐变过程。
 	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
@@ -85,7 +85,7 @@ void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd,  co
 	}
 }
 
-void UWorldManager::StopFade()
+void UGameWorldSubsystem::StopFade()
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -102,7 +102,7 @@ void UWorldManager::StopFade()
 	}
 }
 
-void UWorldManager::AbortFade()
+void UGameWorldSubsystem::AbortFade()
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -119,7 +119,7 @@ void UWorldManager::AbortFade()
 	}
 }
 
-void UWorldManager::OpenNewLevel(const FName InNewLevelID) const
+void UGameWorldSubsystem::OpenNewLevel(const FName InNewLevelID) const
 {
 	// 检查关卡名字是否合法，以及是否可以在数据表查找到，否则可能会造成已进入加载场景但是找不到新关卡的情况。
 	if (!InNewLevelID.IsNone())
@@ -134,10 +134,10 @@ void UWorldManager::OpenNewLevel(const FName InNewLevelID) const
 		}
 	}
 
-	UE_LOG(LogWorldManager, Warning, TEXT("InNewLevelID is invalid!: \"%s\""), *InNewLevelID.ToString());
+	UE_LOG(LogGameWorldSubsystem, Warning, TEXT("InNewLevelID is invalid!: \"%s\""), *InNewLevelID.ToString());
 }
 
-void UWorldManager::StartAudioFade( const FName InCurveNameID)
+void UGameWorldSubsystem::StartAudioFade( const FName InCurveNameID)
 {
 	UGameConfigSubsystem* Config = UGameInstance::GetSubsystem<UGameConfigSubsystem>(this->GetGameInstance());
 	const UCurveFloat* CurveFloat = nullptr;
@@ -151,7 +151,7 @@ void UWorldManager::StartAudioFade( const FName InCurveNameID)
 	}
 }
 
-void UWorldManager::Tick(float InDeltaTime)
+void UGameWorldSubsystem::Tick(float InDeltaTime)
 {
 	if (this->bEnableFadeAudio)
 	{
@@ -174,7 +174,7 @@ void UWorldManager::Tick(float InDeltaTime)
 	}
 }
 
-void UWorldManager::StopAudioFade()
+void UGameWorldSubsystem::StopAudioFade()
 {
 	// 停止渐变音频时需要将总音频音量调为原来的值。
 	if (UWorld* World = this->GetWorld())

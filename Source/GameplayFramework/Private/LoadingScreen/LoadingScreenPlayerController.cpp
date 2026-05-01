@@ -7,7 +7,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/LoadingScreenWidget.h"
-#include "WorldManager.h"
+#include "Subsystem/GameWorldSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogLoadingScreenPlayerController);
 
@@ -73,13 +73,13 @@ void ALoadingScreenPlayerController::OnNewLevelAsyncLoadingFinished()
 
 void ALoadingScreenPlayerController::OpenLoadedNewLevel()
 {
-	UWorldManager* WorldManager = UGameInstance::GetSubsystem<UWorldManager>(this->GetGameInstance());
+	UGameWorldSubsystem* GameWorldSubsystem = UGameInstance::GetSubsystem<UGameWorldSubsystem>(this->GetGameInstance());
 	FOnFadeEndDelegate OnFadeEnd;
 	OnFadeEnd.BindLambda(
 		[this]() {
 			UGameplayStatics::OpenLevel(this, *this->NewLevel.GetLongPackageName());
 		}
 	);
-	WorldManager->StartFadeWithEvent(OnFadeEnd, "LoadingScreenFadeOut");
+	GameWorldSubsystem->StartFadeWithEvent(OnFadeEnd, "LoadingScreenFadeOut");
 }
 

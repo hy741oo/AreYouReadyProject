@@ -6,15 +6,15 @@
 #include "Subsystem/TickableGameInstanceSubsystem.h"
 #include "Gameplay/OSGameViewportClient.h"
 
-#include "WorldManager.generated.h"
+#include "GameWorldSubsystem.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogWorldManager, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogGameWorldSubsystem, Log, All);
 
 /**
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UWorldManager : public UTickableGameInstanceSubsystem
+class GAMEPLAYFRAMEWORK_API UGameWorldSubsystem : public UTickableGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	
