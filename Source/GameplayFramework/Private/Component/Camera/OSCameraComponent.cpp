@@ -2,7 +2,7 @@
 
 
 #include "Component/Camera/OSCameraComponent.h"
-#include "GameConfigSubsystem.h"
+#include "Subsystem/GameConfigSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogOSCameraComponent);
 

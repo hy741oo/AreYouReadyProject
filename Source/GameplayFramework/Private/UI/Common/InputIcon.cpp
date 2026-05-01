@@ -11,7 +11,7 @@
 #if WITH_EDITOR
 #include "Slate/DeferredCleanupSlateBrush.h"
 #endif
-#include "GameConfigSubsystem.h"
+#include "Subsystem/GameConfigSubsystem.h"
 
 void UInputIcon::SetInputIconName(const FName& InName)
 {

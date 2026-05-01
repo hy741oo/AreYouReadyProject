@@ -6,7 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "InputAction.h"
 #include "EnhancedInputComponent.h"
-#include "GameConfigSubsystem.h"
+#include "Subsystem/GameConfigSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "PlayerInputSubsystem.generated.h"

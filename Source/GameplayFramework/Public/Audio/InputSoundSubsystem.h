@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "GameConfigSubsystem.h"
+#include "Subsystem/GameConfigSubsystem.h"
 
 #include "InputSoundSubsystem.generated.h"
 

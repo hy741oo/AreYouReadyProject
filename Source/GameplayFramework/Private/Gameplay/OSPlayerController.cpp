@@ -5,7 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "GameFramework/InputSettings.h"
-#include "GameConfigSubsystem.h"
+#include "Subsystem/GameConfigSubsystem.h"
 #include "UI/Common/OSButton.h"
 #include "UISubsystem.h"
 #include "Camera/OSPlayerCameraManager.h"

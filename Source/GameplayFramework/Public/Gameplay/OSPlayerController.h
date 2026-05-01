@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "GameConfigSubsystem.h"
+#include "Subsystem/GameConfigSubsystem.h"
 #include "Input/OSInputProcessor.h"
 
 #include "OSPlayerController.generated.h"

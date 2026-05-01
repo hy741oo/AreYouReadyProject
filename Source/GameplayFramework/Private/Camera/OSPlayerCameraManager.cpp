@@ -2,7 +2,7 @@
 
 
 #include "Camera/OSPlayerCameraManager.h"
-#include "GameConfigSubsystem.h"
+#include "Subsystem/GameConfigSubsystem.h"
 
 void AOSPlayerCameraManager::StartCameraShakeByID(const FName& InCameraShakeID, ECameraShakePlaySpace InCameraShakePlaySpace, FRotator InUserPlaySpaceRot)
 {

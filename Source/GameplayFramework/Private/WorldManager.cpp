@@ -3,10 +3,9 @@
 
 #include "WorldManager.h"
 
-#include "GameConfigSubsystem.h"
+#include "Subsystem/GameConfigSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "AudioDevice.h"
-#include "GameConfigSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogWorldManager)
 

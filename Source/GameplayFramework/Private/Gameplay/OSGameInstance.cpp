@@ -5,7 +5,7 @@
 
 #include "Framework/Application/SlateApplication.h"
 #include "GameSetting/GameSettingSubsystem.h"
-#include "GameConfigSubsystem.h"
+#include "Subsystem/GameConfigSubsystem.h"
 #include "OnlineSubsystem.h"
 #include "Interfaces/OnlineAchievementsInterface.h"
 #include "Interfaces/OnlineIdentityInterface.h"
