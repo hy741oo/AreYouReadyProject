@@ -89,7 +89,7 @@ void UGameConfigSubsystem::Initialize(FSubsystemCollectionBase& InCollection)
 
 bool UGameConfigSubsystem::GetCurrentInputIconData(const FName& InRowName, const FInputIconDataTableRow*& OutInputIconDataTableRow, const FSlateBrush*& OutIconBrush) const
 {
-	UAYRGameInstance* GI = Cast<UAYRGameInstance>(this->GetGameInstance());
+	UOSGameInstance* GI = Cast<UOSGameInstance>(this->GetGameInstance());
 	bool bIsFind = this->GetInputIconData(InRowName, GI->GetCurrentInputDeviceType(), OutInputIconDataTableRow, OutIconBrush);
 
 	return bIsFind;

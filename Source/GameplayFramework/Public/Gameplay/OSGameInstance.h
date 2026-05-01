@@ -6,15 +6,15 @@
 #include "Engine/GameInstance.h"
 #include "AYRInputProcessor.h"
 
-#include "AYRGameInstance.generated.h"
+#include "OSGameInstance.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogAYRGameInstance, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogOSGameInstance, Log, All);
 
 /**
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UAYRGameInstance : public UGameInstance
+class GAMEPLAYFRAMEWORK_API UOSGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	

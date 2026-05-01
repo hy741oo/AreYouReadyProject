@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AYRGameInstance.h"
+#include "Gameplay/OSGameInstance.h"
 
 #include "Framework/Application/SlateApplication.h"
 #include "GameSetting/GameSettingSubsystem.h"
@@ -10,9 +10,9 @@
 #include "Interfaces/OnlineAchievementsInterface.h"
 #include "Interfaces/OnlineIdentityInterface.h"
 
-DEFINE_LOG_CATEGORY(LogAYRGameInstance);
+DEFINE_LOG_CATEGORY(LogOSGameInstance);
 
-void UAYRGameInstance::OnStart()
+void UOSGameInstance::OnStart()
 {
 	Super::OnStart();
 
@@ -54,11 +54,11 @@ void UAYRGameInstance::OnStart()
 							{
 								if (bSuccess)
 								{
-									UE_LOG(LogAYRGameInstance, Log, TEXT("Query achievements successfully."));
+									UE_LOG(LogOSGameInstance, Log, TEXT("Query achievements successfully."));
 								}
 								else
 								{
-									UE_LOG(LogAYRGameInstance, Error, TEXT("Failed to query achievements."))
+									UE_LOG(LogOSGameInstance, Error, TEXT("Failed to query achievements."))
 								}
 							})
 						);
@@ -68,7 +68,7 @@ void UAYRGameInstance::OnStart()
 	}
 }
 
-void UAYRGameInstance::Shutdown()
+void UOSGameInstance::Shutdown()
 {
 	FSlateApplication& App = FSlateApplication::Get();
 	App.UnregisterInputPreProcessor(this->InputProcessor);
@@ -77,7 +77,7 @@ void UAYRGameInstance::Shutdown()
 	Super::Shutdown();
 }
 
-EInputDeviceType::Type UAYRGameInstance::GetCurrentInputDeviceType() const
+EInputDeviceType::Type UOSGameInstance::GetCurrentInputDeviceType() const
 {
 	if (this->InputProcessor.IsValid())
 	{
