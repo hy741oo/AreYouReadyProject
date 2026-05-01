@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "AYRGameModeBase.h"
+#include "Gameplay/OSGameModeBase.h"
 
 #include "MainMenuGameMode.generated.h"
 
@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API AMainMenuGameMode : public AAYRGameModeBase
+class GAMEPLAYFRAMEWORK_API AMainMenuGameMode : public AOSGameModeBase
 {
 	GENERATED_BODY()
 	

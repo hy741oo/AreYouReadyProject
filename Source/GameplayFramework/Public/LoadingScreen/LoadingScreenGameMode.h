@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AYRGameModeBase.h"
+#include "Gameplay/OSGameModeBase.h"
 #include "LoadingScreenGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API ALoadingScreenGameMode : public AAYRGameModeBase
+class GAMEPLAYFRAMEWORK_API ALoadingScreenGameMode : public AOSGameModeBase
 {
 	GENERATED_BODY()
 
