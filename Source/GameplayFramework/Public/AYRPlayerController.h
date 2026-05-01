@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "GameConfigSubsystem.h"
-#include "AYRInputProcessor.h"
+#include "Input/OSInputProcessor.h"
 
 #include "AYRPlayerController.generated.h"
 

@@ -21,7 +21,7 @@ void UOSGameInstance::OnStart()
 	// 检测是否已经添加过一次，防止重复添加。
 	if (!this->InputProcessor.IsValid())
 	{
-		this->InputProcessor = MakeShared<FAYRInputProcessor>(this);
+		this->InputProcessor = MakeShared<FOSInputProcessor>(this);
 		App.RegisterInputPreProcessor(this->InputProcessor);
 	}
 

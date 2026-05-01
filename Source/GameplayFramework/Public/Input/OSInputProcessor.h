@@ -7,9 +7,9 @@
 #include "GameplayMessageSubsystem.h"
 #include "UObject/StrongObjectPtr.h"
 
-#include "AYRInputProcessor.generated.h"
+#include "OSInputProcessor.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogAYRInputProcessor, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogOSInputProcessor, Log, All);
 
 UENUM()
 namespace EInputDeviceType
@@ -45,11 +45,11 @@ public:
 /**
  * 
  */
-class GAMEPLAYFRAMEWORK_API FAYRInputProcessor : public IInputProcessor
+class GAMEPLAYFRAMEWORK_API FOSInputProcessor : public IInputProcessor
 {
 
 public:
-	FAYRInputProcessor(UGameInstance* GameInstance);
+	FOSInputProcessor(UGameInstance* GameInstance);
 
 private:
 	// 当前输入类型。
@@ -91,7 +91,7 @@ public:
 
 	virtual const TCHAR* GetDebugName() const
 	{
-		FString DebugName = TEXT("AYRInputProcessor");
+		FString DebugName = TEXT("OSInputProcessor");
 		return *DebugName;
 	}
 

@@ -1,22 +1,22 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AYRInputProcessor.h"
+#include "Input/OSInputProcessor.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "AYRPlayerController.h"
 #include "Widgets/SViewport.h"
 
-DEFINE_LOG_CATEGORY(LogAYRInputProcessor);
+DEFINE_LOG_CATEGORY(LogOSInputProcessor);
 
-FAYRInputProcessor::FAYRInputProcessor(UGameInstance* InGameInstance)
+FOSInputProcessor::FOSInputProcessor(UGameInstance* InGameInstance)
 	:GameInstance(InGameInstance)
 {
 	ensureAlways(this->GameInstance);
 }
 
 // 处理键盘和手柄按键按下。
-bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const FKeyEvent& InKeyEvent)
+bool FOSInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const FKeyEvent& InKeyEvent)
 {
 	// 按下按键时广播按键消息。
 	this->OnHandleAnyPressableKey(InKeyEvent.GetKey());
@@ -31,7 +31,7 @@ bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const
 			{
 				this->CurrentInputDeviceType = EInputDeviceType::IDT_Controller;
 
-				UE_LOG(LogAYRInputProcessor, Verbose, TEXT("This is a KeyDown gamepad input, user index code: %d"), InKeyEvent.GetUserIndex());
+				UE_LOG(LogOSInputProcessor, Verbose, TEXT("This is a KeyDown gamepad input, user index code: %d"), InKeyEvent.GetUserIndex());
 				this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 			}
 		}
@@ -41,7 +41,7 @@ bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const
 			{
 				this->CurrentInputDeviceType = EInputDeviceType::IDT_KeyboardAndMouse;
 
-				UE_LOG(LogAYRInputProcessor, Verbose, TEXT("This is a KeyDown Keyboard input, user index code: %d"), InKeyEvent.GetUserIndex());
+				UE_LOG(LogOSInputProcessor, Verbose, TEXT("This is a KeyDown Keyboard input, user index code: %d"), InKeyEvent.GetUserIndex());
 				this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 			}
 		}
@@ -51,7 +51,7 @@ bool FAYRInputProcessor::HandleKeyDownEvent(FSlateApplication& InSlateApp, const
 }
 
 // 处理鼠标按键按下。
-bool FAYRInputProcessor::HandleMouseButtonDownEvent(FSlateApplication& InSlateApp, const FPointerEvent& InMouseEvent)
+bool FOSInputProcessor::HandleMouseButtonDownEvent(FSlateApplication& InSlateApp, const FPointerEvent& InMouseEvent)
 {
 	// 按下按键时广播按键消息。
 	this->OnHandleAnyPressableKey(InMouseEvent.GetEffectingButton());
@@ -60,7 +60,7 @@ bool FAYRInputProcessor::HandleMouseButtonDownEvent(FSlateApplication& InSlateAp
 	{
 		this->CurrentInputDeviceType = EInputDeviceType::IDT_KeyboardAndMouse;
 
-		UE_LOG(LogAYRInputProcessor, Verbose, TEXT("This is a MouseButtonDown input, user index code: %d"), InMouseEvent.GetUserIndex());
+		UE_LOG(LogOSInputProcessor, Verbose, TEXT("This is a MouseButtonDown input, user index code: %d"), InMouseEvent.GetUserIndex());
 		this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 	}
 
@@ -68,14 +68,14 @@ bool FAYRInputProcessor::HandleMouseButtonDownEvent(FSlateApplication& InSlateAp
 }
 
 // 处理鼠标移动。
-bool FAYRInputProcessor::HandleMouseMoveEvent(FSlateApplication& InSlateApp, const FPointerEvent& InMouseEvent)
+bool FOSInputProcessor::HandleMouseMoveEvent(FSlateApplication& InSlateApp, const FPointerEvent& InMouseEvent)
 {
 	// 判断鼠标移动向量的模大于0.4时才触发检测，防止鼠标灵敏度太高导致检测太频繁。
 	if (this->CurrentInputDeviceType != EInputDeviceType::IDT_KeyboardAndMouse && InMouseEvent.GetCursorDelta().Size() > 3.f )
 	{
 		this->CurrentInputDeviceType = EInputDeviceType::IDT_KeyboardAndMouse;
 
-		UE_LOG(LogAYRInputProcessor, Verbose, TEXT("This is a MouseMove input, user index code: %d"), InMouseEvent.GetUserIndex());
+		UE_LOG(LogOSInputProcessor, Verbose, TEXT("This is a MouseMove input, user index code: %d"), InMouseEvent.GetUserIndex());
 		this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 	}
 
@@ -83,25 +83,25 @@ bool FAYRInputProcessor::HandleMouseMoveEvent(FSlateApplication& InSlateApp, con
 }
 
 // 处理鼠标滚轮。
-bool FAYRInputProcessor::HandleMouseWheelOrGestureEvent(FSlateApplication& InSlateApp, const FPointerEvent& InWheelEvent, const FPointerEvent* InGestureEvent)
+bool FOSInputProcessor::HandleMouseWheelOrGestureEvent(FSlateApplication& InSlateApp, const FPointerEvent& InWheelEvent, const FPointerEvent* InGestureEvent)
 {
 	if (this->CurrentInputDeviceType != EInputDeviceType::IDT_KeyboardAndMouse)
 	{
 		this->CurrentInputDeviceType = EInputDeviceType::IDT_KeyboardAndMouse;
 
-		UE_LOG(LogAYRInputProcessor, Verbose, TEXT("This is a MouseMove input, user index code: %d"), InWheelEvent.GetUserIndex());
+		UE_LOG(LogOSInputProcessor, Verbose, TEXT("This is a MouseMove input, user index code: %d"), InWheelEvent.GetUserIndex());
 		this->OnPlayerInputDeviceChanged(this->GetCurrentInputDeviceType());
 	}
 
 	return IInputProcessor::HandleMouseWheelOrGestureEvent(InSlateApp, InWheelEvent, InGestureEvent);
 }
 
-EInputDeviceType::Type FAYRInputProcessor::GetCurrentInputDeviceType() const
+EInputDeviceType::Type FOSInputProcessor::GetCurrentInputDeviceType() const
 {
 	return this->CurrentInputDeviceType;
 }
 
-void FAYRInputProcessor::OnPlayerInputDeviceChanged(const EInputDeviceType::Type InInputDeviceType)
+void FOSInputProcessor::OnPlayerInputDeviceChanged(const EInputDeviceType::Type InInputDeviceType)
 {
 	FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.DeviceType"));
 	if (Tag.IsValid())
@@ -117,7 +117,7 @@ void FAYRInputProcessor::OnPlayerInputDeviceChanged(const EInputDeviceType::Type
 	}
 }
 
-void FAYRInputProcessor::OnHandleAnyPressableKey(const FKey& InHandledKey)
+void FOSInputProcessor::OnHandleAnyPressableKey(const FKey& InHandledKey)
 {
 #if WITH_EDITOR
 	// 防止引擎在PIE模式下的Editor窗口响应输入逻辑处理，例如我们只希望在游戏窗口内才进行输入逻辑处理，而不是在内容浏览器的搜索框里进行处理。
@@ -148,7 +148,7 @@ void FAYRInputProcessor::OnHandleAnyPressableKey(const FKey& InHandledKey)
 #endif
 
 
-	UE_LOG(LogAYRInputProcessor, Verbose, TEXT("Pressed key is: %s"), *InHandledKey.ToString());
+	UE_LOG(LogOSInputProcessor, Verbose, TEXT("Pressed key is: %s"), *InHandledKey.ToString());
 	FGameplayTag Tag = UGameplayTagsManager::Get().RequestGameplayTag(TEXT("GMSMessage.System.Input.HandleKey"));
 	if (Tag.IsValid())
 	{

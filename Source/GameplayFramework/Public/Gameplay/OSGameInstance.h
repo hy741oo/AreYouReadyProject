@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "AYRInputProcessor.h"
+#include "Input/OSInputProcessor.h"
 
 #include "OSGameInstance.generated.h"
 
@@ -19,7 +19,7 @@ class GAMEPLAYFRAMEWORK_API UOSGameInstance : public UGameInstance
 	GENERATED_BODY()
 	
 private:
-	TSharedPtr<class FAYRInputProcessor> InputProcessor;
+	TSharedPtr<class FOSInputProcessor> InputProcessor;
 
 protected:
 	virtual void OnStart() override;

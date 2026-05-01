@@ -7,7 +7,7 @@
 #include "Engine/DataTable.h"
 #include "GameFramework/PlayerInput.h"
 #include "Fonts/SlateFontInfo.h"
-#include "AYRInputProcessor.h"
+#include "Input/OSInputProcessor.h"
 #include "Gameplay/OSGameInstance.h"
 
 #include "GameConfigSubsystem.generated.h"
