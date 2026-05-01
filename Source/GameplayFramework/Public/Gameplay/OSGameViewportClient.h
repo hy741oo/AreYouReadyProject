@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameViewportClient.h"
-#include "AYRGameViewportClient.generated.h"
+#include "OSGameViewportClient.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE(FOnFadeEndBPDelegate);
 
@@ -14,7 +14,7 @@ DECLARE_DELEGATE(FOnFadeEndDelegate);
  * 
  */
 UCLASS()
-class GAMEPLAYFRAMEWORK_API UAYRGameViewportClient : public UGameViewportClient
+class GAMEPLAYFRAMEWORK_API UOSGameViewportClient : public UGameViewportClient
 {
 	GENERATED_BODY()
 

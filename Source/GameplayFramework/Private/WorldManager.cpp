@@ -43,7 +43,7 @@ void UWorldManager::StartScreenFade(const FName InCurveNameID)
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+			if (UOSGameViewportClient* Viewport = CastChecked<UOSGameViewportClient>(World->GetGameViewport()))
 			{
 				// 如果正处于Fade状态，则先中断之前的Fade。
 				if (Viewport->IsFading())
@@ -73,7 +73,7 @@ void UWorldManager::StartScreenFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd,  co
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+			if (UOSGameViewportClient* Viewport = CastChecked<UOSGameViewportClient>(World->GetGameViewport()))
 			{
 				// 如果正处于Fade状态，则先中断之前的Fade。
 				if (Viewport->IsFading())
@@ -91,7 +91,7 @@ void UWorldManager::StopFade()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+		if (UOSGameViewportClient* Viewport = CastChecked<UOSGameViewportClient>(World->GetGameViewport()))
 		{
 			Viewport->StopFade();
 		}
@@ -108,7 +108,7 @@ void UWorldManager::AbortFade()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		if (UAYRGameViewportClient* Viewport = CastChecked<UAYRGameViewportClient>(World->GetGameViewport()))
+		if (UOSGameViewportClient* Viewport = CastChecked<UOSGameViewportClient>(World->GetGameViewport()))
 		{
 			Viewport->AbortFade();
 		}

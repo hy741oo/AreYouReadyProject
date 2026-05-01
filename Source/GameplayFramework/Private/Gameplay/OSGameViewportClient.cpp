@@ -1,24 +1,24 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AYRGameViewportClient.h"
+#include "Gameplay/OSGameViewportClient.h"
 
 #include "Engine/Canvas.h"
-void UAYRGameViewportClient::StartFade(const FRichCurve InCurve)
+void UOSGameViewportClient::StartFade(const FRichCurve InCurve)
 {
 	this->bIsFading = true;
 	this->OnFadeEnd.Unbind();
 	this->Curve = InCurve;
 }
 
-void UAYRGameViewportClient::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const FRichCurve InCurve)
+void UOSGameViewportClient::StartFadeWithEvent(FOnFadeEndDelegate InOnFadeEnd, const FRichCurve InCurve)
 {
 	this->bIsFading = true;
 	this->OnFadeEnd = InOnFadeEnd;
 	this->Curve = InCurve;
 }
 
-void UAYRGameViewportClient::StopFade()
+void UOSGameViewportClient::StopFade()
 {
 	this->bIsFading = false;
 	this->ElapsedTime = .0f;
@@ -26,7 +26,7 @@ void UAYRGameViewportClient::StopFade()
 	this->OnFadeEnd.Unbind();
 }
 
-void UAYRGameViewportClient::ExecuteEvent()
+void UOSGameViewportClient::ExecuteEvent()
 {
 	if (this->OnFadeEnd.IsBound())
 	{
@@ -34,13 +34,13 @@ void UAYRGameViewportClient::ExecuteEvent()
 	}
 }
 
-void UAYRGameViewportClient::AbortFade()
+void UOSGameViewportClient::AbortFade()
 {
 	this->ExecuteEvent();
 	this->StopFade();
 }
 
-void UAYRGameViewportClient::PostRender(UCanvas* InCanvas)
+void UOSGameViewportClient::PostRender(UCanvas* InCanvas)
 {
 	Super::PostRender(InCanvas);
 
