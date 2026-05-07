@@ -7,13 +7,12 @@ export CleanArchived=true
 export ArchivedDirectory=$(PWD)/Archived
 export BuildConfig=DebugGame
 export ProjectName=AreYouReady
-export NoEditor=-NoCompileEditor
 
 for Arg in $*
 do
-	if [ "${Arg,,}" == "--buildeditor" ]
+	if [ "${Arg,,}" == "--noeditor" ]
 	then
-		unset NoEditor
+		export NoEditor=-NoCompileEditor
 		continue
 	fi
 
@@ -46,10 +45,10 @@ do
 		echo "--NoClean：打包后不清理打包目标文件夹。默认清理，为的是顺便清理Config这类动态生成的文件，不让这类文件影响项目。"
 		echo "--Debug：以Debug设置打包项目。**目前在二进制引擎上不可用。**"
 		echo "--Shipping：以Shipping配置打包项目。"
-		echo "--Development：以Development配置打包项目。"
+		echo "--Development：以Development配置打包项目，默认打包设置。"
 		echo "--Test：以Test配置打包项目。**目前在二进制引擎上不可用。**"
 		echo "--Rebuild：完全重新构建项目。"
-		echo "--BuildEditor：构建项目时候也会构建编辑器内容，例如编辑器插件，默认不构建编辑器内容。"
+		echo "--NoEditor：构建项目时不构建编辑器的内容，例如编辑器插件、编辑器项目等，默认构建编辑器内容。（如果之前没有构建过编辑器项目的话直接用该选项打包会报“Unable to load module”的错）"
 		exit
 	fi
 
